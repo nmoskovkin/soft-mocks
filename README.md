@@ -53,24 +53,30 @@ $phpunit_path - содержит путь (или часть пути) до ди
 По-умолчанию кэш файлов создаётся в /tmp/mocks.
 
 ```
-\QA\SoftMocks::redefineConstant(...)
+\QA\SoftMocks::redefineConstant($constantName, $value)
 ```
 Данное семейство функций позволяет переопределить значение константы (как объявленной через define(), так и являющейся частью класса.
 
 ```
-\QA\SoftMocks::redifine(Method|Function)(...)
+\QA\SoftMocks::redefineFunction($func, $functionArgs, $fakeCode)
+\QA\SoftMocks::redefineMethod($class, $method, $functionArgs, $fakeCode, $strict = true)
 ```
 Позволяет заменить исполнение кода оригинального метода/функции на переданный извне.
 
 ```
-\QA\SoftMocks::redefineGenerator(...)
+redefineGenerator($class, $method, Callable $replacement)
 ```
 Позволяет заменить вызов функции-генератора на \Callable-объект также являющийся генератором.
 
 ```
-\QA\SoftMocks::restore*
+\QA\SoftMocks::restoreConstant($constantName)
+\QA\SoftMocks::restoreAllConstants()
+\QA\SoftMocks::restoreFunction($func)
+\QA\SoftMocks::restoreAll()
+\QA\SoftMocks::restoreMethod($class, $method)
+\QA\SoftMocks::restoreGenerator($class, $method)
 ```
-Отменяет замену, осуществлённую одним из redefine*-методов.
+Отменяет замену, осуществлённую одним из приведенных раннее redefine-методов.
 
 FAQ
 =
