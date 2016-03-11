@@ -17,7 +17,31 @@ SoftMocks
 require_once (\QA\SoftMocks::rewrite('vendor/autoload.php'));
 require_once (\QA\SoftMocks::rewrite('path/to/external/lib.php'));
 ```
-Более подробный пример можно увидеть в _example/run\_me.php, запуск которого продемонстрирует несколько возможностей SoftMocks.
+Более подробный пример можно увидеть выполнив следующую команду:
+```
+[~/Work/soft-mocks]-> php example/run_me.php
+Result before applying SoftMocks = array (
+  'TEST_CONSTANT_WITH_VALUE_42' => 42,
+  'someFunc(2)' => 84,
+  'Example::doSmthStatic()' => 42,
+  'Example->doSmthDynamic()' => 84,
+  'Example::STATIC_DO_SMTH_RESULT' => 42,
+)
+Result after applying SoftMocks = array (
+  'TEST_CONSTANT_WITH_VALUE_42' => 43,
+  'someFunc(2)' => 57,
+  'Example::doSmthStatic()' => 'Example::doSmthStatic() redefined',
+  'Example->doSmthDynamic()' => 'Example->doSmthDynamic() redefined',
+  'Example::STATIC_DO_SMTH_RESULT' => 'Example::STATIC_DO_SMTH_RESULT value changed',
+)
+Result after reverting SoftMocks = array (
+  'TEST_CONSTANT_WITH_VALUE_42' => 42,
+  'someFunc(2)' => 84,
+  'Example::doSmthStatic()' => 42,
+  'Example->doSmthDynamic()' => 84,
+  'Example::STATIC_DO_SMTH_RESULT' => 42,
+)
+```
 
 API (краткое описание)
 =
