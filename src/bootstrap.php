@@ -1,8 +1,5 @@
 <?php
-
-define('SOFTMOCKS_ROOT_PATH', dirname(__DIR__) . '/');
-
-/* I am terribly sorry for this kind of code */
+/* You must preload PHP Parser before initializing Soft Mocks so that it does not try to rewrite it */
 $php_parser_dir = dirname(__DIR__) . "/vendor/nikic/php-parser/lib/PhpParser/";
 require($php_parser_dir . "Autoloader.php");
 \PhpParser\Autoloader::register(true);
@@ -12,7 +9,6 @@ foreach ($out as $f) {
     require_once($f);
 }
 
+/* Soft Mocks init */
 require_once(dirname(__DIR__) . "/src/QA/SoftMocks.php");
-
 \QA\SoftMocks::init();
-\QA\SoftMocks::ignoreFiles(get_included_files());

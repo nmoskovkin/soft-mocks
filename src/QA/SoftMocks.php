@@ -6,20 +6,11 @@
 
 namespace QA;
 
-if (!function_exists('substr')) {
-    function substr($str, $start, $length = null)
+// Remove this when mb_overload is no longer available for usage in PHP
+if (!function_exists('mb_orig_strlen')) {
+    function mb_orig_strlen($str)
     {
-        return is_null($length) ? substr($str, $start) : substr($str, $start, $length);
-    }
-
-    function stripos($haystack, $needle, $offset = 0)
-    {
-        return stripos($haystack, $needle, $offset);
-    }
-
-    function strpos($haystack, $needle, $offset = 0)
-    {
-        return strpos($haystack, $needle, $offset);
+        return strlen($str);
     }
 }
 
@@ -338,9 +329,6 @@ class SoftMocks
 {
     const MOCKS_CACHE_TOUCHTIME = 86400; /* 1 day */
 
-    const STATE_INITIAL = 'STATE_INITIAL';
-    const STATE_REWRITE_INCLUDE = 'STATE_REWRITE_INCLUDE';
-
     private static $rewrite_cache = [/* source => target */];
     private static $orig_paths = [/* target => source */];
 
@@ -383,34 +371,13 @@ class SoftMocks
 
     private static $mocks_cache_path = "/tmp/mocks/";
     private static $phpunit_path = "/phpunit/";
+    private static $php_parser_path = "/php-parser/";
     private static $lock_file_path = '/tmp/mocks/soft_mocks_rewrite.lock';
 
-    /**
-     * @param string $mocks_cache_path - path to cache of rewritten files
-     * @param string $phpunit_path - uniq
-     * @param string $lock_file_path - path to lockfile
-     */
-    public static function init($mocks_cache_path = '', $lock_file_path = '', $phpunit_path = '')
+    public static function init()
     {
-        if (!empty($mocks_cache_path)) {
-            self::$mocks_cache_path = $mocks_cache_path;
-        }
-        if (!empty($phpunit_path)) {
-            self::$phpunit_path = $phpunit_path;
-        }
-        if (!empty($lock_file_path)) {
-            self::$lock_file_path = $lock_file_path;
-        }
-        if (!file_exists(self::$mocks_cache_path)) {
-            if (!mkdir(self::$mocks_cache_path, 0777, true)) {
-                throw new \RuntimeException("Can't create cache dir for rewritten files at " . self::$mocks_cache_path);
-            }
-        }
-
-        if (!file_exists(self::$lock_file_path)) {
-            if (!touch(self::$lock_file_path)) {
-                throw new \RuntimeException("Can't create lock file at " . self::$lock_file_path);
-            }
+        if (defined('SOFTMOCKS_ROOT_PATH')) {
+            define('SOFTMOCKS_ROOT_PATH', '/');
         }
 
         if (!empty($_ENV['SOFT_MOCKS_DEBUG'])) {
@@ -552,6 +519,80 @@ class SoftMocks
         foreach ($functions['internal'] as $func) {
             self::$internal_functions[$func] = true;
         }
+
+        self::ignoreFiles(get_included_files());
+    }
+
+    /**
+     * @param string $mocks_cache_path - Path to cache of rewritten files
+     */
+    public static function setMocksCachePath($mocks_cache_path)
+    {
+        if (!empty($mocks_cache_path)) {
+            self::$mocks_cache_path = rtrim($mocks_cache_path, PATH_SEPARATOR) . PATH_SEPARATOR;
+        }
+
+        if (!file_exists(self::$mocks_cache_path) && !mkdir(self::$mocks_cache_path, 0777)) {
+            throw new \RuntimeException("Can't create cache dir for rewritten files at " . self::$mocks_cache_path);
+        }
+    }
+
+    /**
+     * @param $lock_file_path - Path to lock file that is used when file is rewritten
+     */
+    public static function setLockFilePath($lock_file_path)
+    {
+        if (!empty($lock_file_path)) {
+            self::$lock_file_path = $lock_file_path;
+        }
+
+        if (!file_exists(self::$lock_file_path) && !touch(self::$lock_file_path)) {
+            throw new \RuntimeException("Can't create lock file at " . self::$lock_file_path);
+        }
+    }
+
+    /**
+     * @param string $phpunit_path - Part of path to phpunit so that it can be ignored when rewriting files
+     */
+    public static function setPhpunitPath($phpunit_path)
+    {
+        if (!empty($phpunit_path)) {
+            self::$phpunit_path = $phpunit_path;
+        }
+    }
+
+    /**
+     * @param $php_parser_path - Part of path to PHP Parser so that it can be ignored when rewriting files
+     */
+    public static function setPhpParserPath($php_parser_path)
+    {
+        if (!empty($php_parser_path)) {
+            self::$php_parser_path = $php_parser_path;
+        }
+    }
+
+    /**
+     * @param string $class - Do not allow to mock $class
+     */
+    public static function ignoreClass($class)
+    {
+        SoftMocksTraverser::ignoreClass(ltrim($class, '\\'));
+    }
+
+    /**
+     * @param string $constant - Do not allow to mock $constant
+     */
+    public static function ignoreConstant($constant)
+    {
+        SoftMocksTraverser::ignoreConstant(ltrim($constant, '\\'));
+    }
+
+    /**
+     * @param string $function - Do not allow to mock $function
+     */
+    public static function ignoreFunction($function)
+    {
+        SoftMocksTraverser::ignoreFunction(ltrim($function, '\\'));
     }
 
     public static function errorHandler($errno, $errstr, $errfile, $errline)
@@ -657,7 +698,7 @@ class SoftMocks
         if (!isset(self::$rewrite_cache[$file])) {
             if (strpos($file, self::$mocks_cache_path) === 0
                 || strpos($file, self::$phpunit_path) !== false
-                || strpos($file, "/php-parser/") !== false) {
+                || strpos($file, self::$php_parser_path) !== false) {
                 return $file;
             }
 
@@ -686,7 +727,7 @@ class SoftMocks
                 $old_umask = umask(0);
                 self::createRewrittenFile($file, $target_file);
                 umask($old_umask);
-            /* simulate atime to prevent deletion files in use by \QA\SoftMocks\SoftMocksCleaner */
+            /* simulate atime to prevent deletion files in use by SoftMocksCleaner */
             } else if (time() - filemtime($target_file) > self::MOCKS_CACHE_TOUCHTIME) {
                 touch($target_file);
             }
@@ -710,12 +751,38 @@ class SoftMocks
         $contents = self::rewriteContents($file, $target_file, $contents);
 
         $target_dir = dirname($target_file);
-        $fp = fopen(self::$lock_file_path, 'a+');
-        flock($fp, LOCK_EX);
-        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+
+        if (!$fp = fopen(self::$lock_file_path, 'a')) {
+            throw new \RuntimeException("Could not create lock file " . self::$lock_file_path);
+        }
+
+        if (!flock($fp, LOCK_EX)) {
+            throw new \RuntimeException("Could not flock " . self::$lock_file_path);
+        }
+
+        if (!is_dir($target_dir) && !mkdir($target_dir, 0777, true)) {
+            throw new \RuntimeException("Could not create directory " . $target_dir);
+        }
+
         $tmp_file = $target_file . ".tmp." . uniqid(getmypid());
-        file_put_contents($tmp_file, $contents);
-        rename($tmp_file, $target_file);
+        if (file_put_contents($tmp_file, $contents) !== mb_orig_strlen($contents)) {
+            throw new \RuntimeException("Could not fully write $tmp_file");
+        }
+
+        if (PATH_SEPARATOR == '\\') {
+            // You cannot atomically replace files in Windows
+            if (file_exists($target_file) && !unlink($target_file)) {
+                throw new \RuntimeException("Could not unlink $target_file");
+            }
+        }
+
+        if (!rename($tmp_file, $target_file)) {
+            throw new \RuntimeException("Could not rename $tmp_file -> $target_file");
+        }
+
+        if (!fclose($fp)) {
+            throw new \RuntimeException("Could not fclose lock file descriptor for file " . self::$lock_file_path);
+        }
     }
 
     /**
@@ -1409,6 +1476,21 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
     public static function isConstIgnored($const)
     {
         return isset(self::$ignore_constants[$const]);
+    }
+
+    public static function ignoreClass($class)
+    {
+        self::$ignore_classes[$class] = true;
+    }
+
+    public static function ignoreConstant($constant)
+    {
+        self::$ignore_constants[$constant] = true;
+    }
+
+    public static function ignoreFunction($function)
+    {
+        self::$ignore_functions[$function] = true;
     }
 
     private $filename;
