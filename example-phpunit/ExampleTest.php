@@ -1,6 +1,7 @@
 <?php
 /**
  * Test case for Soft Mocks capabilities. Requires phpunit from badoo repo or with accepted pull request
+ * https://github.com/sebastianbergmann/phpunit/pull/2116
  *
  * @author Yuriy Nasretdinov <y.nasretdinov@corp.badoo.com>
  */
