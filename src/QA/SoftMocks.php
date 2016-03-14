@@ -376,7 +376,7 @@ class SoftMocks
 
     public static function init()
     {
-        if (defined('SOFTMOCKS_ROOT_PATH')) {
+        if (!defined('SOFTMOCKS_ROOT_PATH')) {
             define('SOFTMOCKS_ROOT_PATH', '/');
         }
 
@@ -521,6 +521,7 @@ class SoftMocks
         }
 
         self::ignoreFiles(get_included_files());
+        self::injectIntoPhpunit();
     }
 
     /**
@@ -529,7 +530,7 @@ class SoftMocks
     public static function setMocksCachePath($mocks_cache_path)
     {
         if (!empty($mocks_cache_path)) {
-            self::$mocks_cache_path = rtrim($mocks_cache_path, PATH_SEPARATOR) . PATH_SEPARATOR;
+            self::$mocks_cache_path = rtrim($mocks_cache_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         }
 
         if (!file_exists(self::$mocks_cache_path) && !mkdir(self::$mocks_cache_path, 0777)) {
@@ -607,11 +608,12 @@ class SoftMocks
         $str = $e ?: new \Exception();
 
         if (!empty($_ENV['REAL_BACKTRACE'])) {
-            echo $str;
+            echo $str->getTraceAsString();
             return;
         }
 
         $trace_lines = explode("\n", $str->getFile() . '(' . $str->getLine() . ")\n" . $str->getTraceAsString());
+
         foreach ($trace_lines as &$ln) {
             $ln = preg_replace_callback(
                 '#(/[^:(]+)([:(])#',
@@ -697,6 +699,7 @@ class SoftMocks
 
         if (!isset(self::$rewrite_cache[$file])) {
             if (strpos($file, self::$mocks_cache_path) === 0
+                || strpos($file, self::getVersion() . DIRECTORY_SEPARATOR) === 0
                 || strpos($file, self::$phpunit_path) !== false
                 || strpos($file, self::$php_parser_path) !== false) {
                 return $file;
@@ -722,7 +725,7 @@ class SoftMocks
 
             $md5 = md5($clean_filepath . ':' . $md5_file);
 
-            $target_file = self::$mocks_cache_path . self::getVersion() . '/' . substr($md5, 0, 2) . "/" . basename($file) . "_" . $md5 . ".php";
+            $target_file = self::$mocks_cache_path . self::getVersion() . DIRECTORY_SEPARATOR . substr($md5, 0, 2) . DIRECTORY_SEPARATOR . basename($file) . "_" . $md5 . ".php";
             if (!file_exists($target_file)) {
                 $old_umask = umask(0);
                 self::createRewrittenFile($file, $target_file);
@@ -731,6 +734,8 @@ class SoftMocks
             } else if (time() - filemtime($target_file) > self::MOCKS_CACHE_TOUCHTIME) {
                 touch($target_file);
             }
+
+            $target_file = realpath($target_file);
 
             self::$rewrite_cache[$file] = $target_file;
             self::$orig_paths[$target_file] = $file;
@@ -769,7 +774,7 @@ class SoftMocks
             throw new \RuntimeException("Could not fully write $tmp_file");
         }
 
-        if (PATH_SEPARATOR == '\\') {
+        if (DIRECTORY_SEPARATOR == '\\') {
             // You cannot atomically replace files in Windows
             if (file_exists($target_file) && !unlink($target_file)) {
                 throw new \RuntimeException("Could not unlink $target_file");
@@ -1139,7 +1144,7 @@ class SoftMocks
         unset(self::$mocks[$class][$method]);
     }
 
-    public static function redefineGenerator($class, $method, Callable $replacement)
+    public static function redefineGenerator($class, $method, \Generator $replacement)
     {
         self::$generator_mocks[$class][$method] = $replacement;
     }
@@ -1427,6 +1432,34 @@ class SoftMocks
     protected static function debug($message)
     {
         echo $message . "\n";
+    }
+
+    private static function injectIntoPhpunit()
+    {
+        if (!class_exists(\PHPUnit_Util_Fileloader::class, false)) {
+            return;
+        }
+
+        if (!is_callable([\PHPUnit_Util_Fileloader::class, 'setFilenameRewriteCallback'])) {
+            if (self::$debug) self::debug("Cannot inject into phpunit: method setFilenameRewriteCallback not found");
+            return;
+        }
+
+        \PHPUnit_Util_Fileloader::setFilenameRewriteCallback([self::class, 'rewrite']);
+
+        \PHPUnit_Util_Fileloader::setFilenameRestoreCallback(
+            function ($filename) {
+                return self::replaceFilename($filename, true);
+            }
+        );
+
+        \PHPUnit_Util_Filter::setCustomStackTraceCallback(
+            function ($e) {
+                ob_start();
+                self::printBackTrace($e);
+                return ob_get_clean();
+            }
+        );
     }
 }
 
