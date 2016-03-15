@@ -150,3 +150,11 @@ FAQ
 
 **A**: You need to merge our pull request https://github.com/sebastianbergmann/phpunit/pull/2116 into your phpunit version or just take this branch.
 Soft Mocks will work even without any phpunit patches but you will see "unreadable" stack traces for failed tests and you will not be able to redefine classes and methods that are defined in tests themselves.
+
+**Q**: Does Soft Mocks work with PHP7?
+
+**A**: Yes. The whole idea of Soft Mocks is that it will continue to work for all further PHP versions without requiring a full system rewrite as it is for runkit and uopz.
+
+**Q**: Does Soft Mocks work with HHVM?
+
+**A**: It seems that Soft Mocks indeed works when using HHVM at the moment of writing this Q&A (HipHop VM 3.12.1 (rel)). We do not use HHVM internally so there can be some corner cases that are not covered. We appreciate any issues/pull requests regarding HHVM support.
