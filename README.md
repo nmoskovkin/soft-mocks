@@ -1,27 +1,26 @@
 SoftMocks
 =
-Основная идея «мягких моков» по сравнению с «жесткими», которые работают на уровне интерпретатора PHP (runkit и uopz) — переписывать «на лету» код классов так, чтобы можно было вставлять моки в любое место.
-Идея состоит в следующем: вместо использования расширений типа runkit или uopz, переписывать код на лету во время include.
+The idea behind "Soft Mocks" - as opposed to "hardcore" mocks that work on the level of the PHP interpreter (runkit and uopz) - is to rewrite class code on the spot so that it can be inserted in any place. It works by rewriting code on the fly during file inclusion instead of using extensions like runkit or uopz.
 
-Использование
+Usage
 =
-Ключевой особенностью (и в то же время ограничением) SoftMocks является то, что они (вместе со всеми своими зависимостями) должны быть инициализированы на самом раннем этапе запуска приложения. Это необходимо из-за того, что в PHP нет возможности переопределять уже загруженные в память классы и функции. Пример заготовки bootstrap-файла для PHPUnit можно увидеть в _src/bootstrap.php_.
+The thing that sets SoftMocks apart (and also limits their usage) is that they need to be initiated (along with all of their dependencies) at the earliest phase of the app launch. It's necessary to do it this way because you can't redefine the classes and functions that are already loaded into the memory in PHP. For an example of PHPUnit bootstrap presets, see _src/bootstrap.php_ and _example-phpunit/bootstrap.php_.
 
-SoftMocks не переписывают следующие части системы:
-* собственный код
-* код PHPUnit
-* код PHP-Parser
-* уже переписанный код
+SoftMocks don't rewrite the following system parts:
+* it's own code
+* PHPUnit code (see setPhpunitPath() for details)
+* PHP-Parser code (see setPhpParserPath() for details)
+* already rewritten code
 
-Для того, чтобы в bootstrap-файле подключить какие-либо внешние зависимости (например, vendor/autoload.php), то их нужно подключить через обертку:
+In order to add external dependencies (for example, vendor/autoload.php) to a bootstrap file, you need to use a wrapper:
 ```
 require_once (\QA\SoftMocks::rewrite('vendor/autoload.php'));
 require_once (\QA\SoftMocks::rewrite('path/to/external/lib.php'));
 ```
 
-После того, как вы подключите файл через SoftMocks::rewrite(), все вложенные вызовы include уже будут «обернуты» самой системой.
+After you've added the file via SoftMocks::rewrite(), all nested include calls will already be "wrapped" by the system itself.
 
-Более подробный пример можно увидеть выполнив следующую команду:
+You can see a more detailed example by executing the following command:
 ```
 [~/Work/soft-mocks]-> php example/run_me.php
 Result before applying SoftMocks = array (
@@ -47,40 +46,42 @@ Result after reverting SoftMocks = array (
 )
 ```
 
-API (краткое описание)
+API (short description)
 =
+Initialize Soft Mocks (set phpunit injections, define internal mocks, get list of internal functions, etc): 
+
 ```
 \QA\SoftMocks::init();
 ```
-Инициализирует софт-моки. По умолчанию, кэш файлов создаётся в /tmp/mocks. Если вам такой путь не подходит, то его можно переопределить следующим образом:
+
+Cache files are created in /tmp/mocks by default. If you want to choose a different path, you can redefine it as follows:
 
 ```
 \QA\SoftMocks::setMocksCachePath($cache_path);
 ```
 
-
-Переопределение констант
+Redefine constant
 ==
 
-Дать новое значение константе $constantName, или создать, если такой ещё не было объявлено. Создание делается не с помощью вызова define(), поэтому операцию можно отменить.
+You can assign a new value to $constantName or create one if it wasn't already declared. Since it isn't created using the define() call, the operation can be canceled.
 
-Поддерживаются как «обычные константы», так и константы классов, с синтаксисом "className::CONST_NAME".
+Both "regular constants" and class constants like "className::CONST_NAME" are supported.
 
 ```
 \QA\SoftMocks::redefineConstant($constantName, $value)
 ```
 
-Переопределение функций
+Redefine functions
 ==
 
-Soft Mocks позволяет переопределить как пользовательские, так и встроенные функции, кроме функций, которые зависят от текущего контекста (см. свойство \QA\SoftMocksTraverser::$ignore_functions), а также тех, для которых есть встроенные моки (debug_backtrace, call_user_func* и некоторые другие).
+Soft Mocks let you redefine both user-defined and built-in functions except for those that depend on the current context (see \QA\SoftMocksTraverser::$ignore_functions property if you want to see the full list), or for those that have built-in mocks (debug_backtrace, call_user_func* and a few others).
 
-Сигнатура:
+Definition:
 ```
 \QA\SoftMocks::redefineFunction($func, $functionArgs, $fakeCode)
 ```
 
-Пример использования (переопределить функцию strlen и вызвать оригинальную для trim'нутой строки):
+Usage example (redefine strlen function and call original for the trimmed string):
 ```
 \QA\SoftMocks::redefineFunction(
     'strlen',
@@ -91,51 +92,52 @@ Soft Mocks позволяет переопределить как пользов
 var_dump(strlen("  a  ")); // int(1)
 ```
 
-Переопределение методов
+Redefine methods
 ==
 
-В данный момент поддерживается только переопределение пользовательских методов, для встроенных классов эта функциональность не поддерживается.
+At the moment, only user-defined method redefinition is supported. This functionality is not supported for built-in classes.
 
-Сигнатура:
+Definition:
 ```
 \QA\SoftMocks::redefineMethod($class, $method, $functionArgs, $fakeCode, $strict = true)
 ```
 
-Отличие от redefineFunction состоит в наличии класса ($class) и возможности работать в нестрогом режиме ($strict = false). Если выбран нестрогий режим, то это эмулирует поведение runkit при переопределении методов класса, то есть, помимо самого метода класса $class переопределяются также и методы его наследников.
+Arguments are the same as for redefineFunction, but $class is argument is introducted, and it's possible to work in non-strict mode ($strict = false). If non-strict mode is selected, then runkit behavior is emulated when class methods are redefined so that in addition to the $class method itself, its ancestor methods are also redefined.
 
-В качестве аргумента $class может выступать как имя класса, так и имя trait'а.
+As an argument, $class accepts a class name or a trait name.
 
-Переопределение функций, являющихся генераторами
+Redefining functions that are generators
 ==
-Метод позволяет заменить вызов функции-генератора на \Callable-объект также являющийся генератором. Генераторы отличаются от обычных функций тем, что в них невозможно вернуть значение через return и обязательно нужно пользоваться yield.
+This method that lets you replace a generator function call with another \Generator. Generators differ from regular functions in that you can't return a value using "return"; you have to use "yield".
 
 ```
-\QA\SoftMocks::redefineGenerator($class, $method, Callable $replacement)
+\QA\SoftMocks::redefineGenerator($class, $method, \Generator $replacement)
 ```
 
-Восстановление значений
+Restore values
 ==
 
-Следующие функции отменяют замену, осуществлённую одним из приведенных раннее redefine-методов.
-
+The following functions undo mocks that were made using one of the redefine methods described above.
 ```
+\QA\SoftMocks::restoreAll()
+
+// You can also undo only chosen mocks:
 \QA\SoftMocks::restoreConstant($constantName)
 \QA\SoftMocks::restoreAllConstants()
 \QA\SoftMocks::restoreFunction($func)
-\QA\SoftMocks::restoreAll()
 \QA\SoftMocks::restoreMethod($class, $method)
 \QA\SoftMocks::restoreGenerator($class, $method)
 ```
 
 FAQ
 =
-**Q**: Как запретить переопределять ту или иную функцию/класс/константу?
+**Q**: How can I prevent a specific function/class/constant from being redefined?
 
-**A**: Используйте методы \QA\SoftMocks::ignore(Class|Function|Constant).
+**A**: Use the \QA\SoftMocks::ignore(Class|Function|Constant) method.
 
-**Q**: Я не могу переопределить вызовы некоторых функций: call_user_func(_array)?, defined, etc.\
+**Q**: I can't override certain function calls: call_user_func(_array)?, defined, etc.
 
-**A**: Есть ряд функций, для который существуют встроенные моки и их действительно нельзя перехватить. Вот их список:
+**A**: There are a bunch of functions that have their own built-in mocks which can't be intercepted. Here is an incomplete list of them:
 * call_user_func_array
 * call_user_func
 * is_callable
@@ -143,3 +145,8 @@ FAQ
 * constant
 * defined
 * debug_backtrace
+
+**Q**: How do I use Soft Mocks with PHPUnit?
+
+**A**: You need to merge our pull request https://github.com/sebastianbergmann/phpunit/pull/2116 into your phpunit version or just take this branch.
+Soft Mocks will work even without any phpunit patches but you will see "unreadable" stack traces for failed tests and you will not be able to redefine classes and methods that are defined in tests themselves.
