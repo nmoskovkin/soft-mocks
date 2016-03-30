@@ -1715,13 +1715,13 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
         $body_stmts = [
             new \PhpParser\Node\Expr\Assign(
+                new \PhpParser\Node\Expr\Variable("mm_func_args"),
+                new \PhpParser\Node\Expr\FuncCall(new \PhpParser\Node\Name("func_get_args"))
+            ),
+            new \PhpParser\Node\Expr\Assign(
                 new \PhpParser\Node\Expr\Variable("params"),
                 new \PhpParser\Node\Expr\Array_($params_arr)
             ),
-            new \PhpParser\Node\Expr\Assign(
-                new \PhpParser\Node\Expr\Variable("mm_func_args"),
-                new \PhpParser\Node\Expr\FuncCall(new \PhpParser\Node\Name("func_get_args"))
-            )
         ];
 
         // generators cannot return values,
