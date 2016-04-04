@@ -158,3 +158,7 @@ Soft Mocks will work even without any phpunit patches but you will see "unreadab
 **Q**: Does Soft Mocks work with HHVM?
 
 **A**: It seems that Soft Mocks indeed works when using HHVM at the moment of writing this Q&A (HipHop VM 3.12.1 (rel)). We do not use HHVM internally so there can be some corner cases that are not covered. We appreciate any issues/pull requests regarding HHVM support.
+
+**Q**: Why do I get parse errors or fatal errors like "PhpParser::pSmth is undefined"?
+
+**A**: Soft Mocks uses custom pretty-printer for PHP Parser that does not seem to be compatible with all PHP Parser versions. Please use our vendored version until we found a way to get around that.
