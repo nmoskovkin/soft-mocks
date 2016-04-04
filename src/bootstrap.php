@@ -1,6 +1,6 @@
 <?php
 /* You must preload PHP Parser before initializing Soft Mocks so that it does not try to rewrite it */
-$php_parser_dir = dirname(__DIR__) . "/vendor/nikic/php-parser/lib/PhpParser/";
+$php_parser_dir = dirname(__DIR__) . "/vendor/PHP-Parser/lib/PhpParser/";
 require($php_parser_dir . "Autoloader.php");
 \PhpParser\Autoloader::register(true);
 $out = [];
