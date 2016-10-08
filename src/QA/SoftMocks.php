@@ -973,7 +973,7 @@ class SoftMocks
     {
         if ($namespace !== '') {
             $ns_const = $namespace . '\\' . $const;
-            if (isset(self::$constant_mocks[$ns_const])) {
+            if (array_key_exists($ns_const, self::$constant_mocks)) {
                 if (self::$debug) self::debug("Mocked $ns_const");
                 return self::$constant_mocks[$ns_const];
             }
@@ -983,12 +983,12 @@ class SoftMocks
             }
         }
 
-        if (isset(self::$constant_mocks[$const])) {
+        if (array_key_exists($const, self::$constant_mocks)) {
             if (self::$debug) self::debug("Mocked $const");
             return self::$constant_mocks[$const];
         }
 
-        if (isset(self::$removed_constants[$const])) {
+        if (array_key_exists(self::$removed_constants)) {
             trigger_error('Trying to access removed constant ' . $const . ', assuming "' . $const . '"');
             return $const;
         }
