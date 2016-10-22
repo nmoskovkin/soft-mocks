@@ -988,7 +988,7 @@ class SoftMocks
             return self::$constant_mocks[$const];
         }
 
-        if (array_key_exists(self::$removed_constants)) {
+        if (array_key_exists($const, self::$removed_constants)) {
             trigger_error('Trying to access removed constant ' . $const . ', assuming "' . $const . '"');
             return $const;
         }
