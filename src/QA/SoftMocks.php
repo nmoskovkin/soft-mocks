@@ -385,22 +385,22 @@ class SoftMocks
         }
 
         self::$func_mocks['call_user_func_array'] = [
-            'args' => '', 'code' => 'return \\' . self::CLASS . '::call($params[0], $params[1]);',
+            'args' => '', 'code' => 'return \\' . self::class . '::call($params[0], $params[1]);',
         ];
         self::$func_mocks['call_user_func'] = [
-            'args' => '', 'code' => '$func = array_shift($params); return \\' . self::CLASS . '::call($func, $params);',
+            'args' => '', 'code' => '$func = array_shift($params); return \\' . self::class . '::call($func, $params);',
         ];
         self::$func_mocks['is_callable'] = [
-            'args' => '$arg', 'code' => 'return \\' . self::CLASS . '::isCallable($arg);',
+            'args' => '$arg', 'code' => 'return \\' . self::class . '::isCallable($arg);',
         ];
         self::$func_mocks['function_exists'] = [
-            'args' => '$arg', 'code' => 'return \\' . self::CLASS . '::isCallable($arg);',
+            'args' => '$arg', 'code' => 'return \\' . self::class . '::isCallable($arg);',
         ];
         self::$func_mocks['constant'] = [
-            'args' => '$constant', 'code' => 'return \\' . self::CLASS . '::getConst("", $constant);',
+            'args' => '$constant', 'code' => 'return \\' . self::class . '::getConst("", $constant);',
         ];
         self::$func_mocks['defined'] = [
-            'args' => '$constant', 'code' => 'return \\' . self::CLASS . '::constDefined($constant);',
+            'args' => '$constant', 'code' => 'return \\' . self::class . '::constDefined($constant);',
         ];
         self::$func_mocks['debug_backtrace'] = [
             'args' => '',
@@ -429,7 +429,7 @@ class SoftMocks
 
                 // remove our part of backtrace
                 while (count($result) > 0) {
-                    if (isset($result[0]['class']) && $result[0]['class'] === self::CLASS
+                    if (isset($result[0]['class']) && $result[0]['class'] === self::class
                         && isset($result[0]['function']) && $result[0]['function'] === 'callFunction') {
                         array_shift($result);
                         break;
@@ -457,7 +457,7 @@ class SoftMocks
                         }
                     }
 
-                    if (isset($p['class']) && $p['class'] == self::CLASS && isset($p['args'])) {
+                    if (isset($p['class']) && $p['class'] == self::class && isset($p['args'])) {
                         $args = $p['args'];
 
                         if ($p['function'] === 'callFunction') {
@@ -1653,7 +1653,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
     public function rewriteExpr_Include(\PhpParser\Node\Expr\Include_ $Node)
     {
         $Node->expr = new \PhpParser\Node\Expr\StaticCall(
-            new \PhpParser\Node\Name("\\" . SoftMocks::CLASS),
+            new \PhpParser\Node\Name("\\" . SoftMocks::class),
             "rewrite",
             [new \PhpParser\Node\Arg($Node->expr)]
         );
@@ -1736,7 +1736,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             $body_stmts[] = new \PhpParser\Node\Expr\Assign(
                 new \PhpParser\Node\Expr\Variable("mm_callback"),
                 new \PhpParser\Node\Expr\StaticCall(
-                    new \PhpParser\Node\Name("\\" . SoftMocks::CLASS),
+                    new \PhpParser\Node\Name("\\" . SoftMocks::class),
                     "getMockForGenerator",
                     $args
                 )
@@ -1777,7 +1777,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             $body_stmts[] = new \PhpParser\Node\Stmt\Return_(
                 new \PhpParser\Node\Expr\Eval_(
                     new \PhpParser\Node\Expr\StaticCall(
-                        new \PhpParser\Node\Name("\\" . SoftMocks::CLASS),
+                        new \PhpParser\Node\Name("\\" . SoftMocks::class),
                         "getMockCode",
                         $args
                     )
@@ -1787,7 +1787,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
         $MockCheck = new \PhpParser\Node\Stmt\If_(
             new \PhpParser\Node\Expr\StaticCall(
-                new \PhpParser\Node\Name("\\" . SoftMocks::CLASS),
+                new \PhpParser\Node\Name("\\" . SoftMocks::class),
                 $this->has_yield ? "isGeneratorMocked" : "isMocked",
                 $args
             ),
@@ -1873,7 +1873,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         if (is_scalar($name)) {
             $name = new \PhpParser\Node\Scalar\String_($name);
         } else if ($name instanceof \PhpParser\Node\Name) {
-            return new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\ClassConstFetch($name, 'CLASS'));
+            return new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\ClassConstFetch($name, 'class'));
         }
 
         return new \PhpParser\Node\Arg($name);
@@ -1902,7 +1902,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         }
 
         $NewNode = new \PhpParser\Node\Expr\StaticCall(
-            new \PhpParser\Node\Name("\\" . SoftMocks::CLASS),
+            new \PhpParser\Node\Name("\\" . SoftMocks::class),
             "callFunction",
             [
                 self::getNamespaceArg(),
@@ -1928,7 +1928,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         }
 
         $NewNode = new \PhpParser\Node\Expr\StaticCall(
-            new \PhpParser\Node\Name("\\" . SoftMocks::CLASS),
+            new \PhpParser\Node\Name("\\" . SoftMocks::class),
             "getConst",
             [
                 self::getNamespaceArg(),
@@ -1947,7 +1947,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         }
 
         $NewNode = new \PhpParser\Node\Expr\StaticCall(
-            new \PhpParser\Node\Name("\\" . SoftMocks::CLASS),
+            new \PhpParser\Node\Name("\\" . SoftMocks::class),
             "getClassConst",
             [
                 self::nodeNameToArg($Node->class),
