@@ -369,6 +369,7 @@ class SoftMocks
 
     private static $temp_disable = false;
 
+    private static $rewrite_internal = false;
     private static $mocks_cache_path = "/tmp/mocks/";
     private static $phpunit_path = "/phpunit/";
     private static $php_parser_path = "/php-parser/";
@@ -522,6 +523,14 @@ class SoftMocks
 
         self::ignoreFiles(get_included_files());
         self::injectIntoPhpunit();
+    }
+
+    /**
+     * @param bool $rewrite_internal
+     */
+    public static function setRewriteInternal($rewrite_internal)
+    {
+        self::$rewrite_internal = (bool)$rewrite_internal;
     }
 
     /**
@@ -1038,7 +1047,7 @@ class SoftMocks
     public static function redefineFunction($func, $functionArgs, $fakeCode)
     {
         if (self::$debug) self::debug("Asked to redefine $func($functionArgs)");
-        if (isset(self::$internal_func_mocks[$func])) {
+        if (!self::$rewrite_internal && isset(self::$internal_func_mocks[$func])) {
             throw new \RuntimeException("Function $func is mocked internally, cannot mock");
         }
         if (SoftMocksTraverser::isFunctionIgnored($func)) {
@@ -1050,7 +1059,11 @@ class SoftMocks
     public static function restoreFunction($func)
     {
         if (isset(self::$internal_func_mocks[$func])) {
-            throw new \RuntimeException("Function $func is mocked internally, cannot unmock");
+            if (!self::$rewrite_internal) {
+                throw new \RuntimeException("Function $func is mocked internally, cannot unmock");
+            }
+            self::$func_mocks[$func] = self::$internal_func_mocks[$func];
+            return;
         }
 
         unset(self::$func_mocks[$func]);
