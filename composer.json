@@ -1,6 +1,7 @@
 {
   "name": "badoo/soft-mocks",
   "type": "library",
+  "description": "The idea behind \"Soft Mocks\" - as opposed to \"hardcore\" mocks that work on the level of the PHP interpreter (runkit and uopz) - is to rewrite class code on the spot so that it can be inserted in any place. It works by rewriting code on the fly during file inclusion instead of using extensions like runkit or uopz.",
   "minimum-stability": "stable",
   "license": "MIT",
   "authors": [
@@ -10,6 +11,25 @@
   ],
   "require": {
     "php": ">=5.5",
-    "nikic/php-parser": "2.*"
+    "nikic/php-parser": "2.0.0alpha1",
+    "cweagans/composer-patches": "^1.6.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^4.8.35"
+  },
+  "config": {
+    "preferred-install": "source"
+  },
+  "extra": {
+    "patches": {
+      "phpunit/phpunit": {
+        "phpunit run file": "patches/phpunit_phpunit.patch",
+        "Add ability to set custom filename rewrite callbacks #1": "https://github.com/badoo/phpunit/commit/a6587db8291857cce510257632fcbc61368099e0.patch",
+        "Add ability to set custom filename rewrite callbacks #2": "https://github.com/mougrim/phpunit/commit/18d49093a29ad4c8a34bf5ca9e368429f3452dc1.patch"
+      },
+      "phpunit/php-code-coverage": {
+        "Add ability to set custom filename rewrite callbacks": "https://github.com/mougrim/php-code-coverage/commit/ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a.patch"
+      }
+    }
   }
 }

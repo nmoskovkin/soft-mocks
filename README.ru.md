@@ -3,27 +3,37 @@ SoftMocks
 Основная идея «мягких моков» по сравнению с «жесткими», которые работают на уровне интерпретатора PHP (runkit и uopz) — переписывать «на лету» код классов так, чтобы можно было вставлять моки в любое место.
 Идея состоит в следующем: вместо использования расширений типа runkit или uopz, переписывать код на лету во время include.
 
+Установка
+=
+
+SoftMocks можно установить через [Composer](https://getcomposer.org/):
+```bash
+php composer.phar require --dev badoo/soft-mocks
+mkdir /tmp/mocks/ # создаем папку для кеша SoftMocks
+```
+
 Использование
 =
-Ключевой особенностью (и в то же время ограничением) SoftMocks является то, что они (вместе со всеми своими зависимостями) должны быть инициализированы на самом раннем этапе запуска приложения. Это необходимо из-за того, что в PHP нет возможности переопределять уже загруженные в память классы и функции. Пример заготовки bootstrap-файла для PHPUnit можно увидеть в _src/bootstrap.php_.
+Ключевой особенностью (и в то же время ограничением) SoftMocks является то, что они должны быть инициализированы на самом раннем этапе запуска приложения. Это необходимо из-за того, что в PHP нет возможности переопределять уже загруженные в память классы и функции. Пример заготовки bootstrap-файла можно увидеть в _[src/bootstrap.php](src/bootstrap.php)_. Для PHPUnit нужно использовать патчи из _[composer.json](composer.json)_, т.к. нужно подключать загрузчик файлов composer через SoftMocks.
 
 SoftMocks не переписывают следующие части системы:
-* собственный код
-* код PHPUnit
-* код PHP-Parser
-* уже переписанный код
+* собственный код;
+* код PHPUnit;
+* код PHP-Parser;
+* уже переписанный код;
+* код, который был подключен до инициализации SoftMocks.
 
-Для того, чтобы в bootstrap-файле подключить какие-либо внешние зависимости (например, vendor/autoload.php), то их нужно подключить через обертку:
+Для того, чтобы подключить какие-либо внешние зависимости (например, vendor/autoload.php) в файле, который был подключен до инициализации SoftMocks, их нужно подключить через обертку:
 ```
 require_once (\QA\SoftMocks::rewrite('vendor/autoload.php'));
 require_once (\QA\SoftMocks::rewrite('path/to/external/lib.php'));
 ```
 
-После того, как вы подключите файл через SoftMocks::rewrite(), все вложенные вызовы include уже будут «обернуты» самой системой.
+После того, как вы подключите файл через SoftMocks::rewrite(), все вложенные вызовы `include` уже будут «обернуты» самой системой.
 
 Более подробный пример можно увидеть выполнив следующую команду:
 ```
-[~/Work/soft-mocks]-> php example/run_me.php
+$ php example/run_me.php
 Result before applying SoftMocks = array (
   'TEST_CONSTANT_WITH_VALUE_42' => 42,
   'someFunc(2)' => 84,
@@ -73,7 +83,7 @@ API (краткое описание)
 Переопределение функций
 ==
 
-Soft Mocks позволяет переопределить как пользовательские, так и встроенные функции, кроме функций, которые зависят от текущего контекста (см. свойство \QA\SoftMocksTraverser::$ignore_functions), а также тех, для которых есть встроенные моки (debug_backtrace, call_user_func* и некоторые другие).
+Soft Mocks позволяет переопределить как пользовательские, так и встроенные функции, кроме функций, которые зависят от текущего контекста (см. свойство \QA\SoftMocksTraverser::$ignore_functions), а также тех, для которых есть встроенные моки (debug_backtrace, call_user_func* и некоторые другие, но встроенные моки можно разрешить переотпределять через `\QA\SoftMocks::setRewriteInternal(true)`).
 
 Сигнатура:
 ```
@@ -98,10 +108,10 @@ var_dump(strlen("  a  ")); // int(1)
 
 Сигнатура:
 ```
-\QA\SoftMocks::redefineMethod($class, $method, $functionArgs, $fakeCode, $strict = true)
+\QA\SoftMocks::redefineMethod($class, $method, $functionArgs, $fakeCode)
 ```
 
-Отличие от redefineFunction состоит в наличии класса ($class) и возможности работать в нестрогом режиме ($strict = false). Если выбран нестрогий режим, то это эмулирует поведение runkit при переопределении методов класса, то есть, помимо самого метода класса $class переопределяются также и методы его наследников.
+Отличие от redefineFunction состоит в наличии класса ($class).
 
 В качестве аргумента $class может выступать как имя класса, так и имя trait'а.
 
@@ -119,12 +129,59 @@ var_dump(strlen("  a  ")); // int(1)
 Следующие функции отменяют замену, осуществлённую одним из приведенных раннее redefine-методов.
 
 ```
+\QA\SoftMocks::restoreAll()
+
+// Так же можно отменить конкретные моки:
 \QA\SoftMocks::restoreConstant($constantName)
 \QA\SoftMocks::restoreAllConstants()
 \QA\SoftMocks::restoreFunction($func)
-\QA\SoftMocks::restoreAll()
 \QA\SoftMocks::restoreMethod($class, $method)
 \QA\SoftMocks::restoreGenerator($class, $method)
+\QA\SoftMocks::restoreNew()
+\QA\SoftMocks::restoreAllNew()
+\QA\SoftMocks::restoreExit()
+```
+
+Использование совместно с PHPUnit
+==
+
+При использовании SoftMocks совместно с PHPUnit есть следующие нюансы:
+- если phpunit установлен через composer, то обязательно нужно применить патч на `phpunit` _[patches/phpunit_phpunit.patch](patches/phpunit_phpunit.patch)_, чтобы классы, загружаемые через composer переписывались через SoftMocks;
+- если phpunit установлен отдельно, то нужно подключить _[src/bootstrap.php](src/bootstrap.php)_, что бы классы, загружаемые через composer переписывались через SoftMocks;
+- что бы трэйсы выглядели красиво, нужно применить патч на `phpunit` [https://github.com/badoo/phpunit/commit/a6587db8291857cce510257632fcbc61368099e0.patch](https://github.com/badoo/phpunit/commit/a6587db8291857cce510257632fcbc61368099e0.patch);
+- что бы правильно считался coverage, нужно применить патч на `phpunit` [https://github.com/mougrim/phpunit/commit/18d49093a29ad4c8a34bf5ca9e368429f3452dc1.patch](https://github.com/mougrim/phpunit/commit/18d49093a29ad4c8a34bf5ca9e368429f3452dc1.patch) и патч на `php-code-coverage` [https://github.com/mougrim/php-code-coverage/commit/ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a.patch](https://github.com/mougrim/php-code-coverage/commit/ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a.patch).
+
+Что бы все нужны патчи накатились автоматически нужно  прописать следующее в composer.json:
+```json
+{
+  "require": {
+    "cweagans/composer-patches": "^1.6.1"
+  },
+  "extra": {
+    "enable-patching": true
+  }
+}
+```
+
+Либо прописать патчи вручную:
+```json
+{
+  "require": {
+    "cweagans/composer-patches": "^1.6.1"
+  },
+  "extra": {
+    "patches": {
+      "phpunit/phpunit": {
+        "phpunit run file": "patches/phpunit_phpunit.patch",
+        "Add ability to set custom filename rewrite callbacks #1": "https://github.com/badoo/phpunit/commit/a6587db8291857cce510257632fcbc61368099e0.patch",
+        "Add ability to set custom filename rewrite callbacks #2": "https://github.com/mougrim/phpunit/commit/18d49093a29ad4c8a34bf5ca9e368429f3452dc1.patch"
+      },
+      "phpunit/php-code-coverage": {
+        "Add ability to set custom filename rewrite callbacks": "https://github.com/mougrim/php-code-coverage/commit/ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a.patch"
+      }
+    }
+  }
+}
 ```
 
 FAQ
@@ -133,7 +190,7 @@ FAQ
 
 **A**: Используйте методы \QA\SoftMocks::ignore(Class|Function|Constant).
 
-**Q**: Я не могу переопределить вызовы некоторых функций: call_user_func(_array)?, defined, etc.\
+**Q**: Я не могу переопределить вызовы некоторых функций: call_user_func(_array)?, defined, etc.
 
 **A**: Есть ряд функций, для которых существуют встроенные моки и по умолчанию их нельзя перехватить. Вот их список:
 * call_user_func_array
@@ -157,4 +214,4 @@ call_user_func('strlen', 'test'); // вернет 5
 
 **Q**: Почему я получаю Parse error или Fatal error с попыткой вызова несуществующих методов PhpParser?
 
-**A**: Для проекта Soft Mocks создавался специализированный класс для pretty print PHP-файлов, чтобы сохранялись номера строк. По всей видимости, API изменился с тех пор, как мы взяли к себе библиотеку PHP Parser, поэтому наш pretty-printer иногда не работает с версией из мастера или 2.0. Для решения этой проблемы в данный момент предлагается использовать версию PHP-Parser из папки vendor/, пока мы нашли способ обойти проблему.
+**A**: Для проекта Soft Mocks создавался специализированный класс для pretty print PHP-файлов, чтобы сохранялись номера строк. По всей видимости, API изменился с тех пор, как мы взяли к себе библиотеку PHP Parser, поэтому наш pretty-printer иногда не работает с версией из мастера или 2.0. Для решения этой проблемы в данный момент предлагается использовать версию, прописанную в composer.json, пока мы нашли способ обойти проблему.

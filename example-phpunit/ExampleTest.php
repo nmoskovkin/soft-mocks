@@ -1,7 +1,7 @@
 <?php
 /**
- * Test case for Soft Mocks capabilities. Requires phpunit from badoo repo or with accepted pull request
- * https://github.com/sebastianbergmann/phpunit/pull/2116
+ * Test case for Soft Mocks capabilities. Requires phpunit from badoo repo or with patches from composer.json
+ * https://github.com/badoo/soft-mocks/blob/master/composer.json
  *
  * @author Yuriy Nasretdinov <y.nasretdinov@corp.badoo.com>
  */
@@ -58,11 +58,7 @@ class ExampleTest extends PHPUnit_Framework_TestCase
         \QA\SoftMocks::redefineGenerator(
             self::class,
             'exampleGenerator',
-            function() {
-                yield 3;
-                yield 4;
-                yield 5;
-            }
+            [$this, 'getGeneratorMock']
         );
 
         $all_values = [];
@@ -71,5 +67,12 @@ class ExampleTest extends PHPUnit_Framework_TestCase
         }
 
         $this->assertEquals([3, 4, 5], $all_values);
+    }
+
+    public function getGeneratorMock()
+    {
+        yield 3;
+        yield 4;
+        yield 5;
     }
 }

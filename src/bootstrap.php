@@ -1,14 +1,17 @@
 <?php
-/* You must preload PHP Parser before initializing Soft Mocks so that it does not try to rewrite it */
-$php_parser_dir = dirname(__DIR__) . "/vendor/PHP-Parser/lib/PhpParser/";
+$composerInstall = '';
+foreach ([__DIR__ . '/../../../autoload.php', __DIR__ . '/../vendor/autoload.php'] as $file) {
+    if (file_exists($file)) {
+        $composerInstall = $file;
+
+        break;
+    }
+}
+$php_parser_dir = dirname($composerInstall) . "/nikic/php-parser/lib/PhpParser/";
 require($php_parser_dir . "Autoloader.php");
 \PhpParser\Autoloader::register(true);
-$out = [];
-exec('find ' . escapeshellarg($php_parser_dir) . " -type f -name '*.php'", $out);
-foreach ($out as $f) {
-    require_once($f);
-}
-
 /* Soft Mocks init */
 require_once(dirname(__DIR__) . "/src/QA/SoftMocks.php");
 \QA\SoftMocks::init();
+require \QA\SoftMocks::rewrite($composerInstall);
+unset($php_parser_dir, $composerInstall);

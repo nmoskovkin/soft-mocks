@@ -2,27 +2,38 @@ SoftMocks
 =
 The idea behind "Soft Mocks" - as opposed to "hardcore" mocks that work on the level of the PHP interpreter (runkit and uopz) - is to rewrite class code on the spot so that it can be inserted in any place. It works by rewriting code on the fly during file inclusion instead of using extensions like runkit or uopz.
 
+Installation
+=
+
+You can install SoftMocks via [Composer](https://getcomposer.org/):
+
+```bash
+php composer.phar require --dev badoo/soft-mocks
+mkdir /tmp/mocks/ # create dir with SoftMocks cache
+```
+
 Usage
 =
-The thing that sets SoftMocks apart (and also limits their usage) is that they need to be initiated (along with all of their dependencies) at the earliest phase of the app launch. It's necessary to do it this way because you can't redefine the classes and functions that are already loaded into the memory in PHP. For an example of PHPUnit bootstrap presets, see _src/bootstrap.php_ and _example-phpunit/bootstrap.php_.
+The thing that sets SoftMocks apart (and also limits their usage) is that they need to be initiated at the earliest phase of the app launch. It's necessary to do it this way because you can't redefine the classes and functions that are already loaded into the memory in PHP. For an example bootstrap presets, see _[src/bootstrap.php](src/bootstrap.php)_. For PHPUnit you should use patches form _[composer.json](composer.json)_, because you should require composer autoload through SoftMocks.
 
 SoftMocks don't rewrite the following system parts:
-* it's own code
-* PHPUnit code (see setPhpunitPath() for details)
-* PHP-Parser code (see setPhpParserPath() for details)
-* already rewritten code
+* it's own code;
+* PHPUnit code (see `\QA\SoftMocks::addIgnorePath()` for details);
+* PHP-Parser code (see `\QA\SoftMocks::addIgnorePath()` for details);
+* already rewritten code;
+* code which was loaded before SoftMocks initialization.
 
-In order to add external dependencies (for example, vendor/autoload.php) to a bootstrap file, you need to use a wrapper:
+In order to add external dependencies (for example, vendor/autoload.php) in file, which which was loaded before SoftMocks initialization, you need to use a wrapper:
 ```
 require_once (\QA\SoftMocks::rewrite('vendor/autoload.php'));
 require_once (\QA\SoftMocks::rewrite('path/to/external/lib.php'));
 ```
 
-After you've added the file via SoftMocks::rewrite(), all nested include calls will already be "wrapped" by the system itself.
+After you've added the file via `SoftMocks::rewrite()`, all nested include calls will already be "wrapped" by the system itself.
 
 You can see a more detailed example by executing the following command:
 ```
-[~/Work/soft-mocks]-> php example/run_me.php
+$ php example/run_me.php
 Result before applying SoftMocks = array (
   'TEST_CONSTANT_WITH_VALUE_42' => 42,
   'someFunc(2)' => 84,
@@ -48,7 +59,7 @@ Result after reverting SoftMocks = array (
 
 API (short description)
 =
-Initialize Soft Mocks (set phpunit injections, define internal mocks, get list of internal functions, etc): 
+Initialize SoftMocks (set phpunit injections, define internal mocks, get list of internal functions, etc):
 
 ```
 \QA\SoftMocks::init();
@@ -74,7 +85,7 @@ Both "regular constants" and class constants like "className::CONST_NAME" are su
 Redefine functions
 ==
 
-Soft Mocks let you redefine both user-defined and built-in functions except for those that depend on the current context (see \QA\SoftMocksTraverser::$ignore_functions property if you want to see the full list), or for those that have built-in mocks (debug_backtrace, call_user_func* and a few others).
+SoftMocks let you redefine both user-defined and built-in functions except for those that depend on the current context (see \QA\SoftMocksTraverser::$ignore_functions property if you want to see the full list), or for those that have built-in mocks (debug_backtrace, call_user_func* and a few others, but built-in mocks you can enable redefine by call `\QA\SoftMocks::setRewriteInternal(true)`).
 
 Definition:
 ```
@@ -99,12 +110,12 @@ At the moment, only user-defined method redefinition is supported. This function
 
 Definition:
 ```
-\QA\SoftMocks::redefineMethod($class, $method, $functionArgs, $fakeCode, $strict = true)
+\QA\SoftMocks::redefineMethod($class, $method, $functionArgs, $fakeCode)
 ```
 
-Arguments are the same as for redefineFunction, but $class is argument is introducted, and it's possible to work in non-strict mode ($strict = false). If non-strict mode is selected, then runkit behavior is emulated when class methods are redefined so that in addition to the $class method itself, its ancestor methods are also redefined.
+Arguments are the same as for redefineFunction, but argument $class is introduced.
 
-As an argument, $class accepts a class name or a trait name.
+As an argument $class accepts a class name or a trait name.
 
 Redefining functions that are generators
 ==
@@ -127,6 +138,51 @@ The following functions undo mocks that were made using one of the redefine meth
 \QA\SoftMocks::restoreFunction($func)
 \QA\SoftMocks::restoreMethod($class, $method)
 \QA\SoftMocks::restoreGenerator($class, $method)
+\QA\SoftMocks::restoreNew()
+\QA\SoftMocks::restoreAllNew()
+\QA\SoftMocks::restoreExit()
+```
+
+Using with PHPUnit
+==
+
+If you want to use SoftMocks with PHPUnit then there are next particularities:
+- If phpunit is installed by composer then you should apply patch to `phpunit` _[patches/phpunit_phpunit.patch](patches/phpunit_phpunit.patch)_,so that classes loaded by composer would be rewritten by SoftMocks;
+- if phpunit is installed manually then you should require _[src/bootstrap.php](src/bootstrap.php)_, so that classes loaded by composer would be rewritten by SoftMocks;
+- so that trace would be readable you should apply patch for `phpunit` [https://github.com/badoo/phpunit/commit/a6587db8291857cce510257632fcbc61368099e0.patch](https://github.com/badoo/phpunit/commit/a6587db8291857cce510257632fcbc61368099e0.patch);
+- so that coverage would be right the you should apply patch to `phpunit` [https://github.com/mougrim/phpunit/commit/18d49093a29ad4c8a34bf5ca9e368429f3452dc1.patch](https://github.com/mougrim/phpunit/commit/18d49093a29ad4c8a34bf5ca9e368429f3452dc1.patch) and patch to `php-code-coverage` [https://github.com/mougrim/php-code-coverage/commit/ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a.patch](https://github.com/mougrim/php-code-coverage/commit/ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a.patch).
+
+If you want that patches are applied automatically, you should write next in в composer.json:
+```json
+{
+  "require": {
+    "cweagans/composer-patches": "^1.6.1"
+  },
+  "extra": {
+    "enable-patching": true
+  }
+}
+```
+
+Or write patches manually:
+```json
+{
+  "require": {
+    "cweagans/composer-patches": "^1.6.1"
+  },
+  "extra": {
+    "patches": {
+      "phpunit/phpunit": {
+        "phpunit run file": "patches/phpunit_phpunit.patch",
+        "Add ability to set custom filename rewrite callbacks #1": "https://github.com/badoo/phpunit/commit/a6587db8291857cce510257632fcbc61368099e0.patch",
+        "Add ability to set custom filename rewrite callbacks #2": "https://github.com/mougrim/phpunit/commit/18d49093a29ad4c8a34bf5ca9e368429f3452dc1.patch"
+      },
+      "phpunit/php-code-coverage": {
+        "Add ability to set custom filename rewrite callbacks": "https://github.com/mougrim/php-code-coverage/commit/ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a.patch"
+      }
+    }
+  }
+}
 ```
 
 FAQ
@@ -158,19 +214,14 @@ call_user_func_array('strlen', ['test']); // will return 20
 call_user_func('strlen', 'test'); // will return 5
 ```
 
-**Q**: How do I use Soft Mocks with PHPUnit?
+**Q**: Does SoftMocks work with PHP7?
 
-**A**: You need to merge our pull request https://github.com/sebastianbergmann/phpunit/pull/2116 into your phpunit version or just take this branch.
-Soft Mocks will work even without any phpunit patches but you will see "unreadable" stack traces for failed tests and you will not be able to redefine classes and methods that are defined in tests themselves.
+**A**: Yes. The whole idea of SoftMocks is that it will continue to work for all further PHP versions without requiring a full system rewrite as it is for runkit and uopz.
 
-**Q**: Does Soft Mocks work with PHP7?
+**Q**: Does SoftMocks work with HHVM?
 
-**A**: Yes. The whole idea of Soft Mocks is that it will continue to work for all further PHP versions without requiring a full system rewrite as it is for runkit and uopz.
-
-**Q**: Does Soft Mocks work with HHVM?
-
-**A**: It seems that Soft Mocks indeed works when using HHVM at the moment of writing this Q&A (HipHop VM 3.12.1 (rel)). We do not use HHVM internally so there can be some corner cases that are not covered. We appreciate any issues/pull requests regarding HHVM support.
+**A**: It seems that SoftMocks indeed works when using HHVM at the moment of writing this Q&A (HipHop VM 3.12.1 (rel)). We do not use HHVM internally so there can be some corner cases that are not covered. We appreciate any issues/pull requests regarding HHVM support.
 
 **Q**: Why do I get parse errors or fatal errors like "PhpParser::pSmth is undefined"?
 
-**A**: Soft Mocks uses custom pretty-printer for PHP Parser that does not seem to be compatible with all PHP Parser versions. Please use our vendored version until we found a way to get around that.
+**A**: SoftMocks uses custom pretty-printer for PHP Parser that does not seem to be compatible with all PHP Parser versions. Please use our vendored version until we found a way to get around that.
