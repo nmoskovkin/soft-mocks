@@ -686,13 +686,23 @@ class SoftMocks
     public static function printBackTrace($e = null)
     {
         $str = $e ?: new \Exception();
+        if ($str instanceof \PHPUnit_Framework_ExceptionWrapper || $str instanceof \PHPUnit\Framework\ExceptionWrapper) {
+            $trace = [];
+            foreach ($str->getSerializableTrace() as $idx => $frame) {
+                $frame += ['file' => '', 'line' => '', 'class' => '', 'type' => '', 'function' => ''];
+                $trace[] = sprintf('#%d %s(%s): %s%s%s()', $idx, $frame['file'], $frame['line'], $frame['class'], $frame['type'], $frame['function']);
+            }
+            $trace_str = implode("\n", $trace);
+        } else {
+            $trace_str = $str->getTraceAsString();
+        }
+        $trace_str = $str->getFile() . '(' . $str->getLine() . ")\n$trace_str";
 
         if (!empty($_ENV['REAL_BACKTRACE'])) {
-            echo $str->getTraceAsString();
+            echo $trace_str;
             return;
         }
-
-        $trace_lines = explode("\n", $str->getFile() . '(' . $str->getLine() . ")\n" . $str->getTraceAsString());
+        $trace_lines = explode("\n", $trace_str);
 
         foreach ($trace_lines as &$ln) {
             $ln = preg_replace_callback(
