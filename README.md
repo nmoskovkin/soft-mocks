@@ -147,10 +147,10 @@ Using with PHPUnit
 ==
 
 If you want to use SoftMocks with PHPUnit then there are next particularities:
-- If phpunit is installed by composer then you should apply patch to `phpunit` _[patches/phpunit_phpunit.patch](patches/phpunit_phpunit.patch)_,so that classes loaded by composer would be rewritten by SoftMocks;
+- If phpunit is installed by composer then you should apply patch to `phpunit` _[patches/phpunit5.x/phpunit_phpunit.patch](patches/phpunit5.x/phpunit_phpunit.patch)_,so that classes loaded by composer would be rewritten by SoftMocks;
 - if phpunit is installed manually then you should require _[src/bootstrap.php](src/bootstrap.php)_, so that classes loaded by composer would be rewritten by SoftMocks;
-- so that trace would be readable you should apply patch for `phpunit` [https://github.com/badoo/phpunit/commit/a6587db8291857cce510257632fcbc61368099e0.patch](https://github.com/badoo/phpunit/commit/a6587db8291857cce510257632fcbc61368099e0.patch);
-- so that coverage would be right the you should apply patch to `phpunit` [https://github.com/mougrim/phpunit/commit/18d49093a29ad4c8a34bf5ca9e368429f3452dc1.patch](https://github.com/mougrim/phpunit/commit/18d49093a29ad4c8a34bf5ca9e368429f3452dc1.patch) and patch to `php-code-coverage` [https://github.com/mougrim/php-code-coverage/commit/ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a.patch](https://github.com/mougrim/php-code-coverage/commit/ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a.patch).
+- so that trace would be readable you should apply patch for `phpunit` _[patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch](patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch)_;
+- so that coverage would be right the you should apply patch to `phpunit` _[patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch](patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch)_ and patch to `php-code-coverage` _[patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch](patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch)_.
 
 If you want that patches are applied automatically, you should write next in в composer.json:
 ```json
@@ -159,31 +159,20 @@ If you want that patches are applied automatically, you should write next in в 
     "cweagans/composer-patches": "^1.6.1"
   },
   "extra": {
-    "enable-patching": true
-  }
-}
-```
-
-Or write patches manually:
-```json
-{
-  "require": {
-    "cweagans/composer-patches": "^1.6.1"
-  },
-  "extra": {
     "patches": {
       "phpunit/phpunit": {
-        "phpunit run file": "patches/phpunit_phpunit.patch",
-        "Add ability to set custom filename rewrite callbacks #1": "https://github.com/badoo/phpunit/commit/a6587db8291857cce510257632fcbc61368099e0.patch",
-        "Add ability to set custom filename rewrite callbacks #2": "https://github.com/mougrim/phpunit/commit/18d49093a29ad4c8a34bf5ca9e368429f3452dc1.patch"
+        "phpunit run file": "patches/phpunit5.x/phpunit_phpunit.patch",
+        "Add ability to set custom filename rewrite callbacks #1": "patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch",
+        "Add ability to set custom filename rewrite callbacks #2": "patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch"
       },
       "phpunit/php-code-coverage": {
-        "Add ability to set custom filename rewrite callbacks": "https://github.com/mougrim/php-code-coverage/commit/ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a.patch"
+        "Add ability to set custom filename rewrite callbacks": "patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch"
       }
     }
   }
 }
 ```
+Use `phpunit4.x` directory instead of `phpunit5.x` for `phpunit4.x`.
 
 FAQ
 =

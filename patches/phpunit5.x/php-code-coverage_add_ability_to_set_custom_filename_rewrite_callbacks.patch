@@ -1,0 +1,57 @@
+From c93d854718927fa0d879d219ea9008ae91ce68b2 Mon Sep 17 00:00:00 2001
+From: Mougrim <rinat@mougrim.ru>
+Date: Tue, 10 Jan 2017 11:07:54 +0300
+Subject: [PATCH] Add ability to set custom filename rewrite callbacks
+
+---
+ src/CodeCoverage.php | 12 +++++++++++-
+ src/Filter.php       |  6 ++++++
+ 2 files changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/src/CodeCoverage.php b/src/CodeCoverage.php
+index 35dab3d..7f2b8c7 100644
+--- a/src/CodeCoverage.php
++++ b/src/CodeCoverage.php
+@@ -198,7 +198,17 @@ public function getData($raw = false)
+             $this->addUncoveredFilesFromWhitelist();
+         }
+ 
+-        return $this->data;
++        $data = [];
++        if ($restoreCallback = \PHPUnit_Util_Fileloader::getFilenameRestoreCallback()) {
++            foreach ($this->data as $file => $lines) {
++                $file = $restoreCallback($file);
++                $data[$file] = $lines;
++            }
++        } else {
++            $data = $this->data;
++        }
++
++        return $data;
+     }
+ 
+     /**
+diff --git a/src/Filter.php b/src/Filter.php
+index 771a657..2ab6ed3 100644
+--- a/src/Filter.php
++++ b/src/Filter.php
+@@ -46,6 +46,9 @@ public function addDirectoryToWhitelist($directory, $suffix = '.php', $prefix =
+      */
+     public function addFileToWhitelist($filename)
+     {
++        if ($rewriteCallback = \PHPUnit_Util_Fileloader::getFilenameRewriteCallback()) {
++            $filename = $rewriteCallback($filename);
++        }
+         $this->whitelistedFiles[realpath($filename)] = true;
+     }
+ 
+@@ -85,6 +88,9 @@ public function removeDirectoryFromWhitelist($directory, $suffix = '.php', $pref
+      */
+     public function removeFileFromWhitelist($filename)
+     {
++        if ($rewriteCallback = \PHPUnit_Util_Fileloader::getFilenameRewriteCallback()) {
++            $filename = $rewriteCallback($filename);
++        }
+         $filename = realpath($filename);
+ 
+         unset($this->whitelistedFiles[$filename]);

@@ -1,0 +1,85 @@
+#!/usr/bin/env php
+<?php
+/*
+ * This file is part of PHPUnit.
+ *
+ * (c) Sebastian Bergmann <sebastian@phpunit.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+if (version_compare('5.6.0', PHP_VERSION, '>')) {
+    fwrite(
+        STDERR,
+        sprintf(
+            'This version of PHPUnit is supported on PHP 5.6, PHP 7.0, and PHP 7.1.' . PHP_EOL .
+            'You are using PHP %s (%s).' . PHP_EOL,
+            PHP_VERSION,
+            PHP_BINARY
+        )
+    );
+
+    die(1);
+}
+
+if (!ini_get('date.timezone')) {
+    ini_set('date.timezone', 'UTC');
+}
+
+$composerInstall = '';
+foreach (array(__DIR__ . '/../../autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/vendor/autoload.php') as $file) {
+    if (file_exists($file)) {
+        $composerInstall = $file;
+
+        break;
+    }
+}
+
+unset($file);
+
+if (!$composerInstall) {
+    fwrite(STDERR,
+        'You need to set up the project dependencies using Composer:' . PHP_EOL . PHP_EOL .
+        '    composer install' . PHP_EOL . PHP_EOL .
+        'You can learn all about Composer on https://getcomposer.org/.' . PHP_EOL
+    );
+
+    die(1);
+}
+
+$softMocksPath = '';
+foreach (array(__DIR__ . '/../../badoo/soft-mocks/src/QA/SoftMocks.php', __DIR__ . '/../../../src/QA/SoftMocks.php') as $file) {
+    if (file_exists($file)) {
+        $softMocksPath = $file;
+
+    }
+}
+unset($file);
+
+if ($softMocksPath) {
+    require_once dirname($composerInstall) . '/nikic/php-parser/lib/PhpParser/Autoloader.php';
+    \PhpParser\Autoloader::register(true);
+
+    require_once $softMocksPath;
+    \QA\SoftMocks::setIgnoreSubPaths(
+        array(
+            '/vendor/phpunit/' => '/vendor/phpunit/',
+            '/vendor/sebastian/diff/' => '/vendor/sebastian/diff/',
+            '/vendor/nikic/php-parser/' => '/vendor/nikic/php-parser/',
+        )
+    );
+    \QA\SoftMocks::init();
+    $composerInstall = \QA\SoftMocks::rewrite($composerInstall);
+    require $composerInstall;
+    // inject soft-mocks into phpunit
+    class_exists(PHPUnit_Util_Fileloader::class);
+    \QA\SoftMocks::injectIntoPhpunit();
+} else {
+    require $composerInstall;
+}
+define('PHPUNIT_COMPOSER_INSTALL', $composerInstall);
+unset($softMocksPath);
+unset($composerInstall);
+
+PHPUnit_TextUI_Command::main();

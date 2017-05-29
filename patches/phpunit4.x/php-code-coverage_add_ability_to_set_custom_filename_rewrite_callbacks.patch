@@ -1,0 +1,77 @@
+From ca444ac8f90eaac0e6df842481bb3c4ca7f38d5a Mon Sep 17 00:00:00 2001
+From: Mougrim <rinat@mougrim.ru>
+Date: Fri, 2 Dec 2016 11:18:45 +0300
+Subject: [PATCH] Add ability to set custom filename rewrite callbacks
+
+---
+ src/CodeCoverage.php        | 12 +++++++++++-
+ src/CodeCoverage/Filter.php | 12 ++++++++++++
+ 2 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/src/CodeCoverage.php b/src/CodeCoverage.php
+index 88326f0..70d1e7a 100644
+--- a/src/CodeCoverage.php
++++ b/src/CodeCoverage.php
+@@ -161,7 +161,17 @@ public function getData($raw = false)
+             $this->applyListsFilter($this->data);
+         }
+ 
+-        return $this->data;
++        $data = [];
++        if ($restoreCallback = \PHPUnit_Util_Fileloader::getFilenameRestoreCallback()) {
++            foreach ($this->data as $file => $lines) {
++                $file = $restoreCallback($file);
++                $data[$file] = $lines;
++            }
++        } else {
++            $data = $this->data;
++        }
++
++        return $data;
+     }
+ 
+     /**
+diff --git a/src/CodeCoverage/Filter.php b/src/CodeCoverage/Filter.php
+index bb4a251..a5dbd18 100644
+--- a/src/CodeCoverage/Filter.php
++++ b/src/CodeCoverage/Filter.php
+@@ -53,6 +53,9 @@ public function addDirectoryToBlacklist($directory, $suffix = '.php', $prefix =
+      */
+     public function addFileToBlacklist($filename)
+     {
++        if ($rewriteCallback = \PHPUnit_Util_Fileloader::getFilenameRewriteCallback()) {
++            $filename = $rewriteCallback($filename);
++        }
+         $this->blacklistedFiles[realpath($filename)] = true;
+     }
+ 
+@@ -92,6 +95,9 @@ public function removeDirectoryFromBlacklist($directory, $suffix = '.php', $pref
+      */
+     public function removeFileFromBlacklist($filename)
+     {
++        if ($rewriteCallback = \PHPUnit_Util_Fileloader::getFilenameRewriteCallback()) {
++            $filename = $rewriteCallback($filename);
++        }
+         $filename = realpath($filename);
+ 
+         if (isset($this->blacklistedFiles[$filename])) {
+@@ -123,6 +129,9 @@ public function addDirectoryToWhitelist($directory, $suffix = '.php', $prefix =
+      */
+     public function addFileToWhitelist($filename)
+     {
++        if ($rewriteCallback = \PHPUnit_Util_Fileloader::getFilenameRewriteCallback()) {
++            $filename = $rewriteCallback($filename);
++        }
+         $this->whitelistedFiles[realpath($filename)] = true;
+     }
+ 
+@@ -162,6 +171,9 @@ public function removeDirectoryFromWhitelist($directory, $suffix = '.php', $pref
+      */
+     public function removeFileFromWhitelist($filename)
+     {
++        if ($rewriteCallback = \PHPUnit_Util_Fileloader::getFilenameRewriteCallback()) {
++            $filename = $rewriteCallback($filename);
++        }
+         $filename = realpath($filename);
+ 
+         if (isset($this->whitelistedFiles[$filename])) {

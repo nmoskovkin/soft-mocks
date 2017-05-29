@@ -1,0 +1,150 @@
+From a6587db8291857cce510257632fcbc61368099e0 Mon Sep 17 00:00:00 2001
+From: Yuriy Nasretdinov <y.nasretdinov@corp.badoo.com>
+Date: Mon, 14 Mar 2016 19:11:53 +0300
+Subject: [PATCH] Add ability to set custom filename rewrite callbacks
+
+Conflicts:
+	src/Framework/TestSuite.php
+---
+ src/Framework/TestSuite.php            |  7 ++++++-
+ src/Runner/StandardTestSuiteLoader.php | 11 ++++++++++-
+ src/Util/Fileloader.php                | 36 +++++++++++++++++++++++++++++++++-
+ src/Util/Filter.php                    | 15 ++++++++++++++
+ 4 files changed, 66 insertions(+), 3 deletions(-)
+
+diff --git a/src/Framework/TestSuite.php b/src/Framework/TestSuite.php
+index 8403633..10363a5 100644
+--- a/src/Framework/TestSuite.php
++++ b/src/Framework/TestSuite.php
+@@ -356,8 +356,13 @@ public function addTestFile($filename)
+         foreach ($this->foundClasses as $i => $className) {
+             if (preg_match($shortnameRegEx, $className)) {
+                 $class = new ReflectionClass($className);
++                $classFile = $class->getFileName();
+ 
+-                if ($class->getFileName() == $filename) {
++                if ($restoreCallback = PHPUnit_Util_Fileloader::getFilenameRestoreCallback()) {
++                    $classFile = $restoreCallback($classFile);
++                }
++
++                if ($classFile == $filename) {
+                     $newClasses = array($className);
+                     unset($this->foundClasses[$i]);
+                     break;
+diff --git a/src/Runner/StandardTestSuiteLoader.php b/src/Runner/StandardTestSuiteLoader.php
+index 3338a73..b4dcfe0 100644
+--- a/src/Runner/StandardTestSuiteLoader.php
++++ b/src/Runner/StandardTestSuiteLoader.php
+@@ -63,6 +63,10 @@ public function load($suiteClassName, $suiteClassFile = '')
+                 $class     = new ReflectionClass($loadedClass);
+                 $classFile = $class->getFileName();
+ 
++                if ($restoreCallback = PHPUnit_Util_Fileloader::getFilenameRestoreCallback()) {
++                    $classFile = $restoreCallback($classFile);
++                }
++
+                 if ($class->isSubclassOf($testCaseClass) &&
+                     !$class->isAbstract()) {
+                     $suiteClassName = $loadedClass;
+@@ -91,8 +95,13 @@ public function load($suiteClassName, $suiteClassFile = '')
+ 
+         if (class_exists($suiteClassName, false)) {
+             $class = new ReflectionClass($suiteClassName);
++            $classFile = $class->getFileName();
++
++            if ($restoreCallback = PHPUnit_Util_Fileloader::getFilenameRestoreCallback()) {
++                $classFile = $restoreCallback($classFile);
++            }
+ 
+-            if ($class->getFileName() == realpath($suiteClassFile)) {
++            if ($classFile == realpath($suiteClassFile)) {
+                 return $class;
+             }
+         }
+diff --git a/src/Util/Fileloader.php b/src/Util/Fileloader.php
+index 7fc787f..51d2f88 100644
+--- a/src/Util/Fileloader.php
++++ b/src/Util/Fileloader.php
+@@ -15,6 +15,35 @@
+  */
+ class PHPUnit_Util_Fileloader
+ {
++    /** @var Callable */
++    private static $filename_rewrite_callback;
++
++    /** @var Callable */
++    private static $filename_restore_callback;
++
++    /**
++     * Provide callback for rewriting test file names that is called when loading suite files
++     * @param callable $callback (source_filename => rewritten_filename)
++     */
++    public static function setFilenameRewriteCallback(Callable $callback)
++    {
++        self::$filename_rewrite_callback = $callback;
++    }
++
++    /**
++     * Provide callback for restoring rewritten test file names
++     * @param callable $callback (rewritten_filename => source_filename)
++     */
++    public static function setFilenameRestoreCallback(Callable $callback)
++    {
++        self::$filename_restore_callback = $callback;
++    }
++
++    public static function getFilenameRestoreCallback()
++    {
++        return self::$filename_restore_callback;
++    }
++
+     /**
+      * Checks if a PHP sourcefile is readable.
+      * The sourcefile is loaded through the load() method.
+@@ -53,7 +82,12 @@ public static function load($filename)
+     {
+         $oldVariableNames = array_keys(get_defined_vars());
+ 
+-        include_once $filename;
++        if ($cb = self::$filename_rewrite_callback) {
++            $new_filename = $cb($filename);
++            include_once $new_filename;
++        } else {
++            include_once $filename;
++        }
+ 
+         $newVariables     = get_defined_vars();
+         $newVariableNames = array_diff(
+diff --git a/src/Util/Filter.php b/src/Util/Filter.php
+index 8e81b59..0c3b3a6 100644
+--- a/src/Util/Filter.php
++++ b/src/Util/Filter.php
+@@ -15,6 +15,17 @@
+  */
+ class PHPUnit_Util_Filter
+ {
++    private static $custom_stacktrace_callback;
++
++    /**
++     * Set custom stack trace callback that can deal with rewritten files and extra stack trace lines
++     * @param callable $callback (Exception $e, $asString = true): string
++     */
++    public static function setCustomStackTraceCallback(Callable $callback)
++    {
++        self::$custom_stacktrace_callback = $callback;
++    }
++
+     /**
+      * Filters stack frames from PHPUnit classes.
+      *
+@@ -25,6 +36,10 @@ class PHPUnit_Util_Filter
+      */
+     public static function getFilteredStacktrace(Exception $e, $asString = true)
+     {
++        if ($stackTraceCb = self::$custom_stacktrace_callback) {
++            return $stackTraceCb($e, $asString);
++        }
++
+         $prefix = false;
+         $script = realpath($GLOBALS['_SERVER']['SCRIPT_NAME']);
+ 

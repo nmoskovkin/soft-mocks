@@ -1,0 +1,25 @@
+From 18d49093a29ad4c8a34bf5ca9e368429f3452dc1 Mon Sep 17 00:00:00 2001
+From: Mougrim <rinat@mougrim.ru>
+Date: Fri, 2 Dec 2016 11:06:22 +0300
+Subject: [PATCH] Add ability to set custom filename rewrite callbacks
+
+---
+ src/Util/Fileloader.php | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/Util/Fileloader.php b/src/Util/Fileloader.php
+index 51d2f88..3797779 100644
+--- a/src/Util/Fileloader.php
++++ b/src/Util/Fileloader.php
+@@ -30,6 +30,11 @@ public static function setFilenameRewriteCallback(Callable $callback)
+         self::$filename_rewrite_callback = $callback;
+     }
+ 
++    public static function getFilenameRewriteCallback()
++    {
++        return self::$filename_rewrite_callback;
++    }
++
+     /**
+      * Provide callback for restoring rewritten test file names
+      * @param callable $callback (rewritten_filename => source_filename)
