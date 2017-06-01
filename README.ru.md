@@ -151,28 +151,26 @@ var_dump(strlen("  a  ")); // int(1)
 - что бы трэйсы выглядели красиво, нужно применить патч на `phpunit` _[patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch](patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch)_;
 - что бы правильно считался coverage, нужно применить патч на `phpunit` _[patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch](patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch)_ и патч на `php-code-coverage` _[patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch](patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch)_.
 
+Если в проекте используется `phpunit4.x`, то вместо папки `phpunit5.x` нужно использовать `phpunit4.x`.
+
 Что бы все нужны патчи накатились автоматически нужно прописать следующее в composer.json:
 ```json
 {
-  "require": {
-    "cweagans/composer-patches": "^1.6.1"
+  "require-dev": {
+    "vaimo/composer-patches": "^3.3.1",
+    "phpunit/phpunit": "^5.7.20" // или "^4.8.35"
   },
-  "extra": {
-    "patches": {
-      "phpunit/phpunit": {
-        "phpunit run file": "patches/phpunit5.x/phpunit_phpunit.patch",
-        "Add ability to set custom filename rewrite callbacks #1": "patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch",
-        "Add ability to set custom filename rewrite callbacks #2": "patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch"
-      },
-      "phpunit/php-code-coverage": {
-        "Add ability to set custom filename rewrite callbacks": "patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch"
-      }
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/vaimo/composer-patches.git"
     }
+  ],
+  "extra": {
+    "enable-patching": true
   }
 }
 ```
-
-Если в проекте используется `phpunit4.x`, то вместо папки `phpunit5.x` нужно использовать `phpunit4.x`.
 
 FAQ
 =

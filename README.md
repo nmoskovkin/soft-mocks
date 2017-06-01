@@ -152,27 +152,26 @@ If you want to use SoftMocks with PHPUnit then there are next particularities:
 - so that trace would be readable you should apply patch for `phpunit` _[patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch](patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch)_;
 - so that coverage would be right the you should apply patch to `phpunit` _[patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch](patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch)_ and patch to `php-code-coverage` _[patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch](patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch)_.
 
+Use `phpunit4.x` directory instead of `phpunit5.x` for `phpunit4.x`.
+
 If you want that patches are applied automatically, you should write next in в composer.json:
 ```json
 {
-  "require": {
-    "cweagans/composer-patches": "^1.6.1"
+  "require-dev": {
+    "vaimo/composer-patches": "^3.3.1",
+    "phpunit/phpunit": "^5.7.20" // or "^4.8.35"
   },
-  "extra": {
-    "patches": {
-      "phpunit/phpunit": {
-        "phpunit run file": "patches/phpunit5.x/phpunit_phpunit.patch",
-        "Add ability to set custom filename rewrite callbacks #1": "patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch",
-        "Add ability to set custom filename rewrite callbacks #2": "patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch"
-      },
-      "phpunit/php-code-coverage": {
-        "Add ability to set custom filename rewrite callbacks": "patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch"
-      }
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/vaimo/composer-patches.git"
     }
+  ],
+  "extra": {
+    "enable-patching": true
   }
 }
 ```
-Use `phpunit4.x` directory instead of `phpunit5.x` for `phpunit4.x`.
 
 FAQ
 =
