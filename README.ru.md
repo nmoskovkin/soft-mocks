@@ -153,7 +153,7 @@ var_dump(strlen("  a  ")); // int(1)
 
 Если в проекте используется `phpunit4.x`, то вместо папки `phpunit5.x` нужно использовать `phpunit4.x`.
 
-Что бы все нужны патчи накатились автоматически нужно прописать следующее в composer.json:
+Что бы все нужны патчи применялись автоматически нужно прописать следующее в composer.json:
 ```json
 {
   "require-dev": {
@@ -170,6 +170,11 @@ var_dump(strlen("  a  ")); // int(1)
     "enable-patching": true
   }
 }
+```
+
+Для принудительного переприменения патчей можно использовать переменную окржения `COMPOSER_FORCE_PATCH_REAPPLY`, например:
+```bash
+COMPOSER_FORCE_PATCH_REAPPLY=1 php composer.phar update
 ```
 
 FAQ

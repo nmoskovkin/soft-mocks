@@ -173,6 +173,11 @@ If you want that patches are applied automatically, you should write next in в 
 }
 ```
 
+To force reapply patches use environment variable `COMPOSER_FORCE_PATCH_REAPPLY`, for example:
+```bash
+COMPOSER_FORCE_PATCH_REAPPLY=1 php composer.phar update
+```
+
 FAQ
 =
 **Q**: How can I prevent a specific function/class/constant from being redefined?
