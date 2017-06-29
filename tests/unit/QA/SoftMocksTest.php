@@ -19,6 +19,19 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         parent::tearDown();
     }
 
+    public function testParserVersion()
+    {
+        $composer_json = file_get_contents(__DIR__ . '/../../../composer.json');
+        static::assertNotEmpty($composer_json, "Can't get content from composer.json file");
+        $composer_data = json_decode($composer_json, true);
+        static::assertSame(
+            JSON_ERROR_NONE,
+            json_last_error(),
+            "Can't parse composer.json: [" . json_last_error() . '] ' . json_last_error_msg()
+        );
+        static::assertSame(\QA\SoftMocks::PARSER_VERSION, $composer_data['require']['nikic/php-parser']);
+    }
+
     public function testExitMock()
     {
         SoftMocks::redefineExit(

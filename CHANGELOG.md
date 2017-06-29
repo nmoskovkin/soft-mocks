@@ -1,5 +1,13 @@
 # SoftMocks v1 Change Log
 
+## v1.1.1
+
+There are next changes:
+
+- nikic/php-parser was updated to 2.0.0beta1;
+- using nikic/php-parser version in path to rewritten file was added;
+- info how reapply patches was added.
+
 ## v1.1.0
 
 There are next changes:
