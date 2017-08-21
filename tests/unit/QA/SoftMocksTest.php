@@ -282,4 +282,25 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         );
         static::assertSame('Test', $obj->meth());
     }
+
+    public function testWithReturnTypeDeclarations()
+    {
+        SoftMocks::redefineMethod(
+            WithReturnTypeDeclarationsClass::class,
+            'getString',
+            '',
+            'return "string2";'
+        );
+        $res = WithReturnTypeDeclarationsClass::getString();
+        static::assertSame("string2", $res);
+
+        SoftMocks::redefineMethod(
+            WithReturnTypeDeclarationsClass::class,
+            'getStringOrNull',
+            '',
+            'return "string3";'
+        );
+        $res = WithReturnTypeDeclarationsClass::getStringOrNull();
+        static::assertSame("string3", $res);
+    }
 }
