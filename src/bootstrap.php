@@ -10,6 +10,14 @@ foreach ([__DIR__ . '/../../../autoload.php', __DIR__ . '/../vendor/autoload.php
 $php_parser_dir = dirname($composerInstall) . "/nikic/php-parser/lib/PhpParser/";
 require_once $php_parser_dir . "Autoloader.php";
 \PhpParser\Autoloader::register(true);
+// for prevent autoload problems
+$files = [];
+exec('find ' . escapeshellarg($php_parser_dir) . " -type f -name '*.php'", $files);
+foreach ($files as $file) {
+    require_once $file;
+}
+unset($files, $file);
+
 /* Soft Mocks init */
 require_once(dirname(__DIR__) . "/src/QA/SoftMocks.php");
 \QA\SoftMocks::init();
