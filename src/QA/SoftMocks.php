@@ -66,7 +66,7 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
 
             $cur_ln = $this->cur_ln;
 
-            $comments = $this->pComments($node->getAttribute('comments', array()));
+            $comments = $this->pComments($node->getAttribute('comments', array())) . "\n";
             $this->cur_ln += substr_count($comments, "\n");
 
             if ($node->getLine() > $this->cur_ln) {
@@ -235,12 +235,12 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
     {
         return 'try {' . $this->pStmts($node->stmts) . '}'
             . $this->pImplode($node->catches)
-            . ($node->finallyStmts !== null ? ' finally {' . $this->pStmts($node->finallyStmts) . '}' : '');
+            . ($node->finally !== null ? ' finally {' . $this->p($node->finally) . '}' : '');
     }
 
     public function pStmt_Catch(\PhpParser\Node\Stmt\Catch_ $node)
     {
-        return ' catch (' . $this->p($node->type) . ' $' . $node->var . ') {'
+        return ' catch (' . $this->pImplode($node->types, ' | ') . ' $' . $node->var . ') {'
             . $this->pStmts($node->stmts) . '}';
     }
 
@@ -328,6 +328,9 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
         $bak_line = $this->cur_ln;
         $return = '';
         foreach ($encapsList as $element) {
+            if ($element instanceof \PhpParser\Node\Scalar\EncapsedStringPart) {
+                $element = $element->value;
+            }
             if (is_string($element)) {
                 $return .= addcslashes($element, "\n\r\t\f\v$" . $quote . "\\");
             } else {
@@ -343,7 +346,7 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
 class SoftMocks
 {
     /** for create new files when parser version changed */
-    const PARSER_VERSION = '2.0.0beta1';
+    const PARSER_VERSION = '=3.0.0alpha1';
     const MOCKS_CACHE_TOUCHTIME = 86400; // 1 day
 
     private static $rewrite_cache = [/* source => target */];
