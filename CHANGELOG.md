@@ -1,5 +1,11 @@
 # SoftMocks v1 Change Log
 
+## v1.1.2
+
+There are next changes:
+
+- vaimo/composer-patches version was fixed for prevent error 'The "badoo/soft-mocks/patches/phpunit5.x/phpunit_phpunit.patch" file could not be downloaded: failed to open stream: No such file or directory';
+
 ## v1.1.1
 
 There are next changes:

@@ -157,15 +157,9 @@ var_dump(strlen("  a  ")); // int(1)
 ```json
 {
   "require-dev": {
-    "vaimo/composer-patches": "^3.3.1",
+    "vaimo/composer-patches": "=3.4.3",
     "phpunit/phpunit": "^5.7.20" // или "^4.8.35"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/vaimo/composer-patches.git"
-    }
-  ],
   "extra": {
     "enable-patching": true
   }
