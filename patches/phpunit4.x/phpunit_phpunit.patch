@@ -1,5 +1,5 @@
 diff --git a/phpunit b/phpunit
-index 539b842..cdecb80 100755
+index 539b842..654addc 100755
 --- a/phpunit
 +++ b/phpunit
 @@ -27,9 +27,10 @@ if (!ini_get('date.timezone')) {
@@ -23,7 +23,7 @@ index 539b842..cdecb80 100755
      fwrite(STDERR,
          'You need to set up the project dependencies using Composer:' . PHP_EOL . PHP_EOL .
          '    composer install' . PHP_EOL . PHP_EOL .
-@@ -47,6 +48,38 @@ if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+@@ -47,6 +48,46 @@ if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
      die(1);
  }
  
@@ -38,8 +38,16 @@ index 539b842..cdecb80 100755
 +unset($file);
 +
 +if ($softMocksPath) {
-+    require_once dirname($composerInstall) . '/nikic/php-parser/lib/PhpParser/Autoloader.php';
++    $php_parser_dir = dirname($composerInstall) . '/nikic/php-parser/lib/PhpParser/';
++    require_once "{$php_parser_dir}Autoloader.php";
 +    \PhpParser\Autoloader::register(true);
++    // for prevent autoload problems
++    $files = [];
++    exec('find ' . escapeshellarg($php_parser_dir) . " -type f -name '*.php'", $files);
++    foreach ($files as $file) {
++        require_once $file;
++    }
++    unset($files, $file);
 +
 +    require_once $softMocksPath;
 +    \QA\SoftMocks::setIgnoreSubPaths(

@@ -158,15 +158,9 @@ If you want that patches are applied automatically, you should write next in в 
 ```json
 {
   "require-dev": {
-    "vaimo/composer-patches": "^3.3.1",
+    "vaimo/composer-patches": "=3.4.3",
     "phpunit/phpunit": "^5.7.20" // or "^4.8.35"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/vaimo/composer-patches.git"
-    }
-  ],
   "extra": {
     "enable-patching": true
   }

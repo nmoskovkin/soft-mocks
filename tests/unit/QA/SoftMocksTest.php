@@ -303,4 +303,31 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         $res = WithReturnTypeDeclarationsClass::getStringOrNull();
         static::assertSame("string3", $res);
     }
+
+    public function providerRewrite()
+    {
+        $files = glob(__DIR__ . '/fixtures/original/*.php');
+        $result = array_map(
+            function ($filename) {
+                return [basename($filename)];
+            },
+            $files
+        );
+        return $result;
+    }
+
+    /**
+     * @dataProvider providerRewrite
+     *
+     * @param $filename
+     */
+    public function testRewrite($filename)
+    {
+        $result = \QA\SoftMocks::rewrite(__DIR__ . '/fixtures/original/' . $filename);
+        $this->assertNotFalse($result, "Rewrite failed");
+
+        //file_put_contents(__DIR__ . '/fixtures/expected/' . $filename, file_get_contents($result));
+
+        $this->assertEquals(file_get_contents(__DIR__ . '/fixtures/expected/' . $filename), file_get_contents($result));
+    }
 }
