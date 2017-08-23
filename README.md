@@ -2,6 +2,13 @@ SoftMocks
 =
 The idea behind "Soft Mocks" - as opposed to "hardcore" mocks that work on the level of the PHP interpreter (runkit and uopz) - is to rewrite class code on the spot so that it can be inserted in any place. It works by rewriting code on the fly during file inclusion instead of using extensions like runkit or uopz.
 
+[![Build Status](https://secure.travis-ci.org/badoo/soft-mocks.png?branch=master)](https://travis-ci.org/badoo/soft-mocks)
+[![GitHub release](https://img.shields.io/github/release/badoo/soft-mocks.svg)](https://github.com/badoo/soft-mocks/releases/latest)
+[![Total Downloads](https://img.shields.io/packagist/dt/badoo/soft-mocks.svg)](https://packagist.org/packages/badoo/soft-mocks)
+[![Daily Downloads](https://img.shields.io/packagist/dd/badoo/soft-mocks.svg)](https://packagist.org/packages/badoo/soft-mocks)
+[![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.5-8892BF.svg)](https://php.net/)
+[![License](https://img.shields.io/packagist/l/badoo/soft-mocks.svg)](https://packagist.org/packages/badoo/soft-mocks)
+
 Installation
 =
 
