@@ -1797,11 +1797,15 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         if ($Node->expr !== null) {
             $args[] = new \PhpParser\Node\Arg($Node->expr);
         }
-        return new \PhpParser\Node\Expr\StaticCall(
+
+        $NewNode = new \PhpParser\Node\Expr\StaticCall(
             new \PhpParser\Node\Name("\\" . SoftMocks::class),
             "callExit",
             $args
         );
+        $NewNode->setLine($Node->getLine());
+
+        return $NewNode;
     }
 
     public function beforeStmt_ClassMethod()
