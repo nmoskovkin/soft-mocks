@@ -66,7 +66,8 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
 
             $cur_ln = $this->cur_ln;
 
-            $comments = $this->pComments($node->getAttribute('comments', array())) . "\n";
+            $comments = $node->getAttribute('comments', array());
+            $comments = !empty($comments) ? ($this->pComments($node->getAttribute('comments', array())) . "\n") : "";
             $this->cur_ln += substr_count($comments, "\n");
 
             if ($node->getLine() > $this->cur_ln) {
