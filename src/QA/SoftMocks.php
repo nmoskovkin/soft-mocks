@@ -774,7 +774,7 @@ class SoftMocks
     private static function getVersion()
     {
         if (!isset(self::$version)) {
-            self::$version = phpversion() . self::PARSER_VERSION . md5_file(__FILE__);
+            self::$version = phpversion() . str_replace('=', '', self::PARSER_VERSION) . md5_file(__FILE__);
         }
         return self::$version;
     }
