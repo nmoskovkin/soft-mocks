@@ -95,7 +95,9 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
     {
         $this->cur_ln = 1;
         $this->preprocessNodes($stmts);
-        return "<?php " . str_replace("\n" . $this->noIndentToken, "\n", $this->pStmts($stmts, false));
+        $result = $this->pStmts($stmts, false);
+        $result = $this->handleMagicTokens($result);
+        return "<?php " . $result;
     }
 
     protected function p(\PhpParser\Node $node)
