@@ -23,4 +23,14 @@ class SomeClass
     {
         return replaceSomething($string);
     }
+
+    public function methodNullable() : ?array
+    {
+        return null;
+    }
+
+    public function methodVoid() : void
+    {
+        echo "something";
+    }
 }

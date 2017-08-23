@@ -1879,8 +1879,10 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         // we need special code handling them because yield cannot be used inside eval
         // we get something like the following:
         //
-        // $mm_callback = SoftMocks::getMockForGenerator();
-        // foreach ($mm_callback(...) as $mm_val) { yield $mm_val; }
+        //     $mm_callback = SoftMocks::getMockForGenerator();
+        //     foreach ($mm_callback(...) as $mm_val) { yield $mm_val; }
+        //
+        // also functions with void return type declarations cannot return values
         if ($this->has_yield) {
             $args = [$static, $function];
 
@@ -1925,11 +1927,16 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
                 $function,
             ];
 
-            $body_stmts[] = new \PhpParser\Node\Stmt\Return_(
-                new \PhpParser\Node\Expr\Eval_(
-                    new \PhpParser\Node\Expr\Variable("__softmocksvariableforcode")
-                )
+            $eval = new \PhpParser\Node\Expr\Eval_(
+                new \PhpParser\Node\Expr\Variable("__softmocksvariableforcode")
             );
+
+            if ($Node->returnType === 'void') {
+                $body_stmts[] = $eval;
+                $body_stmts[] = new \PhpParser\Node\Stmt\Return_();
+            } else {
+                $body_stmts[] = new \PhpParser\Node\Stmt\Return_($eval);
+            }
         }
 
         $MockCheck = new \PhpParser\Node\Stmt\If_(
