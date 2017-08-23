@@ -168,6 +168,7 @@ class WithReturnTypeDeclarationsClass
     {
         return "string";
     }
+
     public static function getStringOrNull() : ?string
     {
         return null;
