@@ -238,7 +238,7 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
     {
         return 'try {' . $this->pStmts($node->stmts) . '}'
             . $this->pImplode($node->catches)
-            . ($node->finally !== null ? ' finally {' . $this->p($node->finally) . '}' : '');
+            . ($node->finally !== null ? ' finally {' . $this->pStmts($node->finally->stmts) . '}' : '');
     }
 
     public function pStmt_Catch(\PhpParser\Node\Stmt\Catch_ $node)
