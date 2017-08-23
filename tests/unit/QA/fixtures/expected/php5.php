@@ -19,18 +19,18 @@ if (!empty($_SERVER['HTTP_ORIG_DOMAIN'])) {
     \QA\SoftMocks::callFunction(__NAMESPACE__, 'header', array($header));
     \QA\SoftMocks::callFunction(__NAMESPACE__, 'header', array('Location: ' . $redirect_address));
     
-    echo "<html>\n <head>\n  <title>Status 301 - Moved Permanently</title>\n  <meta http-equiv=\"Refresh\" content=\"0; url={$redirect_address}\">\n </head>\n <body bgcolor=\"#ffffff\" text=\"#000000\" link=\"#ff0000\" alink=\"#ff0000\" vlink=\"#ff0000\">\n Document permanently moved: <a href=\"{$redirect_address}\">{$redirect_address}</a>\n </body>\n</html>";\QA\SoftMocks::callExit();}
-
-
-
-
-
-
-
-
-
-
-
+    echo <<<END
+<html>\n <head>\n  <title>Status 301 - Moved Permanently</title>\n  <meta http-equiv="Refresh" content="0; url={$redirect_address}">\n </head>\n <body bgcolor="#ffffff" text="#000000" link="#ff0000" alink="#ff0000" vlink="#ff0000">\n Document permanently moved: <a href="{$redirect_address}">{$redirect_address}</a>\n </body>\n</html>
+END;
+    
+    
+    
+    
+    
+    
+    
+    
+    \QA\SoftMocks::callExit();}
 
 
 $developer = 'somebody';
@@ -42,8 +42,8 @@ $_SERVER['developer'] = $developer;
 \QA\SoftMocks::callFunction(__NAMESPACE__, 'define', array('PHPWEB_PATH_PHOTOS', '/home/' . $developer . '/photos'));
 
 $old_umask = \QA\SoftMocks::callFunction(__NAMESPACE__, 'umask', array(0));
-$create_dirs = array(
-\QA\SoftMocks::getConst(__NAMESPACE__, 'PHPWEB_PATH_PHOTOS'));
+$create_dirs = [
+\QA\SoftMocks::getConst(__NAMESPACE__, 'PHPWEB_PATH_PHOTOS')];
 
 
 include_once \QA\SoftMocks::rewrite('debug.php');
