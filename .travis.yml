@@ -1,5 +1,7 @@
 language: php
 
+sudo: false
+
 php:
   - 5.5
   - 5.6
@@ -7,18 +9,30 @@ php:
   - 7.1
   - 7.2
 
+env:
+  - PHPUNIT_VERSION=~4.8.0
+  - PHPUNIT_VERSION=~5.7.0
+
 before_script:
-  - composer self-update
+  - composer require --dev --no-update "phpunit/phpunit":"${PHPUNIT_VERSION}"
   - composer install
   - mkdir -p /tmp/mocks/
 
 script:
   - vendor/bin/phpunit --verbose --colors --coverage-clover=coverage.clover
 
-after_script:
+after_success:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
 matrix:
+  fast_finish: true
   allow_failures:
     - php: 7.2
+  exclude:
+    - php: 5.5
+      env: PHPUNIT_VERSION=~5.7.0
+    - php: 7.1
+      env: PHPUNIT_VERSION=~4.8.0
+    - php: 7.2
+      env: PHPUNIT_VERSION=~4.8.0
