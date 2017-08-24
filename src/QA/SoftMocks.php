@@ -1659,6 +1659,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
     private $disable_const_rewrite_level = 0;
 
     private $in_interface = false;
+    private $in_closure_level = 0;
     private $has_yield = false;
     private $cur_class = '';
 
@@ -1802,17 +1803,33 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
     public function beforeStmt_ClassMethod()
     {
+        $this->in_closure_level = 0;
         $this->has_yield = false;
+    }
+
+    public function beforeExpr_Closure()
+    {
+        $this->in_closure_level++;
+    }
+
+    public function rewriteExpr_Closure(\PhpParser\Node\Expr\Closure $Node)
+    {
+        $this->in_closure_level--;
+        return $Node;
     }
 
     public function beforeExpr_Yield()
     {
-        $this->has_yield = true;
+        if ($this->in_closure_level === 0) {
+            $this->has_yield = true;
+        }
     }
 
     public function beforeExpr_YieldFrom()
     {
-        $this->has_yield = true;
+        if ($this->in_closure_level === 0) {
+            $this->has_yield = true;
+        }
     }
 
     public function beforeStmt_Class(\PhpParser\Node\Stmt\Class_ $Node)
