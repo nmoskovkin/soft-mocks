@@ -3,8 +3,11 @@
 ## master
 
 There are next changes:
+
+- PHP 7.1 support (mostly nullable and void return type declarations)
+- update nikic/php-parser to 3.0.6
+- skipped running PHP 7.0 tests on previously versions of PHP
 - added Travis and Scrutinizer support
-- skipped running PHP7.0 tests on previously versions of PHP
 
 ## v1.1.2
 
