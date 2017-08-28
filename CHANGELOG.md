@@ -1,5 +1,11 @@
 # SoftMocks v1 Change Log
 
+## master
+
+There are next changes:
+- added Travis and Scrutinizer support
+- skipped running PHP7.0 tests on previously versions of PHP
+
 ## v1.1.2
 
 There are next changes:
