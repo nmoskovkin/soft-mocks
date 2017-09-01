@@ -1,3 +1,8 @@
+# Upgrading Instructions for SoftMocks 1.1.3
+
+- Class `\QA\SoftMocks` marked as deprecated
+- All methods of `\QA\SoftMocks` moved to `\Badoo\SoftMocks`
+
 # Upgrading Instructions for SoftMocks 1.1.2
 
 !!!IMPORTANT!!!

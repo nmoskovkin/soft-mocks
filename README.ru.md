@@ -25,8 +25,8 @@ SoftMocks не переписывают следующие части систе
 
 Для того, чтобы подключить какие-либо внешние зависимости (например, vendor/autoload.php) в файле, который был подключен до инициализации SoftMocks, их нужно подключить через обертку:
 ```
-require_once (\QA\SoftMocks::rewrite('vendor/autoload.php'));
-require_once (\QA\SoftMocks::rewrite('path/to/external/lib.php'));
+require_once (\Badoo\SoftMocks::rewrite('vendor/autoload.php'));
+require_once (\Badoo\SoftMocks::rewrite('path/to/external/lib.php'));
 ```
 
 После того, как вы подключите файл через SoftMocks::rewrite(), все вложенные вызовы `include` уже будут «обернуты» самой системой.
@@ -60,12 +60,12 @@ Result after reverting SoftMocks = array (
 API (краткое описание)
 =
 ```
-\QA\SoftMocks::init();
+\Badoo\SoftMocks::init();
 ```
 Инициализирует софт-моки. По умолчанию, кэш файлов создаётся в /tmp/mocks. Если вам такой путь не подходит, то его можно переопределить следующим образом:
 
 ```
-\QA\SoftMocks::setMocksCachePath($cache_path);
+\Badoo\SoftMocks::setMocksCachePath($cache_path);
 ```
 
 
@@ -77,25 +77,25 @@ API (краткое описание)
 Поддерживаются как «обычные константы», так и константы классов, с синтаксисом "className::CONST_NAME".
 
 ```
-\QA\SoftMocks::redefineConstant($constantName, $value)
+\Badoo\SoftMocks::redefineConstant($constantName, $value)
 ```
 
 Переопределение функций
 ==
 
-Soft Mocks позволяет переопределить как пользовательские, так и встроенные функции, кроме функций, которые зависят от текущего контекста (см. свойство \QA\SoftMocksTraverser::$ignore_functions), а также тех, для которых есть встроенные моки (debug_backtrace, call_user_func* и некоторые другие, но встроенные моки можно разрешить переотпределять через `\QA\SoftMocks::setRewriteInternal(true)`).
+Soft Mocks позволяет переопределить как пользовательские, так и встроенные функции, кроме функций, которые зависят от текущего контекста (см. свойство \Badoo\SoftMocksTraverser::$ignore_functions), а также тех, для которых есть встроенные моки (debug_backtrace, call_user_func* и некоторые другие, но встроенные моки можно разрешить переотпределять через `\Badoo\SoftMocks::setRewriteInternal(true)`).
 
 Сигнатура:
 ```
-\QA\SoftMocks::redefineFunction($func, $functionArgs, $fakeCode)
+\Badoo\SoftMocks::redefineFunction($func, $functionArgs, $fakeCode)
 ```
 
 Пример использования (переопределить функцию strlen и вызвать оригинальную для trim'нутой строки):
 ```
-\QA\SoftMocks::redefineFunction(
+\Badoo\SoftMocks::redefineFunction(
     'strlen',
     '$a',
-    'return \\QA\\SoftMocks::callOriginal("strlen", [trim($a)]));'
+    'return \\Badoo\\SoftMocks::callOriginal("strlen", [trim($a)]));'
 );
 
 var_dump(strlen("  a  ")); // int(1)
@@ -108,7 +108,7 @@ var_dump(strlen("  a  ")); // int(1)
 
 Сигнатура:
 ```
-\QA\SoftMocks::redefineMethod($class, $method, $functionArgs, $fakeCode)
+\Badoo\SoftMocks::redefineMethod($class, $method, $functionArgs, $fakeCode)
 ```
 
 Отличие от redefineFunction состоит в наличии класса ($class).
@@ -120,7 +120,7 @@ var_dump(strlen("  a  ")); // int(1)
 Метод позволяет заменить вызов функции-генератора на \Callable-объект также являющийся генератором. Генераторы отличаются от обычных функций тем, что в них невозможно вернуть значение через return и обязательно нужно пользоваться yield.
 
 ```
-\QA\SoftMocks::redefineGenerator($class, $method, Callable $replacement)
+\Badoo\SoftMocks::redefineGenerator($class, $method, Callable $replacement)
 ```
 
 Восстановление значений
@@ -129,17 +129,17 @@ var_dump(strlen("  a  ")); // int(1)
 Следующие функции отменяют замену, осуществлённую одним из приведенных раннее redefine-методов.
 
 ```
-\QA\SoftMocks::restoreAll()
+\Badoo\SoftMocks::restoreAll()
 
 // Так же можно отменить конкретные моки:
-\QA\SoftMocks::restoreConstant($constantName)
-\QA\SoftMocks::restoreAllConstants()
-\QA\SoftMocks::restoreFunction($func)
-\QA\SoftMocks::restoreMethod($class, $method)
-\QA\SoftMocks::restoreGenerator($class, $method)
-\QA\SoftMocks::restoreNew()
-\QA\SoftMocks::restoreAllNew()
-\QA\SoftMocks::restoreExit()
+\Badoo\SoftMocks::restoreConstant($constantName)
+\Badoo\SoftMocks::restoreAllConstants()
+\Badoo\SoftMocks::restoreFunction($func)
+\Badoo\SoftMocks::restoreMethod($class, $method)
+\Badoo\SoftMocks::restoreGenerator($class, $method)
+\Badoo\SoftMocks::restoreNew()
+\Badoo\SoftMocks::restoreAllNew()
+\Badoo\SoftMocks::restoreExit()
 ```
 
 Использование совместно с PHPUnit
@@ -175,7 +175,7 @@ FAQ
 =
 **Q**: Как запретить переопределять ту или иную функцию/класс/константу?
 
-**A**: Используйте методы \QA\SoftMocks::ignore(Class|Function|Constant).
+**A**: Используйте методы \Badoo\SoftMocks::ignore(Class|Function|Constant).
 
 **Q**: Я не могу переопределить вызовы некоторых функций: call_user_func(_array)?, defined, etc.
 
@@ -188,11 +188,11 @@ FAQ
 * defined
 * debug_backtrace
 
-Что бы включить перехватывание для них, нужно вызвать `\QA\SoftMocks::setRewriteInternal(true)` после подключения bootstrap-а, но будьте внимателены.
+Что бы включить перехватывание для них, нужно вызвать `\Badoo\SoftMocks::setRewriteInternal(true)` после подключения bootstrap-а, но будьте внимателены.
 Например, если strlen и call_user_func(_array) переопределены, то можно получить разные результаты для strlen: 
 ```php
-\QA\SoftMocks::redefineFunction('call_user_func_array', '', function () {return 20;});
-\QA\SoftMocks::redefineFunction('strlen', '', function () {return 5;});
+\Badoo\SoftMocks::redefineFunction('call_user_func_array', '', function () {return 20;});
+\Badoo\SoftMocks::redefineFunction('strlen', '', function () {return 5;});
 ...
 strlen('test'); // вернет 5
 call_user_func_array('strlen', ['test']); // вернет 20
