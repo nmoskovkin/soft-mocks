@@ -19,7 +19,9 @@ foreach ($files as $file) {
 unset($files, $file);
 
 /* Soft Mocks init */
+require_once(dirname(__DIR__) . "/src/Badoo/SoftMocks.php");
+// @TODO Should removed after release 2.0
 require_once(dirname(__DIR__) . "/src/QA/SoftMocks.php");
-\QA\SoftMocks::init();
-require \QA\SoftMocks::rewrite($composerInstall);
+\Badoo\SoftMocks::init();
+require \Badoo\SoftMocks::rewrite($composerInstall);
 unset($php_parser_dir, $composerInstall);
