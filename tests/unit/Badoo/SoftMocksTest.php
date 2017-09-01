@@ -269,6 +269,20 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         static::assertSame('CD', GrandChildStaticTestClass::getString());
     }
 
+    /**
+     * @TODO remove in 2.0.0 version
+     */
+    public function testInheritStaticMockWithOldNameSpace()
+    {
+        \QA\SoftMocks::redefineMethod(
+            get_parent_class(GrandChildStaticTestClass::class),
+            'getString',
+            '',
+            'return "D";'
+        );
+        static::assertSame('CD', GrandChildStaticTestClass::getString());
+    }
+
     public function testAnonymous()
     {
         if (version_compare(phpversion(), '7.0.0', '<')) {
