@@ -1,10 +1,11 @@
 # SoftMocks v1 Change Log
 
-## master
+## v1.2.0
 
 There are next changes:
 - added Travis and Scrutinizer support
 - skipped running PHP7.0 tests on previously versions of PHP
+- changed default namespace to \Badoo. \QA namespace marked as deprecated and will be removed in 2.0.0
 
 ## v1.1.2
 

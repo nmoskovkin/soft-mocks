@@ -1,35 +1,43 @@
 diff --git a/phpunit b/phpunit
-index 539b842..654addc 100755
+index 539b842..ee60f79 100755
 --- a/phpunit
 +++ b/phpunit
 @@ -27,9 +27,10 @@ if (!ini_get('date.timezone')) {
      ini_set('date.timezone', 'UTC');
  }
- 
+
 +$composerInstall = '';
  foreach (array(__DIR__ . '/../../autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/vendor/autoload.php') as $file) {
      if (file_exists($file)) {
 -        define('PHPUNIT_COMPOSER_INSTALL', $file);
 +        $composerInstall = $file;
- 
+
          break;
      }
 @@ -37,7 +38,7 @@ foreach (array(__DIR__ . '/../../autoload.php', __DIR__ . '/../vendor/autoload.p
- 
+
  unset($file);
- 
+
 -if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
 +if (!$composerInstall) {
      fwrite(STDERR,
          'You need to set up the project dependencies using Composer:' . PHP_EOL . PHP_EOL .
          '    composer install' . PHP_EOL . PHP_EOL .
-@@ -47,6 +48,46 @@ if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+@@ -47,6 +48,56 @@ if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
      die(1);
  }
- 
+
 -require PHPUNIT_COMPOSER_INSTALL;
-+$softMocksPath = '';
++$softMocksPathOld = '';
 +foreach (array(__DIR__ . '/../../badoo/soft-mocks/src/QA/SoftMocks.php', __DIR__ . '/../../../src/QA/SoftMocks.php') as $file) {
++    if (file_exists($file)) {
++        $softMocksPathOld = $file;
++
++    }
++}
++unset($file);
++$softMocksPath = '';
++foreach (array(__DIR__ . '/../../badoo/soft-mocks/src/Badoo/SoftMocks.php', __DIR__ . '/../../../src/Badoo/SoftMocks.php') as $file) {
 +    if (file_exists($file)) {
 +        $softMocksPath = $file;
 +
@@ -50,19 +58,21 @@ index 539b842..654addc 100755
 +    unset($files, $file);
 +
 +    require_once $softMocksPath;
-+    \QA\SoftMocks::setIgnoreSubPaths(
++    // @TODO should be removed after 2.0.0
++    require_once $softMocksPathOld;
++    \Badoo\SoftMocks::setIgnoreSubPaths(
 +        array(
 +            '/vendor/phpunit/' => '/vendor/phpunit/',
 +            '/vendor/sebastian/diff/' => '/vendor/sebastian/diff/',
 +            '/vendor/nikic/php-parser/' => '/vendor/nikic/php-parser/',
 +        )
 +    );
-+    \QA\SoftMocks::init();
-+    $composerInstall = \QA\SoftMocks::rewrite($composerInstall);
++    \Badoo\SoftMocks::init();
++    $composerInstall = \Badoo\SoftMocks::rewrite($composerInstall);
 +    require $composerInstall;
 +    // inject soft-mocks into phpunit
 +    class_exists(PHPUnit_Util_Fileloader::class);
-+    \QA\SoftMocks::injectIntoPhpunit();
++    \Badoo\SoftMocks::injectIntoPhpunit();
 +} else {
 +    require $composerInstall;
 +}

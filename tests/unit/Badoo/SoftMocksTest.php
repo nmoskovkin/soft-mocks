@@ -4,7 +4,7 @@
  * @author Kirill Abrosimov <k.abrosimov@corp.badoo.com>
  * @author Rinat Akhmadeev <r.akhmadeev@corp.badoo.com>
  */
-namespace QA;
+namespace Badoo\SoftMock\Tests;
 
 class SoftMocksTest extends \PHPUnit\Framework\TestCase
 {
@@ -15,7 +15,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     protected function tearDown()
     {
-        SoftMocks::restoreAll();
+        \Badoo\SoftMocks::restoreAll();
         parent::tearDown();
     }
 
@@ -29,12 +29,12 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
             json_last_error(),
             "Can't parse composer.json: [" . json_last_error() . '] ' . json_last_error_msg()
         );
-        static::assertSame(\QA\SoftMocks::PARSER_VERSION, $composer_data['require']['nikic/php-parser']);
+        static::assertSame(\Badoo\SoftMocks::PARSER_VERSION, $composer_data['require']['nikic/php-parser']);
     }
 
     public function testExitMock()
     {
-        SoftMocks::redefineExit(
+        \Badoo\SoftMocks::redefineExit(
             '',
             function ($code) {
                 throw new \Exception("exit called: {$code}");
@@ -49,25 +49,25 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         }
         static::assertFalse($result);
 
-        SoftMocks::restoreExit();
+        \Badoo\SoftMocks::restoreExit();
 
-        SoftMocks::redefineExit(
+        \Badoo\SoftMocks::redefineExit(
             '',
             function ($code) {
-                \QA\WithExitTestClass::$exit_code = $code;
-                \QA\WithExitTestClass::$exit_called = true;
+                WithExitTestClass::$exit_code = $code;
+                WithExitTestClass::$exit_called = true;
             }
         );
         $result = WithExitTestClass::doWithExit();
         static::assertEquals(WithExitTestClass::RESULT, $result);
         static::assertEquals(WithExitTestClass::RESULT * 10, WithExitTestClass::$exit_code);
         static::assertTrue(WithExitTestClass::$exit_called);
-        SoftMocks::restoreExit();
+        \Badoo\SoftMocks::restoreExit();
     }
 
     public function testRedefineConstructor()
     {
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
             ConstructTestClass::class,
             '__construct',
             '',
@@ -80,7 +80,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testRedefineMethod()
     {
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
             BaseInheritanceTestClass::class,
             'doSomething',
             '',
@@ -92,7 +92,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testRedefineMethodWithInheritedClasses()
     {
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
             BaseInheritanceTestClass::class,
             'doSomething',
             '',
@@ -104,7 +104,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testRedefineMethodWithInheritedClasses2()
     {
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
             InheritanceTestClass::class,
             'doSomething',
             '',
@@ -116,13 +116,13 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testParentMismatch()
     {
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
             ParentMismatchChildTestClass::class,
             'f',
             '$c',
-            'return \Qa\SoftMocks::callOriginal([\Qa\ParentMismatchChildTestClass::class, "f"], [$c]) + 1;'
+            'return \Badoo\SoftMocks::callOriginal([\Badoo\SoftMock\Tests\ParentMismatchChildTestClass::class, "f"], [$c]) + 1;'
         );
-        SoftMocks::redefineMethod(ParentMismatchBaseTestClass::class, 'f', '', 'return 100;');
+        \Badoo\SoftMocks::redefineMethod(ParentMismatchBaseTestClass::class, 'f', '', 'return 100;');
 
         static::assertEquals(2, ParentMismatchChildTestClass::f(true));
         static::assertEquals(101, ParentMismatchChildTestClass::f(false));
@@ -132,7 +132,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
     {
         $Generators = new GeneratorsTestClass();
         $values = [];
-        SoftMocks::redefineGenerator(
+        \Badoo\SoftMocks::redefineGenerator(
             GeneratorsTestClass::class,
             'yieldAb',
             [$this, 'yieldAbMock']
@@ -160,7 +160,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         $Generators = new GeneratorsTestClass();
         $values = [];
 
-        SoftMocks::redefineGenerator(
+        \Badoo\SoftMocks::redefineGenerator(
             GeneratorsTestClass::class,
             'yieldRef',
             [$this, 'yieldRefMock']
@@ -203,7 +203,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         $Misc = new DefaultTestClass();
         static::assertTrue($Misc->doSomething(1, 2));
 
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
             DefaultTestClass::class,
             'doSomething',
             '$a, $b = 3',
@@ -216,7 +216,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testInheritMock()
     {
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
             EmptyTestClass::class,
             'getter',
             '',
@@ -232,7 +232,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testInheritTrapMock()
     {
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
             BaseTestClass::class,
             'getter',
             '',
@@ -247,7 +247,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testInheritParentMock()
     {
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
             BaseTestClass::class,
             'getter',
             '',
@@ -260,7 +260,21 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testInheritStaticMock()
     {
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
+            get_parent_class(GrandChildStaticTestClass::class),
+            'getString',
+            '',
+            'return "D";'
+        );
+        static::assertSame('CD', GrandChildStaticTestClass::getString());
+    }
+
+    /**
+     * @TODO remove in 2.0.0 version
+     */
+    public function testInheritStaticMockWithOldNameSpace()
+    {
+        \QA\SoftMocks::redefineMethod(
             get_parent_class(GrandChildStaticTestClass::class),
             'getString',
             '',
@@ -279,7 +293,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         static::assertEquals(1, AnonymousTestClass::SOMETHING);
         $test = new AnonymousTestClass();
         $obj = $test->doSomething();
-        SoftMocks::redefineMethod(
+        \Badoo\SoftMocks::redefineMethod(
             get_class($obj),
             'meth',
             '',
@@ -307,11 +321,10 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
      */
     public function testRewrite($filename)
     {
-        $result = \QA\SoftMocks::rewrite(__DIR__ . '/fixtures/original/' . $filename);
+        $result = \Badoo\SoftMocks::rewrite(__DIR__ . '/fixtures/original/' . $filename);
         $this->assertNotFalse($result, "Rewrite failed");
 
         //file_put_contents(__DIR__ . '/fixtures/expected/' . $filename, file_get_contents($result));
-
         $this->assertEquals(file_get_contents(__DIR__ . '/fixtures/expected/' . $filename), file_get_contents($result));
     }
 }

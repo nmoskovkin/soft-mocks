@@ -2,7 +2,7 @@
 /**
  * @author Konstantin Kuklin <konstantin.kuklin@gmail.com>
  */
-namespace QA;
+namespace Badoo\SoftMock\Tests;
 
 class AnonymousTestClass
 {
