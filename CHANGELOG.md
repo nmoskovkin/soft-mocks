@@ -6,6 +6,7 @@ There are next changes:
 - added Travis and Scrutinizer support
 - skipped running PHP7.0 tests on previously versions of PHP
 - changed default namespace to \Badoo. \QA namespace marked as deprecated and will be removed in 2.0.0
+- \QA\SoftMocksTraverser::$can_ref gone private, was mistakenly without scope.
 
 ## v1.1.2
 
