@@ -1,6 +1,6 @@
 # SoftMocks v1 Change Log
 
-## v1.1.3
+## v1.2.0
 
 There are next changes:
 - added Travis and Scrutinizer support
