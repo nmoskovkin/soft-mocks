@@ -4,15 +4,16 @@
 
 There are next changes:
 
-- PHP 7.1 support (mostly nullable and void return type declarations)
-- update nikic/php-parser to 3.0.6
+- PHP 7.1 support (mostly nullable and void return type declarations);
+- update nikic/php-parser to 3.0.6.
 
 ## v1.2.0
 
 There are next changes:
 
-- skipped running PHP7.0 tests on previously versions of PHP
-- changed default namespace to \Badoo. \QA namespace marked as deprecated and will be removed in 2.0.0
+- added Travis and Scrutinizer support;
+- skipped running PHP7.0 tests on previously versions of PHP;
+- changed default namespace to \Badoo. \QA namespace marked as deprecated and will be removed in 2.0.0;
 - \QA\SoftMocksTraverser::$can_ref gone private, was mistakenly without scope.
 
 ## v1.1.2
