@@ -3,7 +3,7 @@
  * @author Kirill Abrosimov <k.abrosimov@corp.badoo.com>
  * @author Rinat Akhmadeev <r.akhmadeev@corp.badoo.com>
  */
-namespace QA;
+namespace Badoo\SoftMock\Tests;
 
 class DefaultTestClass
 {

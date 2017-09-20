@@ -25,15 +25,15 @@ The thing that sets SoftMocks apart (and also limits their usage) is that they n
 
 SoftMocks don't rewrite the following system parts:
 * it's own code;
-* PHPUnit code (see `\QA\SoftMocks::addIgnorePath()` for details);
-* PHP-Parser code (see `\QA\SoftMocks::addIgnorePath()` for details);
+* PHPUnit code (see `\Badoo\SoftMocks::addIgnorePath()` for details);
+* PHP-Parser code (see `\Badoo\SoftMocks::addIgnorePath()` for details);
 * already rewritten code;
 * code which was loaded before SoftMocks initialization.
 
 In order to add external dependencies (for example, vendor/autoload.php) in file, which which was loaded before SoftMocks initialization, you need to use a wrapper:
 ```
-require_once (\QA\SoftMocks::rewrite('vendor/autoload.php'));
-require_once (\QA\SoftMocks::rewrite('path/to/external/lib.php'));
+require_once (\Badoo\SoftMocks::rewrite('vendor/autoload.php'));
+require_once (\Badoo\SoftMocks::rewrite('path/to/external/lib.php'));
 ```
 
 After you've added the file via `SoftMocks::rewrite()`, all nested include calls will already be "wrapped" by the system itself.
@@ -69,13 +69,13 @@ API (short description)
 Initialize SoftMocks (set phpunit injections, define internal mocks, get list of internal functions, etc):
 
 ```
-\QA\SoftMocks::init();
+\Badoo\SoftMocks::init();
 ```
 
 Cache files are created in /tmp/mocks by default. If you want to choose a different path, you can redefine it as follows:
 
 ```
-\QA\SoftMocks::setMocksCachePath($cache_path);
+\Badoo\SoftMocks::setMocksCachePath($cache_path);
 ```
 
 Redefine constant
@@ -86,25 +86,25 @@ You can assign a new value to $constantName or create one if it wasn't already d
 Both "regular constants" and class constants like "className::CONST_NAME" are supported.
 
 ```
-\QA\SoftMocks::redefineConstant($constantName, $value)
+\Badoo\SoftMocks::redefineConstant($constantName, $value)
 ```
 
 Redefine functions
 ==
 
-SoftMocks let you redefine both user-defined and built-in functions except for those that depend on the current context (see \QA\SoftMocksTraverser::$ignore_functions property if you want to see the full list), or for those that have built-in mocks (debug_backtrace, call_user_func* and a few others, but built-in mocks you can enable redefine by call `\QA\SoftMocks::setRewriteInternal(true)`).
+SoftMocks let you redefine both user-defined and built-in functions except for those that depend on the current context (see \Badoo\SoftMocksTraverser::$ignore_functions property if you want to see the full list), or for those that have built-in mocks (debug_backtrace, call_user_func* and a few others, but built-in mocks you can enable redefine by call `\Badoo\SoftMocks::setRewriteInternal(true)`).
 
 Definition:
 ```
-\QA\SoftMocks::redefineFunction($func, $functionArgs, $fakeCode)
+\Badoo\SoftMocks::redefineFunction($func, $functionArgs, $fakeCode)
 ```
 
 Usage example (redefine strlen function and call original for the trimmed string):
 ```
-\QA\SoftMocks::redefineFunction(
+\Badoo\SoftMocks::redefineFunction(
     'strlen',
     '$a',
-    'return \\QA\\SoftMocks::callOriginal("strlen", [trim($a)]));'
+    'return \\Badoo\\SoftMocks::callOriginal("strlen", [trim($a)]));'
 );
 
 var_dump(strlen("  a  ")); // int(1)
@@ -117,7 +117,7 @@ At the moment, only user-defined method redefinition is supported. This function
 
 Definition:
 ```
-\QA\SoftMocks::redefineMethod($class, $method, $functionArgs, $fakeCode)
+\Badoo\SoftMocks::redefineMethod($class, $method, $functionArgs, $fakeCode)
 ```
 
 Arguments are the same as for redefineFunction, but argument $class is introduced.
@@ -129,7 +129,7 @@ Redefining functions that are generators
 This method that lets you replace a generator function call with another \Generator. Generators differ from regular functions in that you can't return a value using "return"; you have to use "yield".
 
 ```
-\QA\SoftMocks::redefineGenerator($class, $method, \Generator $replacement)
+\Badoo\SoftMocks::redefineGenerator($class, $method, \Generator $replacement)
 ```
 
 Restore values
@@ -137,17 +137,17 @@ Restore values
 
 The following functions undo mocks that were made using one of the redefine methods described above.
 ```
-\QA\SoftMocks::restoreAll()
+\Badoo\SoftMocks::restoreAll()
 
 // You can also undo only chosen mocks:
-\QA\SoftMocks::restoreConstant($constantName)
-\QA\SoftMocks::restoreAllConstants()
-\QA\SoftMocks::restoreFunction($func)
-\QA\SoftMocks::restoreMethod($class, $method)
-\QA\SoftMocks::restoreGenerator($class, $method)
-\QA\SoftMocks::restoreNew()
-\QA\SoftMocks::restoreAllNew()
-\QA\SoftMocks::restoreExit()
+\Badoo\SoftMocks::restoreConstant($constantName)
+\Badoo\SoftMocks::restoreAllConstants()
+\Badoo\SoftMocks::restoreFunction($func)
+\Badoo\SoftMocks::restoreMethod($class, $method)
+\Badoo\SoftMocks::restoreGenerator($class, $method)
+\Badoo\SoftMocks::restoreNew()
+\Badoo\SoftMocks::restoreAllNew()
+\Badoo\SoftMocks::restoreExit()
 ```
 
 Using with PHPUnit
@@ -183,7 +183,7 @@ FAQ
 =
 **Q**: How can I prevent a specific function/class/constant from being redefined?
 
-**A**: Use the \QA\SoftMocks::ignore(Class|Function|Constant) method.
+**A**: Use the \Badoo\SoftMocks::ignore(Class|Function|Constant) method.
 
 **Q**: I can't override certain function calls: call_user_func(_array)?, defined, etc.
 
@@ -197,11 +197,11 @@ Here is an incomplete list of them:
 * defined
 * debug_backtrace
 
-So you can enable intercepting for them by call `\QA\SoftMocks::setRewriteInternal(true)` after require bootstrap, but be attentive.
+So you can enable intercepting for them by call `\Badoo\SoftMocks::setRewriteInternal(true)` after require bootstrap, but be attentive.
 For example, if strlen and call_user_func(_array) is redefined, then you can get different result for strlen:
 ```php
-\QA\SoftMocks::redefineFunction('call_user_func_array', '', 'return 20;');
-\QA\SoftMocks::redefineFunction('strlen', '', 'return 5;');
+\Badoo\SoftMocks::redefineFunction('call_user_func_array', '', 'return 20;');
+\Badoo\SoftMocks::redefineFunction('strlen', '', 'return 5;');
 ...
 strlen('test'); // will return 5
 call_user_func_array('strlen', ['test']); // will return 20

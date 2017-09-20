@@ -24,38 +24,38 @@ class ExampleTest extends PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        \QA\SoftMocks::restoreAll();
+        \Badoo\SoftMocks::restoreAll();
     }
 
     public function testFunction()
     {
-        \QA\SoftMocks::redefineFunction('strlen', '$a', 'return 2;');
+        \Badoo\SoftMocks::redefineFunction('strlen', '$a', 'return 2;');
         $this->assertEquals(2, strlen("a"));
     }
 
     public function testConstant()
     {
         define('SOME_CONST', 3);
-        \QA\SoftMocks::redefineConstant('SOME_CONST', 4);
+        \Badoo\SoftMocks::redefineConstant('SOME_CONST', 4);
         $this->assertEquals(4, SOME_CONST);
     }
 
     public function testClassConstant()
     {
-        \QA\SoftMocks::redefineConstant(self::class . '::EX_CLASS_CONST', 6);
+        \Badoo\SoftMocks::redefineConstant(self::class . '::EX_CLASS_CONST', 6);
         $this->assertEquals(6, self::EX_CLASS_CONST);
     }
 
     public function testMethod()
     {
-        \QA\SoftMocks::redefineMethod(self::class, 'exampleFact', '$n', 'return -1;');
+        \Badoo\SoftMocks::redefineMethod(self::class, 'exampleFact', '$n', 'return -1;');
         $this->assertEquals(-1, $this->exampleFact(4));
-        $this->assertEquals(-4, \QA\SoftMocks::callOriginal([$this, 'exampleFact'], [4]));
+        $this->assertEquals(-4, \Badoo\SoftMocks::callOriginal([$this, 'exampleFact'], [4]));
     }
 
     public function testGenerator()
     {
-        \QA\SoftMocks::redefineGenerator(
+        \Badoo\SoftMocks::redefineGenerator(
             self::class,
             'exampleGenerator',
             [$this, 'getGeneratorMock']

@@ -1,7 +1,7 @@
 <?php 
 
 try {
-    $a = \QA\SoftMocks::callFunction(__NAMESPACE__, 'replaceSomething', array("something"));}
+    $a = \Badoo\SoftMocks::callFunction(__NAMESPACE__, 'replaceSomething', array("something"));}
  catch (\Exception $e) {
     echo $e->getMessage();}
  finally {
