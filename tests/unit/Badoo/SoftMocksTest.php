@@ -214,6 +214,15 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         static::assertEquals([1, 3], $Misc->doSomething(1));
     }
 
+    public function testConstants()
+    {
+        static::assertEquals(1, DefaultTestClass::getValue());
+
+        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\DefaultTestClass::VALUE', 2);
+
+        static::assertEquals(2, DefaultTestClass::getValue());
+    }
+
     public function testInheritMock()
     {
         \Badoo\SoftMocks::redefineMethod(
