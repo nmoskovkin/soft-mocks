@@ -979,7 +979,9 @@ class SoftMocks
     {
         if (!$class) $class = get_class($obj);
         if ($check_mock && isset(self::$mocks[$class][$method])) {
-            if (self::$debug) self::debug("Intercepting call to $class->$method");
+            if (self::$debug) {
+                self::debug("Intercepting call to $class->$method");
+            }
             return (new SoftMocksFunctionCreator())->run($obj, $class, $args, self::$mocks[$class][$method]);
         }
 
@@ -989,7 +991,9 @@ class SoftMocks
 
             $decl_class = $Rm->getDeclaringClass()->getName();
             if ($check_mock && isset(self::$mocks[$decl_class][$method])) {
-                if (self::$debug) self::debug("Intercepting call to $class->$method");
+                if (self::$debug) {
+                    self::debug("Intercepting call to $class->$method");
+                }
                 return (new SoftMocksFunctionCreator())->run($obj, $class, $args, self::$mocks[$decl_class][$method]);
             }
         } catch (\ReflectionException $e) {
@@ -1008,7 +1012,9 @@ class SoftMocks
     public static function callStaticMethod($class, $method, $args, $check_mock = false)
     {
         if ($check_mock && isset(self::$mocks[$class][$method])) {
-            if (self::$debug) self::debug("Intercepting call to $class::$method");
+            if (self::$debug) {
+                self::debug("Intercepting call to $class::$method");
+            }
             return (new SoftMocksFunctionCreator())->run(null, $class, $args, self::$mocks[$class][$method]);
         }
 
@@ -1019,7 +1025,9 @@ class SoftMocks
             $decl_class = $Rm->getDeclaringClass()->getName();
 
             if ($check_mock && isset(self::$mocks[$decl_class][$method])) {
-                if (self::$debug) self::debug("Intercepting call to $class::$method");
+                if (self::$debug) {
+                    self::debug("Intercepting call to $class::$method");
+                }
                 return (new SoftMocksFunctionCreator())->run(null, $class, $args, self::$mocks[$decl_class][$method]);
             }
         } catch (\ReflectionException $e) {
@@ -1040,7 +1048,9 @@ class SoftMocks
         if (empty(self::$lang_construct_mocks[self::LANG_CONSTRUCT_EXIT])) {
             exit($code);
         } else {
-            if (self::$debug) self::debug("Intercepting call to exit()/die()");
+            if (self::$debug) {
+                self::debug("Intercepting call to exit()/die()");
+            }
             $params = [$code];
             if (self::$lang_construct_mocks[self::LANG_CONSTRUCT_EXIT]['code'] instanceof \Closure) {
                 $callable = self::$lang_construct_mocks[self::LANG_CONSTRUCT_EXIT]['code'];
@@ -1056,7 +1066,9 @@ class SoftMocks
         if ($namespace !== '' && is_scalar($func)) {
             $ns_func = $namespace . '\\' . $func;
             if (isset(self::$func_mocks[$ns_func])) {
-                if (self::$debug) self::debug("Intercepting call to $ns_func");
+                if (self::$debug) {
+                    self::debug("Intercepting call to $ns_func");
+                }
                 if (self::$func_mocks[$ns_func]['code'] instanceof \Closure) {
                     $func_callable = self::$func_mocks[$ns_func]['code'];
                 } else {
@@ -1072,7 +1084,9 @@ class SoftMocks
         }
         if (is_scalar($func)) {
             if (isset(self::$func_mocks[$func])) {
-                if (self::$debug) self::debug("Intercepting call to $func");
+                if (self::$debug) {
+                    self::debug("Intercepting call to $func");
+                }
                 if (self::$func_mocks[$func]['code'] instanceof \Closure) {
                     $func_callable = self::$func_mocks[$func]['code'];
                 } else {
@@ -1109,7 +1123,9 @@ class SoftMocks
         if ($namespace !== '') {
             $ns_const = $namespace . '\\' . $const;
             if (array_key_exists($ns_const, self::$constant_mocks)) {
-                if (self::$debug) self::debug("Mocked $ns_const");
+                if (self::$debug) {
+                    self::debug("Mocked $ns_const");
+                }
                 return self::$constant_mocks[$ns_const];
             }
 
@@ -1137,7 +1153,9 @@ class SoftMocks
         $const = $class . '::' . $const;
 
         if (isset(self::$constant_mocks[$const])) {
-            if (self::$debug) self::debug("Intercepting constant $const");
+            if (self::$debug) {
+                self::debug("Intercepting constant $const");
+            }
             return self::$constant_mocks[$const];
         }
 
@@ -1165,14 +1183,18 @@ class SoftMocks
     public static function ignoreFiles($files)
     {
         foreach ($files as $f) {
-            if (self::$debug) self::debug("Asked to ignore $f");
+            if (self::$debug) {
+                self::debug("Asked to ignore $f");
+            }
             self::$ignore[$f] = true;
         }
     }
 
     public static function redefineFunction($func, $functionArgs, $fakeCode)
     {
-        if (self::$debug) self::debug("Asked to redefine $func($functionArgs)");
+        if (self::$debug) {
+            self::debug("Asked to redefine $func($functionArgs)");
+        }
         if (!self::$rewrite_internal && isset(self::$internal_func_mocks[$func])) {
             throw new \RuntimeException("Function $func is mocked internally, cannot mock");
         }
@@ -1184,7 +1206,9 @@ class SoftMocks
 
     public static function redefineExit($args, $fakeCode)
     {
-        if (self::$debug) self::debug("Asked to redefine exit(\$code)");
+        if (self::$debug) {
+            self::debug("Asked to redefine exit(\$code)");
+        }
         self::$lang_construct_mocks[self::LANG_CONSTRUCT_EXIT] = ['args' => $args, 'code' => $fakeCode];
     }
 
@@ -1239,7 +1263,9 @@ class SoftMocks
      */
     public static function redefineMethod($class, $method, $functionArgs, $fakeCode)
     {
-        if (self::$debug) self::debug("Asked to redefine $class::$method($functionArgs)");
+        if (self::$debug) {
+            self::debug("Asked to redefine $class::$method($functionArgs)");
+        }
         if (SoftMocksTraverser::isClassIgnored($class)) {
             throw new \RuntimeException("Class $class cannot be mocked using Soft Mocks");
         }
@@ -1253,7 +1279,9 @@ class SoftMocks
             $real_methodname = $Rm->getName();
             $params = $Rm->getParameters();
         } catch (\Exception $e) {
-            if (self::$debug) self::debug("Could not get parameters for $class::$method via reflection: $e");
+            if (self::$debug) {
+                self::debug("Could not get parameters for $class::$method via reflection: $e");
+            }
         }
 
         if (($real_classname && $real_classname != $class) || ($real_methodname && $real_methodname != $method)) {
@@ -1268,9 +1296,13 @@ class SoftMocks
 
     public static function restoreMethod($class, $method)
     {
-        if (self::$debug) self::debug("Restore method $class::$method");
+        if (self::$debug) {
+            self::debug("Restore method $class::$method");
+        }
         if (isset(self::$mocks[$class][$method]['decl_class'])) {
-            if (self::$debug) self::debug("Restore also method $class::$method");
+            if (self::$debug) {
+                self::debug("Restore also method $class::$method");
+            }
             unset(self::$mocks[self::$mocks[$class][$method]['decl_class']][$method]);
         }
         unset(self::$mocks[$class][$method]);
@@ -1278,7 +1310,9 @@ class SoftMocks
 
     public static function restoreExit()
     {
-        if (self::$debug) self::debug("Restore exit language construct");
+        if (self::$debug) {
+            self::debug("Restore exit language construct");
+        }
         unset(self::$lang_construct_mocks[self::LANG_CONSTRUCT_EXIT]);
     }
 
@@ -1324,7 +1358,9 @@ class SoftMocks
     public static function redefineConstant($constantName, $value)
     {
         $constantName = ltrim($constantName, '\\');
-        if (self::$debug) self::debug("Asked to redefine constant $constantName to $value");
+        if (self::$debug) {
+            self::debug("Asked to redefine constant $constantName to $value");
+        }
 
         if (SoftMocksTraverser::isConstIgnored($constantName)) {
             throw new \RuntimeException("Constant $constantName cannot be mocked using Soft Mocks");
@@ -1358,7 +1394,9 @@ class SoftMocks
             $Rm = new \ReflectionMethod($static, $method);
             $Dc = $Rm->getDeclaringClass();
             if (!$Dc) {
-                if (self::$debug) self::debug("Failed to get geclaring class for $static::$method");
+                if (self::$debug) {
+                    self::debug("Failed to get geclaring class for $static::$method");
+                }
                 return false;
             }
 
@@ -1371,7 +1409,9 @@ class SoftMocks
             // So we need to find the actual trait then if it is applicable to the class
             $Dt = self::getDeclaringTrait($decl_class, $method);
             if (!$Dt) {
-                if (self::$debug) self::debug("Failed to get geclaring trait for $static::$method ($decl_class::$method");
+                if (self::$debug) {
+                    self::debug("Failed to get geclaring trait for $static::$method ($decl_class::$method");
+                }
                 return false;
             }
 
@@ -1379,7 +1419,9 @@ class SoftMocks
                 return true;
             }
         } catch (\ReflectionException $e) {
-            if (self::$debug) self::debug("Failed to get reflection method for $static::$method: $e");
+            if (self::$debug) {
+                self::debug("Failed to get reflection method for $static::$method: $e");
+            }
         }
 
         return false;
@@ -1422,7 +1464,9 @@ class SoftMocks
     public static function isMocked($self, $static, $method)
     {
         if (self::$temp_disable) {
-            if (self::$debug) self::debug("Temporarily disabling mock check: $self::$method (static = $static)");
+            if (self::$debug) {
+                self::debug("Temporarily disabling mock check: $self::$method (static = $static)");
+            }
             self::$temp_disable = false;
             return false;
         }
@@ -1569,7 +1613,10 @@ class SoftMocks
         }
 
         if (!is_callable([\PHPUnit_Util_Fileloader::class, 'setFilenameRewriteCallback'])) {
-            if (self::$debug) self::debug("Cannot inject into phpunit: method setFilenameRewriteCallback not found");
+            if (self::$debug) {
+                self::debug("Cannot inject into phpunit: method setFilenameRewriteCallback not found");
+            }
+
             return;
         }
 
@@ -1959,7 +2006,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         }
     }
 
-    static $can_ref = [
+    private static $can_ref = [
         'Expr_Variable' => true,
         'Expr_PropertyFetch' => true,
         'Expr_StaticPropertyFetch' => true,
