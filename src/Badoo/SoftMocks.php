@@ -429,7 +429,7 @@ class SoftMocks
         ];
         self::$func_mocks['debug_backtrace'] = [
             'args' => '',
-            'code' => function() {
+            'code' => function () {
                 $params = func_get_args();
 
                 $limit = 0;
@@ -680,7 +680,9 @@ class SoftMocks
 
     public static function errorHandler($errno, $errstr, $errfile, $errline)
     {
-        if (!(error_reporting() & $errno)) return;
+        if (!(error_reporting() & $errno)) {
+            return;
+        }
         $descr = isset(self::$error_descriptions[$errno]) ? self::$error_descriptions[$errno] : "Unknown error ($errno)";
         echo "\n$descr: $errstr in " . self::replaceFilename($errfile) . " on line $errline\n";
     }
@@ -770,7 +772,7 @@ class SoftMocks
     private static function getVersion()
     {
         if (!isset(self::$version)) {
-            self::$version = phpversion() . str_replace('=', '', self::PARSER_VERSION) . md5_file(__FILE__);
+            self::$version = phpversion() . self::PARSER_VERSION . md5_file(__FILE__);
         }
         return self::$version;
     }
@@ -807,7 +809,9 @@ class SoftMocks
         } else {
             $file = realpath($file);
         }
-        if (!$file) return $file;
+        if (!$file) {
+            return $file;
+        }
 
         if (!isset(self::$rewrite_cache[$file])) {
             if (mb_orig_strpos($file, self::$mocks_cache_path) === 0
@@ -924,10 +928,14 @@ class SoftMocks
 
         if (is_scalar($callable)) {
             $parts = explode('::', $callable);
-            if (count($parts) != 2) throw new \RuntimeException("Invalid callable format for '$callable', expected single '::'");
+            if (count($parts) != 2) {
+                throw new \RuntimeException("Invalid callable format for '$callable', expected single '::'");
+            }
             list($obj, $method) = $parts;
         } else if (is_array($callable)) {
-            if (count($callable) != 2) throw new \RuntimeException("Invalid callable format, expected array of exactly 2 elements");
+            if (count($callable) != 2) {
+                throw new \RuntimeException("Invalid callable format, expected array of exactly 2 elements");
+            }
             list($obj, $method) = $callable;
         } else {
             return call_user_func_array($callable, $args);
