@@ -61,7 +61,14 @@ function replaceSomething($string)
 
 class SomeClass
 {
+    const VALUE = 1;
+
     public $a = 1;
+
+    public static function getValue()
+    {
+        return self::VALUE;
+    }
 
     public function method($string)
     {

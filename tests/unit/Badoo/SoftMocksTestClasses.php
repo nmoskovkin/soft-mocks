@@ -7,6 +7,13 @@ namespace Badoo\SoftMock\Tests;
 
 class DefaultTestClass
 {
+    const VALUE = 1;
+
+    public static function getValue()
+    {
+        return self::VALUE;
+    }
+
     public function doSomething($a, $b = [])
     {
         return true;

@@ -5,7 +5,8 @@
 There are next changes:
 
 - PHP 7.1 support (mostly nullable and void return type declarations);
-- update nikic/php-parser to 3.0.6.
+- update nikic/php-parser to 3.0.6;
+- added tests for constants redefine.
 
 ## v1.2.0
 
