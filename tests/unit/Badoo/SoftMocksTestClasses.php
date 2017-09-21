@@ -153,16 +153,3 @@ class WithExitTestClass
         return $a;
     }
 }
-
-class WithReturnTypeDeclarationsClass
-{
-    public static function getString() : string
-    {
-        return "string";
-    }
-
-    public static function getStringOrNull() : ?string
-    {
-        return null;
-    }
-}
