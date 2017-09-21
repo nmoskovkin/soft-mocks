@@ -467,7 +467,7 @@ class SoftMocks
                 $result = array_values(
                     array_filter(
                         $result,
-                        function($el) { return !isset($el['file']) || $el['file'] !== __FILE__; }
+                        function ($el) { return !isset($el['file']) || $el['file'] !== __FILE__; }
                     )
                 );
 
@@ -979,13 +979,17 @@ class SoftMocks
 
     public static function constDefined($const)
     {
-        if (isset(self::$removed_constants[$const])) return false;
+        if (isset(self::$removed_constants[$const])) {
+            return false;
+        }
         return defined($const) || isset(self::$constant_mocks[$const]);
     }
 
     public static function callMethod($obj, $class, $method, $args, $check_mock = false)
     {
-        if (!$class) $class = get_class($obj);
+        if (!$class) {
+            $class = get_class($obj);
+        }
         if ($check_mock && isset(self::$mocks[$class][$method])) {
             if (self::$debug) {
                 self::debug("Intercepting call to $class->$method");
@@ -1059,7 +1063,7 @@ class SoftMocks
             if (self::$debug) {
                 self::debug("Intercepting call to exit()/die()");
             }
-            $params = [$code];
+            $params = [$code]; // $params will be used inside the eval()
             if (self::$lang_construct_mocks[self::LANG_CONSTRUCT_EXIT]['code'] instanceof \Closure) {
                 $callable = self::$lang_construct_mocks[self::LANG_CONSTRUCT_EXIT]['code'];
             } else {
@@ -1143,7 +1147,9 @@ class SoftMocks
         }
 
         if (array_key_exists($const, self::$constant_mocks)) {
-            if (self::$debug) self::debug("Mocked $const");
+            if (self::$debug) {
+                self::debug("Mocked $const");
+            }
             return self::$constant_mocks[$const];
         }
 
@@ -1157,7 +1163,9 @@ class SoftMocks
 
     public static function getClassConst($class, $const)
     {
-        if (is_object($class)) $class = get_class($class);
+        if (is_object($class)) {
+            $class = get_class($class);
+        }
         $const = $class . '::' . $const;
 
         if (isset(self::$constant_mocks[$const])) {
@@ -1348,7 +1356,7 @@ class SoftMocks
         return self::$generator_mocks[$class][$method];
     }
 
-    public static function redefineNew($class, Callable $constructorFunc)
+    public static function redefineNew($class, callable $constructorFunc)
     {
         self::$new_mocks[$class] = $constructorFunc;
     }
@@ -1395,7 +1403,7 @@ class SoftMocks
     }
 
     // there can be a situation when usage of static is not suitable for mocking so we need additional checks here
-    // see \QA\SoftMocksTest::testParentMismatch to see when getDeclaringClass check is needed
+    // see \Badoo\SoftMocksTest::testParentMismatch to see when getDeclaringClass check is needed
     private static function staticContextIsOk($self, $static, $method)
     {
         try {
@@ -1886,9 +1894,11 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
     public function rewriteStmt_ClassMethod(\PhpParser\Node\Stmt\ClassMethod $Node)
     {
-        if ($this->in_interface) return null;
+        if ($this->in_interface) {
+            return null;
+        }
 
-        // if (false !== ($__softmocksvariableforcode = \QA\SoftMocks::isMocked("self"::class, static::class, __FUNCTION__))) {
+        // if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked("self"::class, static::class, __FUNCTION__))) {
         //     $params = [/* variables with references to them */];
         //     $mm_func_args = func_get_args();
         //     return eval($__softmocksvariableforcode);
