@@ -295,7 +295,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
     public function testAnonymous()
     {
         if (version_compare(phpversion(), '7.0.0', '<')) {
-            static::markTestSkipped('PHP do not support anonymous classes');
+            static::markTestSkipped('PHP do not support this');
         }
 
         require_once __DIR__ . '/AnonymousTestClass.php';
@@ -311,6 +311,42 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         static::assertSame('Test', $obj->meth());
     }
 
+    public function testWithReturnTypeDeclarationsPHP7()
+    {
+        if (version_compare(phpversion(), '7.0.0', '<')) {
+            static::markTestSkipped('PHP do not support this');
+        }
+
+        require_once __DIR__ . '/WithReturnTypeDeclarationsPHP7TestClass.php';
+
+        \Badoo\SoftMocks::redefineMethod(
+            WithReturnTypeDeclarationsPHP7TestClass::class,
+            'getString',
+            '',
+            'return "string2";'
+        );
+        $res = WithReturnTypeDeclarationsPHP7TestClass::getString();
+        static::assertSame("string2", $res);
+    }
+
+    public function testWithReturnTypeDeclarationsPHP71()
+    {
+        if (version_compare(phpversion(), '7.1.0', '<')) {
+            static::markTestSkipped('PHP do not support this');
+        }
+
+        require_once __DIR__ . '/WithReturnTypeDeclarationsPHP71TestClass.php';
+
+        \Badoo\SoftMocks::redefineMethod(
+            WithReturnTypeDeclarationsPHP71TestClass::class,
+            'getStringOrNull',
+            '',
+            'return "string3";'
+        );
+        $res = WithReturnTypeDeclarationsPHP71TestClass::getStringOrNull();
+        static::assertSame("string3", $res);
+    }
+
     public function providerRewrite()
     {
         $files = glob(__DIR__ . '/fixtures/original/*.php');
@@ -320,7 +356,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
             },
             $files
         );
-        return $result;
+        return array_combine(array_column($result, 0), $result);
     }
 
     /**
@@ -330,6 +366,14 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
      */
     public function testRewrite($filename)
     {
+        if (($filename !== 'php5.php') && version_compare(phpversion(), '7.0.0', '<')) {
+            static::markTestSkipped("You are running PHP5, cannot test PHP7 features");
+        }
+
+        if (($filename === 'php71.php') && version_compare(phpversion(), '7.1.0', '<')) {
+            static::markTestSkipped("You are running PHP5/PHP7, cannot test PHP71 features");
+        }
+
         $result = \Badoo\SoftMocks::rewrite(__DIR__ . '/fixtures/original/' . $filename);
         $this->assertNotFalse($result, "Rewrite failed");
 

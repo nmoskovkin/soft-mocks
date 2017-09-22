@@ -21,4 +21,14 @@ class SomeClass{
     
     protected static function methodSelf($string) : string{if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array($string);return eval($__softmocksvariableforcode);}/** @codeCoverageIgnore */
         
-        return \Badoo\SoftMocks::callFunction(__NAMESPACE__, 'replaceSomething', array(&$string));}}
+        return \Badoo\SoftMocks::callFunction(__NAMESPACE__, 'replaceSomething', array(&$string));}
+    
+    
+    public function methodNullable() : ?array{if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array();return eval($__softmocksvariableforcode);}/** @codeCoverageIgnore */
+        
+        return null;}
+    
+    
+    public function methodVoid() : void{if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array();eval($__softmocksvariableforcode);return;}/** @codeCoverageIgnore */
+        
+        echo "something";}}
