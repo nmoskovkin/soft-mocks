@@ -6,7 +6,7 @@ namespace Badoo\SoftMock\Tests;
 
 class WithReturnTypeDeclarationsPHP71TestClass
 {
-    public static function getStringOrNull() : ?string
+    public static function getStringOrNull(?int $int) : ?string
     {
         return null;
     }

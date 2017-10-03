@@ -343,7 +343,8 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
             '',
             'return "string3";'
         );
-        $res = WithReturnTypeDeclarationsPHP71TestClass::getStringOrNull();
+        $int = null;
+        $res = WithReturnTypeDeclarationsPHP71TestClass::getStringOrNull($int);
         static::assertSame("string3", $res);
     }
 

@@ -14,9 +14,9 @@ class SomeClass
 {
     public $a = 1;
 
-    public function method($string) : string
+    public function methodReturn() : string
     {
-        return self::methodSelf($string);
+        return self::methodSelf("string");
     }
 
     protected static function methodSelf($string) : string
@@ -24,13 +24,38 @@ class SomeClass
         return replaceSomething($string);
     }
 
-    public function methodNullable() : ?array
+    public function methodParam(string $string)
+    {
+        return $string;
+    }
+
+    public function methodNullableParam(?string $string)
+    {
+        return $string;
+    }
+
+    public function methodNullableReturn() : ?array
     {
         return null;
     }
 
-    public function methodVoid() : void
+    public function methodVoidReturn() : void
     {
         echo "something";
+    }
+
+    public function methodNullableParamReturn(?string $string) : string
+    {
+        return $string ?? "string";
+    }
+
+    public function methodParamNullableReturn(string $string) : ?string
+    {
+        return $string ? $string : null;
+    }
+
+    public function methodNullableParamNullableReturn(?string $string) : ?string
+    {
+        return $string;
     }
 }
