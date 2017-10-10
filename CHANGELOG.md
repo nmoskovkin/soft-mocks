@@ -1,5 +1,11 @@
 # SoftMocks v1 Change Log
 
+## master
+
+There are next changes:
+
+- using getenv instead of $_ENV global variable.
+
 ## v1.3.0
 
 There are next changes:
