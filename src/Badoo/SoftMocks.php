@@ -102,14 +102,57 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
 
     protected function p(\PhpParser\Node $node)
     {
-        $prefix = '';
+        return $this->{'p' . $node->getType()}($node);
+    }
 
-        if ($node->getLine() > $this->cur_ln) {
-            $prefix = str_repeat("\n", $node->getLine() - $this->cur_ln);
-            $this->cur_ln = $node->getLine();
+    protected function pExpr_Array(\PhpParser\Node\Expr\Array_ $node)
+    {
+        $is_short = $this->options['shortArraySyntax'] ? \PhpParser\Node\Expr\Array_::KIND_SHORT : \PhpParser\Node\Expr\Array_::KIND_LONG;
+        $syntax = $node->getAttribute(
+            'kind',
+            $is_short
+        );
+        if ($syntax === \PhpParser\Node\Expr\Array_::KIND_SHORT) {
+            $res = '[' . $this->pMaybeMultiline($node->items, true);
+            $suffix = ']';
+        } else {
+            $res = 'array(' . $this->pMaybeMultiline($node->items, true);
+            $suffix = ')';
         }
+        $prefix = "";
+        if (!$this->areNodesSingleLine($node->items)) {
+            $prefix = str_repeat("\n", $node->getAttribute('endLine') - ($node->getLine() + substr_count($res, "\n")));
+        }
+        $res .= $prefix . $suffix;
+        return $res;
+    }
 
-        return $prefix . $this->{'p' . $node->getType()}($node);
+    /**
+     * @param \PhpParser\NodeAbstract[] $nodes
+     * @return bool
+     */
+    protected function areNodesSingleLine(array $nodes)
+    {
+        if (empty($nodes)) {
+            return true;
+        }
+        $first_line = $nodes[0]->getAttribute('startLine');
+        $last_line = $nodes[sizeof($nodes) - 1]->getAttribute('endLine');
+        return $first_line === $last_line;
+    }
+
+    /**
+     * @param \PhpParser\NodeAbstract[] $nodes
+     * @param bool $trailingComma
+     * @return bool|string
+     */
+    protected function pMaybeMultiline(array $nodes, $trailingComma = false)
+    {
+        if ($this->areNodesSingleLine($nodes)) {
+            return $this->pCommaSeparated($nodes);
+        } else {
+            return $this->pCommaSeparatedMultiline($nodes, $trailingComma);
+        }
     }
 
     public function pExpr_Closure(\PhpParser\Node\Expr\Closure $node)
@@ -2014,6 +2057,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
                 $body_stmts[] = new \PhpParser\Node\Stmt\Return_($eval);
             }
         }
+        $body_stmts[] = new \PhpParser\Node\Name("/** @codeCoverageIgnore */");
 
         $MockCheck = new \PhpParser\Node\Stmt\If_(
             new \PhpParser\Node\Expr\BinaryOp\NotIdentical(
@@ -2035,9 +2079,9 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         );
 
         if (is_array($Node->stmts)) {
-            array_unshift($Node->stmts, $MockCheck, new \PhpParser\Node\Name("/** @codeCoverageIgnore */"));
+            array_unshift($Node->stmts, $MockCheck);
         } else if (!$Node->isAbstract()) {
-            $Node->stmts = [$MockCheck, new \PhpParser\Node\Name("/** @codeCoverageIgnore */")];
+            $Node->stmts = [$MockCheck];
         }
     }
 
