@@ -158,7 +158,9 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
         }
         $prefix = "";
         if (!$this->areNodesSingleLine($node->items)) {
-            $prefix = str_repeat("\n", $node->getAttribute('endLine') - ($node->getLine() + substr_count($res, "\n")));
+            if ($node->getAttribute('endLine') - ($node->getLine() + substr_count($res, "\n")) >= 0) {
+                $prefix = str_repeat("\n", $node->getAttribute('endLine') - ($node->getLine() + substr_count($res, "\n")));
+            }
         }
         $res .= $prefix . $suffix;
         return $res;
