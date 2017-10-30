@@ -97,7 +97,7 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
 
         foreach ($comments as $comment) {
             $reformattedText = $comment->getReformattedText();
-            if (substr_count($reformattedText, "\n") > 1) {
+            if (mb_orig_strpos($reformattedText, '/**') === 0) {
                 $formattedComments[] = $reformattedText;
             }
         }
