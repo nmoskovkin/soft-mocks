@@ -8,11 +8,11 @@
 \Badoo\SoftMocks::callFunction(__NAMESPACE__, 'error_reporting', array(\Badoo\SoftMocks::getConst(__NAMESPACE__, 'E_ALL')));
 \Badoo\SoftMocks::callFunction(__NAMESPACE__, 'ini_set', array('display_errors', true));
 
-// Conditions
+
 if (!empty($_SERVER['HTTP_ORIG_DOMAIN'])) {
     $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_ORIG_DOMAIN'];
     
-    // Various strings
+    
     $header = 'HTTP/1.1 301 Moved Permanently';
     $redirect_address = 'https://badoo.com';
     
@@ -54,8 +54,8 @@ if (\Badoo\SoftMocks::callFunction(__NAMESPACE__, 'isCompressHTMLDebug', array()
 
 function replaceSomething($string){
     
-    // Comment
-    /* Comment */
+    
+    
     return \Badoo\SoftMocks::callFunction(__NAMESPACE__, 'str_replace', array('something', 'somebody', $string));}
 
 

@@ -1,5 +1,12 @@
 # SoftMocks v1 Change Log
 
+## v1.3.2
+
+There are next changes:
+
+- Line numbering in rewritten code improved
+- Only multiline /**/ comments are present in rewritten file
+
 ## v1.3.0
 
 There are next changes:

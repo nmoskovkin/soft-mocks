@@ -91,6 +91,43 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
         }
     }
 
+    protected function pComments(array $comments)
+    {
+        $formattedComments = [];
+
+        foreach ($comments as $comment) {
+            $reformattedText = $comment->getReformattedText();
+            if (substr_count($reformattedText, "\n") > 1) {
+                $formattedComments[] = $reformattedText;
+            }
+        }
+
+        return !empty($formattedComments) ? implode("\n", $formattedComments) : "";
+    }
+
+    protected function pCommaSeparatedMultiline(array $nodes, $trailingComma)
+    {
+        $result = '';
+        $lastIdx = count($nodes) - 1;
+        foreach ($nodes as $idx => $node) {
+            if ($node !== null) {
+                $comments = $node->getAttribute('comments', array());
+                if ($comments) {
+                    $result .= $this->pComments($comments);
+                }
+
+                $result .= "\n" . $this->p($node);
+            } else {
+                $result .= "\n";
+            }
+            if ($trailingComma || $idx !== $lastIdx) {
+                $result .= ',';
+            }
+        }
+
+        return preg_replace('~\n(?!$|' . $this->noIndentToken . ')~', "\n    ", $result);
+    }
+
     public function prettyPrintFile(array $stmts)
     {
         $this->cur_ln = 1;
