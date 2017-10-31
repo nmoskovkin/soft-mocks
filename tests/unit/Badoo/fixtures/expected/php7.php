@@ -5,8 +5,8 @@
  */
 function replaceSomething($string) : string{
     
-    // Comment
-    /* Comment */
+    
+    
     return \Badoo\SoftMocks::callFunction(__NAMESPACE__, 'str_replace', array('something', 'somebody', $string));}
 
 
