@@ -4,7 +4,15 @@
 
 There are next changes:
 
+- using getenv instead of $_ENV global variable;
 - error "PHP Fatal error:  Class 'Symfony\Polyfill\Php70\Php70' not found" was fixed.
+
+## v1.3.2
+
+There are next changes:
+
+- Line numbering in rewritten code improved
+- Only multiline /**/ comments are present in rewritten file
 
 ## v1.3.0
 

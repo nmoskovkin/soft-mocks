@@ -91,6 +91,43 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
         }
     }
 
+    protected function pComments(array $comments)
+    {
+        $formattedComments = [];
+
+        foreach ($comments as $comment) {
+            $reformattedText = $comment->getReformattedText();
+            if (mb_orig_strpos($reformattedText, '/**') === 0) {
+                $formattedComments[] = $reformattedText;
+            }
+        }
+
+        return !empty($formattedComments) ? implode("\n", $formattedComments) : "";
+    }
+
+    protected function pCommaSeparatedMultiline(array $nodes, $trailingComma)
+    {
+        $result = '';
+        $lastIdx = count($nodes) - 1;
+        foreach ($nodes as $idx => $node) {
+            if ($node !== null) {
+                $comments = $node->getAttribute('comments', array());
+                if ($comments) {
+                    $result .= $this->pComments($comments);
+                }
+
+                $result .= "\n" . $this->p($node);
+            } else {
+                $result .= "\n";
+            }
+            if ($trailingComma || $idx !== $lastIdx) {
+                $result .= ',';
+            }
+        }
+
+        return preg_replace('~\n(?!$|' . $this->noIndentToken . ')~', "\n    ", $result);
+    }
+
     public function prettyPrintFile(array $stmts)
     {
         $this->cur_ln = 1;
@@ -102,14 +139,59 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
 
     protected function p(\PhpParser\Node $node)
     {
-        $prefix = '';
+        return $this->{'p' . $node->getType()}($node);
+    }
 
-        if ($node->getLine() > $this->cur_ln) {
-            $prefix = str_repeat("\n", $node->getLine() - $this->cur_ln);
-            $this->cur_ln = $node->getLine();
+    protected function pExpr_Array(\PhpParser\Node\Expr\Array_ $node)
+    {
+        $is_short = $this->options['shortArraySyntax'] ? \PhpParser\Node\Expr\Array_::KIND_SHORT : \PhpParser\Node\Expr\Array_::KIND_LONG;
+        $syntax = $node->getAttribute(
+            'kind',
+            $is_short
+        );
+        if ($syntax === \PhpParser\Node\Expr\Array_::KIND_SHORT) {
+            $res = '[' . $this->pMaybeMultiline($node->items, true);
+            $suffix = ']';
+        } else {
+            $res = 'array(' . $this->pMaybeMultiline($node->items, true);
+            $suffix = ')';
         }
+        $prefix = "";
+        if (!$this->areNodesSingleLine($node->items)) {
+            if ($node->getAttribute('endLine') - ($node->getLine() + substr_count($res, "\n")) >= 0) {
+                $prefix = str_repeat("\n", $node->getAttribute('endLine') - ($node->getLine() + substr_count($res, "\n")));
+            }
+        }
+        $res .= $prefix . $suffix;
+        return $res;
+    }
 
-        return $prefix . $this->{'p' . $node->getType()}($node);
+    /**
+     * @param \PhpParser\NodeAbstract[] $nodes
+     * @return bool
+     */
+    protected function areNodesSingleLine(array $nodes)
+    {
+        if (empty($nodes)) {
+            return true;
+        }
+        $first_line = $nodes[0]->getAttribute('startLine');
+        $last_line = $nodes[sizeof($nodes) - 1]->getAttribute('endLine');
+        return $first_line === $last_line;
+    }
+
+    /**
+     * @param \PhpParser\NodeAbstract[] $nodes
+     * @param bool $trailingComma
+     * @return bool|string
+     */
+    protected function pMaybeMultiline(array $nodes, $trailingComma = false)
+    {
+        if ($this->areNodesSingleLine($nodes)) {
+            return $this->pCommaSeparated($nodes);
+        } else {
+            return $this->pCommaSeparatedMultiline($nodes, $trailingComma);
+        }
     }
 
     public function pExpr_Closure(\PhpParser\Node\Expr\Closure $node)
@@ -399,13 +481,18 @@ class SoftMocks
     private static $prepare_for_rewrite_callback;
     private static $lock_file_path = '/tmp/mocks/soft_mocks_rewrite.lock';
 
+    protected static function getEnvironment($key)
+    {
+        return \getenv($key);
+    }
+
     public static function init()
     {
         if (!defined('SOFTMOCKS_ROOT_PATH')) {
             define('SOFTMOCKS_ROOT_PATH', '/');
         }
 
-        if (!empty($_ENV['SOFT_MOCKS_DEBUG'])) {
+        if (!empty(static::getEnvironment('SOFT_MOCKS_DEBUG'))) {
             self::$debug = true;
         }
 
@@ -702,7 +789,7 @@ class SoftMocks
         }
         $trace_str = $str->getFile() . '(' . $str->getLine() . ")\n$trace_str";
 
-        if (!empty($_ENV['REAL_BACKTRACE'])) {
+        if (!empty(static::getEnvironment('REAL_BACKTRACE'))) {
             echo $trace_str;
             return;
         }
@@ -2014,6 +2101,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
                 $body_stmts[] = new \PhpParser\Node\Stmt\Return_($eval);
             }
         }
+        $body_stmts[] = new \PhpParser\Node\Name("/** @codeCoverageIgnore */");
 
         $MockCheck = new \PhpParser\Node\Stmt\If_(
             new \PhpParser\Node\Expr\BinaryOp\NotIdentical(
@@ -2035,9 +2123,9 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         );
 
         if (is_array($Node->stmts)) {
-            array_unshift($Node->stmts, $MockCheck, new \PhpParser\Node\Name("/** @codeCoverageIgnore */"));
+            array_unshift($Node->stmts, $MockCheck);
         } else if (!$Node->isAbstract()) {
-            $Node->stmts = [$MockCheck, new \PhpParser\Node\Name("/** @codeCoverageIgnore */")];
+            $Node->stmts = [$MockCheck];
         }
     }
 

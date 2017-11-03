@@ -379,7 +379,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         $this->assertNotFalse($result, "Rewrite failed");
 
         //file_put_contents(__DIR__ . '/fixtures/expected/' . $filename, file_get_contents($result));
-        $this->assertEquals(file_get_contents(__DIR__ . '/fixtures/expected/' . $filename), file_get_contents($result));
+        $this->assertEquals(trim(file_get_contents(__DIR__ . '/fixtures/expected/' . $filename)), file_get_contents($result));
     }
 
     /**
