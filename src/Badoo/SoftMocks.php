@@ -2005,6 +2005,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         // if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked("self"::class, static::class, __FUNCTION__))) {
         //     $params = [/* variables with references to them */];
         //     $mm_func_args = func_get_args();
+        //     $variadic_params_idx = '' || '<idx_of variadic_params>'
         //     return eval($__softmocksvariableforcode);
         // }/** @codeCoverageIgnore */
         $static = new \PhpParser\Node\Arg(
@@ -2019,6 +2020,11 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         );
 
         $params_arr = [];
+        $variadic_params_idx = null;
+        $last_param_idx = sizeof($Node->params) - 1;
+        if ($last_param_idx >= 0 && $Node->params[$last_param_idx]->variadic) {
+            $variadic_params_idx = $last_param_idx;
+        }
         foreach ($Node->params as $Par) {
             $params_arr[] = new \PhpParser\Node\Expr\ArrayItem(
                 new \PhpParser\Node\Expr\Variable($Par->name),
@@ -2035,6 +2041,10 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             new \PhpParser\Node\Expr\Assign(
                 new \PhpParser\Node\Expr\Variable("params"),
                 new \PhpParser\Node\Expr\Array_($params_arr)
+            ),
+            new \PhpParser\Node\Expr\Assign(
+                new \PhpParser\Node\Expr\Variable("variadic_params_idx"),
+                new \PhpParser\Node\Scalar\String_($variadic_params_idx)
             ),
         ];
 

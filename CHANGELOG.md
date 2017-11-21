@@ -1,5 +1,11 @@
 # SoftMocks v1 Change Log
 
+## v1.3.3
+
+There are next changes:
+
+- Added $variadic_params_idx (string, '' - no variadic params, otherwise - it's idx in function arguments)
+
 ## master
 
 There are next changes:
