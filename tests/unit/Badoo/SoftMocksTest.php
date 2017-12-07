@@ -2,6 +2,7 @@
 /**
  * Mocks core that rewrites code
  * @author Kirill Abrosimov <k.abrosimov@corp.badoo.com>
+ * @author Oleg Efimov <o.efimov@corp.badoo.com>
  * @author Rinat Akhmadeev <r.akhmadeev@corp.badoo.com>
  */
 namespace Badoo\SoftMock\Tests;
@@ -365,6 +366,19 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         $int = null;
         $res = WithReturnTypeDeclarationsPHP71TestClass::getStringOrNull($int);
         static::assertSame("string3", $res);
+    }
+
+    public function testWithProtectedConstantPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithProtectedConstantPHP71TestClass.php';
+
+        static::assertEquals(1, WithProtectedConstantPHP71TestClass::getValue());
+
+        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithProtectedConstantPHP71TestClass::VALUE', 2);
+
+        static::assertEquals(2, WithProtectedConstantPHP71TestClass::getValue());
     }
 
     public function providerRewrite()

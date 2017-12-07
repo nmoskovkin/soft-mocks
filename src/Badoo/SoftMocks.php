@@ -2,6 +2,8 @@
 /**
  * Mocks core that rewrites code
  * @author Yuriy Nasretdinov <y.nasretdinov@corp.badoo.com>
+ * @author Oleg Efimov <o.efimov@corp.badoo.com>
+ * @author Kirill Abrosimov <k.abrosimov@corp.badoo.com>
  */
 
 namespace Badoo;
@@ -1253,21 +1255,23 @@ class SoftMocks
         if (is_object($class)) {
             $class = get_class($class);
         }
-        $const = $class . '::' . $const;
+        $const_full_name = $class . '::' . $const;
 
-        if (isset(self::$constant_mocks[$const])) {
+        if (isset(self::$constant_mocks[$const_full_name])) {
             if (self::$debug) {
-                self::debug("Intercepting constant $const");
+                self::debug("Intercepting constant $const_full_name");
             }
-            return self::$constant_mocks[$const];
+            return self::$constant_mocks[$const_full_name];
         }
 
-        if (isset(self::$removed_constants[$const])) {
-            trigger_error('Trying to access removed constant ' . $const . ', assuming "' . $const . '"');
-            return $const;
+        if (isset(self::$removed_constants[$const_full_name])) {
+            trigger_error('Trying to access removed constant ' . $const_full_name . ', assuming "' . $const_full_name . '"');
+            return $const_full_name;
         }
 
-        return constant($const);
+        // To avoid 'Cannot access protected const' error
+        $R = new \ReflectionClassConstant($class, $const);
+        return $R->getValue();
     }
 
     private static function rewriteContents($orig_file, $target_file, $contents)
