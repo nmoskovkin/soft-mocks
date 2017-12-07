@@ -46,3 +46,16 @@ class WithWrongProtectedConstantAccessPHP71TestClass
         return WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE;
     }
 }
+
+class WithRestrictedConstantsChildPHP71TestClass extends WithRestrictedConstantsPHP71TestClass
+{
+    public static function getParentPrivateValue()
+    {
+        return parent::PRIVATE_VALUE;
+    }
+
+    public static function getParentProtectedValue()
+    {
+        return parent::PROTECTED_VALUE;
+    }
+}
