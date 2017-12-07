@@ -59,3 +59,13 @@ class WithRestrictedConstantsChildPHP71TestClass extends WithRestrictedConstants
         return parent::PROTECTED_VALUE;
     }
 }
+
+function getPrivateValue()
+{
+    return WithRestrictedConstantsPHP71TestClass::PRIVATE_VALUE;
+}
+
+function getProtectedValue()
+{
+    return WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE;
+}

@@ -1260,12 +1260,12 @@ class SoftMocks
         // Check current scope, see comment below
         $R = new \ReflectionClassConstant($class, $const);
         if ($R->isPrivate()) {
-            if ($self_class !== $class) {
+            if (is_null($self_class) || ($self_class !== $class)) {
                 throw new \Error("Cannot access private const {$const_full_name}");
             }
         }
         if ($R->isProtected()) {
-            if (($self_class !== $class) && !is_subclass_of($self_class, $class)) {
+            if (is_null($self_class) || (($self_class !== $class) && !is_subclass_of($self_class, $class))) {
                 throw new \Error("Cannot access protected const {$const_full_name}");
             }
         }
@@ -1916,6 +1916,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
     public function rewriteStmt_Interface()
     {
+        $this->cur_class = false;
         $this->in_interface = false;
     }
 
@@ -2007,9 +2008,19 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         $this->cur_class = $Node->name;
     }
 
+    public function rewriteStmt_Class()
+    {
+        $this->cur_class = null;
+    }
+
     public function beforeStmt_Trait(\PhpParser\Node\Stmt\Trait_ $Node)
     {
         $this->cur_class = $Node->name;
+    }
+
+    public function rewriteStmt_Trait()
+    {
+        $this->cur_class = null;
     }
 
     public function rewriteStmt_ClassMethod(\PhpParser\Node\Stmt\ClassMethod $Node)
@@ -2308,14 +2319,20 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             return null;
         }
 
+        $params = [
+            self::nodeNameToArg($Node->class),
+            self::nodeNameToArg($Node->name),
+        ];
+        if ($this->cur_class) {
+            $params[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\ClassConstFetch(new \PhpParser\Node\Name('self'), 'class'));
+        } else {
+            $params[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null')));
+        }
+
         $NewNode = new \PhpParser\Node\Expr\StaticCall(
             new \PhpParser\Node\Name("\\" . SoftMocks::class),
             "getClassConst",
-            [
-                self::nodeNameToArg($Node->class),
-                self::nodeNameToArg($Node->name),
-                new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\ClassConstFetch(new \PhpParser\Node\Name('self'), 'class')),
-            ]
+            $params
         );
 
         $NewNode->setLine($Node->getLine());
