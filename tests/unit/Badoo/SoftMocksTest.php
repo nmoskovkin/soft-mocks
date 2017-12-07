@@ -299,6 +299,24 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         static::assertSame('CD', GrandChildStaticTestClass::getString());
     }
 
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage You will never see this message
+     */
+    public function testNotOk()
+    {
+        throw new \RuntimeException("You will never see this message");
+
+        $Mock = $this->getMock(MyTest::class, ['stubFunction']);
+        $Mock->expects($this->any())->method('stubFunction')->willReturn(
+            function () {
+                yield 10;
+            }
+        );
+    }
+
+    public function stubFunction() {}
+
     public function testAnonymous()
     {
         static::markTestSkippedForPHPVersionBelow('7.0.0');
@@ -382,22 +400,4 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         //file_put_contents(__DIR__ . '/fixtures/expected/' . $filename, file_get_contents($result));
         $this->assertEquals(trim(file_get_contents(__DIR__ . '/fixtures/expected/' . $filename)), file_get_contents($result));
     }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage You will never see this message
-     */
-    public function testNotOk()
-    {
-        throw new \RuntimeException("You will never see this message");
-
-        $Mock = $this->getMock(MyTest::class, ['stubFunction']);
-        $Mock->expects($this->any())->method('stubFunction')->willReturn(
-            function () {
-                yield 10;
-            }
-        );
-    }
-
-    public function stubFunction() {}
 }
