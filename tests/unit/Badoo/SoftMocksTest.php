@@ -19,6 +19,13 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         parent::tearDown();
     }
 
+    public static function markTestSkippedForPHPVersionBelow($php_version)
+    {
+        if (version_compare(phpversion(), $php_version, '<')) {
+            static::markTestSkipped('You PHP version do not support this, you need need at least PHP ' . $php_version);
+        }
+    }
+
     public function testParserVersion()
     {
         $composer_json = file_get_contents(__DIR__ . '/../../../composer.json');
@@ -294,9 +301,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testAnonymous()
     {
-        if (version_compare(phpversion(), '7.0.0', '<')) {
-            static::markTestSkipped('PHP do not support this');
-        }
+        static::markTestSkippedForPHPVersionBelow('7.0.0');
 
         require_once __DIR__ . '/AnonymousTestClass.php';
         static::assertEquals(1, AnonymousTestClass::SOMETHING);
@@ -313,9 +318,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testWithReturnTypeDeclarationsPHP7()
     {
-        if (version_compare(phpversion(), '7.0.0', '<')) {
-            static::markTestSkipped('PHP do not support this');
-        }
+        static::markTestSkippedForPHPVersionBelow('7.0.0');
 
         require_once __DIR__ . '/WithReturnTypeDeclarationsPHP7TestClass.php';
 
@@ -331,9 +334,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testWithReturnTypeDeclarationsPHP71()
     {
-        if (version_compare(phpversion(), '7.1.0', '<')) {
-            static::markTestSkipped('PHP do not support this');
-        }
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
 
         require_once __DIR__ . '/WithReturnTypeDeclarationsPHP71TestClass.php';
 
@@ -367,12 +368,12 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
      */
     public function testRewrite($filename)
     {
-        if (($filename !== 'php5.php') && version_compare(phpversion(), '7.0.0', '<')) {
-            static::markTestSkipped("You are running PHP5, cannot test PHP7 features");
+        if (($filename === 'php7.php')) {
+            static::markTestSkippedForPHPVersionBelow('7.0.0');
         }
 
-        if (($filename === 'php71.php') && version_compare(phpversion(), '7.1.0', '<')) {
-            static::markTestSkipped("You are running PHP5/PHP7, cannot test PHP71 features");
+        if (($filename === 'php71.php')) {
+            static::markTestSkippedForPHPVersionBelow('7.1.0');
         }
 
         $result = \Badoo\SoftMocks::rewrite(__DIR__ . '/fixtures/original/' . $filename);
