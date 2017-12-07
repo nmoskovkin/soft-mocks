@@ -67,7 +67,7 @@ class SomeClass{
     
     public static function getValue(){if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array();$variadic_params_idx = '';return eval($__softmocksvariableforcode);/** @codeCoverageIgnore */}
         
-        return \Badoo\SoftMocks::getClassConst(self::class, 'VALUE');}
+        return \Badoo\SoftMocks::getClassConst(self::class, 'VALUE', self::class);}
     
     
     public function method($string){if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array($string);$variadic_params_idx = '';return eval($__softmocksvariableforcode);/** @codeCoverageIgnore */}

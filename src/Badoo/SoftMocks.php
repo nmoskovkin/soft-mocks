@@ -1250,12 +1250,25 @@ class SoftMocks
         return constant($const);
     }
 
-    public static function getClassConst($class, $const)
+    public static function getClassConst($class, $const, $self_class)
     {
         if (is_object($class)) {
             $class = get_class($class);
         }
         $const_full_name = $class . '::' . $const;
+
+        // Check current scope, see comment below
+        $R = new \ReflectionClassConstant($class, $const);
+        if ($R->isPrivate()) {
+            if ($self_class !== $class) {
+                throw new \Error("Cannot access private const {$const_full_name}");
+            }
+        }
+        if ($R->isProtected()) {
+            if (($self_class !== $class) && !is_subclass_of($self_class, $class)) {
+                throw new \Error("Cannot access protected const {$const_full_name}");
+            }
+        }
 
         if (isset(self::$constant_mocks[$const_full_name])) {
             if (self::$debug) {
@@ -1269,8 +1282,7 @@ class SoftMocks
             return $const_full_name;
         }
 
-        // To avoid 'Cannot access protected const' error
-        $R = new \ReflectionClassConstant($class, $const);
+        // To avoid 'Cannot access private/protected const' error, see comment above
         return $R->getValue();
     }
 
@@ -2301,7 +2313,8 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             "getClassConst",
             [
                 self::nodeNameToArg($Node->class),
-                self::nodeNameToArg($Node->name)
+                self::nodeNameToArg($Node->name),
+                new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\ClassConstFetch(new \PhpParser\Node\Name('self'), 'class')),
             ]
         );
 

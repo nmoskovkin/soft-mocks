@@ -368,17 +368,88 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         static::assertSame("string3", $res);
     }
 
+    public function testWithPrivateConstantPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        static::assertEquals(1, WithRestrictedConstantsPHP71TestClass::getPrivateValue());
+
+        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PRIVATE_VALUE', 2);
+
+        static::assertEquals(2, WithRestrictedConstantsPHP71TestClass::getPrivateValue());
+    }
+
+    public function providerWithWrongPrivateConstantAccessPHP71()
+    {
+        return [
+            'without mock' => [false],
+            'with mock'    => [true],
+        ];
+    }
+
+    /**
+     * @dataProvider providerWithWrongPrivateConstantAccessPHP71
+     *
+     * @expectedException        \Error
+     * @expectedExceptionMessage Cannot access private const
+     *
+     * @param bool $set_mock
+     */
+    public function testWithWrongPrivateConstantAccessPHP71($set_mock)
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        if ($set_mock) {
+            \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PRIVATE_VALUE', 2);
+        }
+
+        WithWrongPrivateConstantAccessPHP71TestClass::getPrivateValue();
+    }
+
     public function testWithProtectedConstantPHP71()
     {
         static::markTestSkippedForPHPVersionBelow('7.1.0');
 
-        require_once __DIR__ . '/WithProtectedConstantPHP71TestClass.php';
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
 
-        static::assertEquals(1, WithProtectedConstantPHP71TestClass::getValue());
+        static::assertEquals(11, WithRestrictedConstantsPHP71TestClass::getProtectedValue());
 
-        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithProtectedConstantPHP71TestClass::VALUE', 2);
+        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
 
-        static::assertEquals(2, WithProtectedConstantPHP71TestClass::getValue());
+        static::assertEquals(22, WithRestrictedConstantsPHP71TestClass::getProtectedValue());
+    }
+
+    public function providerWithWrongProtectedConstantAccessPHP71()
+    {
+        return [
+            'without mock' => [false],
+            'with mock'    => [true],
+        ];
+    }
+
+    /**
+     * @dataProvider providerWithWrongProtectedConstantAccessPHP71
+     *
+     * @expectedException        \Error
+     * @expectedExceptionMessage Cannot access protected const
+     *
+     * @param bool $set_mock
+     */
+    public function testWithWrongProtectedConstantAccessPHP71($set_mock)
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        if ($set_mock) {
+            \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
+        }
+
+        WithWrongProtectedConstantAccessPHP71TestClass::getProtectedValue();
     }
 
     public function providerRewrite()
