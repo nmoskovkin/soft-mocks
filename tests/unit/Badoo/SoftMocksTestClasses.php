@@ -153,3 +153,13 @@ class WithExitTestClass
         return $a;
     }
 }
+
+abstract class WithoutConstantsTestClass
+{
+    //const A = 1;
+
+    public function getA()
+    {
+        return static::A;
+    }
+}

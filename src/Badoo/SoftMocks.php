@@ -1258,17 +1258,19 @@ class SoftMocks
         $const_full_name = $class . '::' . $const;
 
         // Check current scope, see comment below
-        $R = new \ReflectionClassConstant($class, $const);
-        if ($R->isPrivate()) {
-            if (is_null($self_class) || ($self_class !== $class)) {
-                throw new \Error("Cannot access private const {$const_full_name}");
+        try {
+            $R = new \ReflectionClassConstant($class, $const);
+            if ($R->isPrivate()) {
+                if (is_null($self_class) || ($self_class !== $class)) {
+                    throw new \Error("Cannot access private const {$const_full_name}");
+                }
             }
-        }
-        if ($R->isProtected()) {
-            if (is_null($self_class) || (($self_class !== $class) && !is_subclass_of($self_class, $class))) {
-                throw new \Error("Cannot access protected const {$const_full_name}");
+            if ($R->isProtected()) {
+                if (is_null($self_class) || (($self_class !== $class) && !is_subclass_of($self_class, $class))) {
+                    throw new \Error("Cannot access protected const {$const_full_name}");
+                }
             }
-        }
+        } catch (\ReflectionException $E) {/* if we add new constant */}
 
         if (isset(self::$constant_mocks[$const_full_name])) {
             if (self::$debug) {
@@ -1283,7 +1285,7 @@ class SoftMocks
         }
 
         // To avoid 'Cannot access private/protected const' error, see comment above
-        return $R->getValue();
+        return !empty($R) ? $R->getValue() : constant($const_full_name);
     }
 
     private static function rewriteContents($orig_file, $target_file, $contents)

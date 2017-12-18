@@ -318,6 +318,16 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function stubFunction() {}
 
+    public function testMockAbstractClassWithoutConstant()
+    {
+        /** @var WithoutConstantsTestClass $Object */
+        $Object = $this->getMockForAbstractClass(WithoutConstantsTestClass::class, [], 'WithoutConstantsTestClassMock');
+
+        \Badoo\SoftMocks::redefineConstant('WithoutConstantsTestClassMock::A', 1);
+
+        static::assertEquals(1, $Object->getA());
+    }
+
     public function testAnonymous()
     {
         static::markTestSkippedForPHPVersionBelow('7.0.0');
