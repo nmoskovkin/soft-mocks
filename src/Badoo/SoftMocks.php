@@ -2,6 +2,8 @@
 /**
  * Mocks core that rewrites code
  * @author Yuriy Nasretdinov <y.nasretdinov@corp.badoo.com>
+ * @author Oleg Efimov <o.efimov@corp.badoo.com>
+ * @author Kirill Abrosimov <k.abrosimov@corp.badoo.com>
  */
 
 namespace Badoo;
@@ -1248,26 +1250,42 @@ class SoftMocks
         return constant($const);
     }
 
-    public static function getClassConst($class, $const)
+    public static function getClassConst($class, $const, $self_class)
     {
         if (is_object($class)) {
             $class = get_class($class);
         }
-        $const = $class . '::' . $const;
+        $const_full_name = $class . '::' . $const;
 
-        if (isset(self::$constant_mocks[$const])) {
-            if (self::$debug) {
-                self::debug("Intercepting constant $const");
+        // Check current scope, see comment below
+        try {
+            $R = new \ReflectionClassConstant($class, $const);
+            if ($R->isPrivate()) {
+                if (is_null($self_class) || ($self_class !== $class)) {
+                    throw new \Error("Cannot access private const {$const_full_name}");
+                }
             }
-            return self::$constant_mocks[$const];
+            if ($R->isProtected()) {
+                if (is_null($self_class) || (($self_class !== $class) && !is_subclass_of($self_class, $class))) {
+                    throw new \Error("Cannot access protected const {$const_full_name}");
+                }
+            }
+        } catch (\ReflectionException $E) {/* if we add new constant */}
+
+        if (isset(self::$constant_mocks[$const_full_name])) {
+            if (self::$debug) {
+                self::debug("Intercepting constant $const_full_name");
+            }
+            return self::$constant_mocks[$const_full_name];
         }
 
-        if (isset(self::$removed_constants[$const])) {
-            trigger_error('Trying to access removed constant ' . $const . ', assuming "' . $const . '"');
-            return $const;
+        if (isset(self::$removed_constants[$const_full_name])) {
+            trigger_error('Trying to access removed constant ' . $const_full_name . ', assuming "' . $const_full_name . '"');
+            return $const_full_name;
         }
 
-        return constant($const);
+        // To avoid 'Cannot access private/protected const' error, see comment above
+        return !empty($R) ? $R->getValue() : constant($const_full_name);
     }
 
     private static function rewriteContents($orig_file, $target_file, $contents)
@@ -1900,6 +1918,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
     public function rewriteStmt_Interface()
     {
+        $this->cur_class = false;
         $this->in_interface = false;
     }
 
@@ -1991,9 +2010,19 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         $this->cur_class = $Node->name;
     }
 
+    public function rewriteStmt_Class()
+    {
+        $this->cur_class = null;
+    }
+
     public function beforeStmt_Trait(\PhpParser\Node\Stmt\Trait_ $Node)
     {
         $this->cur_class = $Node->name;
+    }
+
+    public function rewriteStmt_Trait()
+    {
+        $this->cur_class = null;
     }
 
     public function rewriteStmt_ClassMethod(\PhpParser\Node\Stmt\ClassMethod $Node)
@@ -2292,13 +2321,20 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             return null;
         }
 
+        $params = [
+            self::nodeNameToArg($Node->class),
+            self::nodeNameToArg($Node->name),
+        ];
+        if ($this->cur_class) {
+            $params[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\ClassConstFetch(new \PhpParser\Node\Name('self'), 'class'));
+        } else {
+            $params[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null')));
+        }
+
         $NewNode = new \PhpParser\Node\Expr\StaticCall(
             new \PhpParser\Node\Name("\\" . SoftMocks::class),
             "getClassConst",
-            [
-                self::nodeNameToArg($Node->class),
-                self::nodeNameToArg($Node->name)
-            ]
+            $params
         );
 
         $NewNode->setLine($Node->getLine());

@@ -1,23 +1,24 @@
-# SoftMocks v1 Change Log
-
-## v1.3.3
-
-There are next changes:
-
-- Added $variadic_params_idx (string, '' - no variadic params, otherwise - it's idx in function arguments)
+# SoftMocks ChangeLog
 
 ## master
 
 There are next changes:
 
-- using getenv instead of $_ENV global variable.
+- Support private/protected class constants;
+- Using getenv instead of $_ENV global variable.
+
+## v1.3.3
+
+There are next changes:
+
+- Added $variadic_params_idx (string, '' - no variadic params, otherwise - it's idx in function arguments).
 
 ## v1.3.2
 
 There are next changes:
 
-- Line numbering in rewritten code improved
-- Only multiline /**/ comments are present in rewritten file
+- Line numbering in rewritten code improved;
+- Only multiline /**/ comments are present in rewritten file.
 
 ## v1.3.0
 
