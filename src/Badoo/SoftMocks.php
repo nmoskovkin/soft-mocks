@@ -1258,19 +1258,21 @@ class SoftMocks
         $const_full_name = $class . '::' . $const;
 
         // Check current scope, see comment below
-        try {
-            $R = new \ReflectionClassConstant($class, $const);
-            if ($R->isPrivate()) {
-                if (is_null($self_class) || ($self_class !== $class)) {
-                    throw new \Error("Cannot access private const {$const_full_name}");
+        if (class_exists('ReflectionClassConstant', false)) {
+            try {
+                $R = new \ReflectionClassConstant($class, $const);
+                if ($R->isPrivate()) {
+                    if (is_null($self_class) || ($self_class !== $class)) {
+                        throw new \Error("Cannot access private const {$const_full_name}");
+                    }
                 }
-            }
-            if ($R->isProtected()) {
-                if (is_null($self_class) || (($self_class !== $class) && !is_subclass_of($self_class, $class))) {
-                    throw new \Error("Cannot access protected const {$const_full_name}");
+                if ($R->isProtected()) {
+                    if (is_null($self_class) || (($self_class !== $class) && !is_subclass_of($self_class, $class))) {
+                        throw new \Error("Cannot access protected const {$const_full_name}");
+                    }
                 }
-            }
-        } catch (\ReflectionException $E) {/* if we add new constant */}
+            } catch (\ReflectionException $E) {/* if we add new constant */}
+        }
 
         if (isset(self::$constant_mocks[$const_full_name])) {
             if (self::$debug) {
