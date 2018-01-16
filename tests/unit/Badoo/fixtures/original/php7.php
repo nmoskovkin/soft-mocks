@@ -58,4 +58,14 @@ class SomeClass
     {
         return $string;
     }
+
+    public function methodWithOnlyVariadicParams( ...$args)
+    {
+        return sizeof($args);
+    }
+
+    public function methodWithDifferentParamsTypes($a, $b, ...$args)
+    {
+        return $a . $b . sizeof($args);
+    }
 }

@@ -65,16 +65,16 @@ class SomeClass{
     
     public $a = 1;
     
-    public static function getValue(){if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array();return eval($__softmocksvariableforcode);/** @codeCoverageIgnore */}
+    public static function getValue(){if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array();$variadic_params_idx = '';return eval($__softmocksvariableforcode);/** @codeCoverageIgnore */}
         
-        return \Badoo\SoftMocks::getClassConst(self::class, 'VALUE');}
+        return \Badoo\SoftMocks::getClassConst(self::class, 'VALUE', self::class);}
     
     
-    public function method($string){if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array($string);return eval($__softmocksvariableforcode);/** @codeCoverageIgnore */}
+    public function method($string){if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array($string);$variadic_params_idx = '';return eval($__softmocksvariableforcode);/** @codeCoverageIgnore */}
         
         return self::methodSelf($string);}
     
     
-    protected static function methodSelf($string){if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array($string);return eval($__softmocksvariableforcode);/** @codeCoverageIgnore */}
+    protected static function methodSelf($string){if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = array($string);$variadic_params_idx = '';return eval($__softmocksvariableforcode);/** @codeCoverageIgnore */}
         
         return \Badoo\SoftMocks::callFunction(__NAMESPACE__, 'replaceSomething', array(&$string));}}

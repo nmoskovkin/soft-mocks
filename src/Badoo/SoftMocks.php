@@ -2,6 +2,8 @@
 /**
  * Mocks core that rewrites code
  * @author Yuriy Nasretdinov <y.nasretdinov@corp.badoo.com>
+ * @author Oleg Efimov <o.efimov@corp.badoo.com>
+ * @author Kirill Abrosimov <k.abrosimov@corp.badoo.com>
  */
 
 namespace Badoo;
@@ -1281,26 +1283,44 @@ class SoftMocks
         return constant($const);
     }
 
-    public static function getClassConst($class, $const)
+    public static function getClassConst($class, $const, $self_class)
     {
         if (is_object($class)) {
             $class = get_class($class);
         }
-        $const = $class . '::' . $const;
+        $const_full_name = $class . '::' . $const;
 
-        if (isset(self::$constant_mocks[$const])) {
+        // Check current scope, see comment below
+        if (class_exists('ReflectionClassConstant', false)) {
+            try {
+                $R = new \ReflectionClassConstant($class, $const);
+                if ($R->isPrivate()) {
+                    if (is_null($self_class) || ($self_class !== $class)) {
+                        throw new \Error("Cannot access private const {$const_full_name}");
+                    }
+                }
+                if ($R->isProtected()) {
+                    if (is_null($self_class) || (($self_class !== $class) && !is_subclass_of($self_class, $class))) {
+                        throw new \Error("Cannot access protected const {$const_full_name}");
+                    }
+                }
+            } catch (\ReflectionException $E) {/* if we add new constant */}
+        }
+
+        if (isset(self::$constant_mocks[$const_full_name])) {
             if (self::$debug) {
-                self::debug("Intercepting constant $const");
+                self::debug("Intercepting constant $const_full_name");
             }
-            return self::$constant_mocks[$const];
+            return self::$constant_mocks[$const_full_name];
         }
 
-        if (isset(self::$removed_constants[$const])) {
-            trigger_error('Trying to access removed constant ' . $const . ', assuming "' . $const . '"');
-            return $const;
+        if (isset(self::$removed_constants[$const_full_name])) {
+            trigger_error('Trying to access removed constant ' . $const_full_name . ', assuming "' . $const_full_name . '"');
+            return $const_full_name;
         }
 
-        return constant($const);
+        // To avoid 'Cannot access private/protected const' error, see comment above
+        return !empty($R) ? $R->getValue() : constant($const_full_name);
     }
 
     private static function rewriteContents($orig_file, $target_file, $contents)
@@ -1933,6 +1953,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
     public function rewriteStmt_Interface()
     {
+        $this->cur_class = false;
         $this->in_interface = false;
     }
 
@@ -2024,9 +2045,19 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         $this->cur_class = $Node->name;
     }
 
+    public function rewriteStmt_Class()
+    {
+        $this->cur_class = null;
+    }
+
     public function beforeStmt_Trait(\PhpParser\Node\Stmt\Trait_ $Node)
     {
         $this->cur_class = $Node->name;
+    }
+
+    public function rewriteStmt_Trait()
+    {
+        $this->cur_class = null;
     }
 
     public function rewriteStmt_ClassMethod(\PhpParser\Node\Stmt\ClassMethod $Node)
@@ -2038,6 +2069,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         // if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked("self"::class, static::class, __FUNCTION__))) {
         //     $params = [/* variables with references to them */];
         //     $mm_func_args = func_get_args();
+        //     $variadic_params_idx = '' || '<idx_of variadic_params>'
         //     return eval($__softmocksvariableforcode);
         // }/** @codeCoverageIgnore */
         $static = new \PhpParser\Node\Arg(
@@ -2052,6 +2084,11 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         );
 
         $params_arr = [];
+        $variadic_params_idx = null;
+        $last_param_idx = sizeof($Node->params) - 1;
+        if ($last_param_idx >= 0 && $Node->params[$last_param_idx]->variadic) {
+            $variadic_params_idx = $last_param_idx;
+        }
         foreach ($Node->params as $Par) {
             $params_arr[] = new \PhpParser\Node\Expr\ArrayItem(
                 new \PhpParser\Node\Expr\Variable($Par->name),
@@ -2068,6 +2105,10 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             new \PhpParser\Node\Expr\Assign(
                 new \PhpParser\Node\Expr\Variable("params"),
                 new \PhpParser\Node\Expr\Array_($params_arr)
+            ),
+            new \PhpParser\Node\Expr\Assign(
+                new \PhpParser\Node\Expr\Variable("variadic_params_idx"),
+                new \PhpParser\Node\Scalar\String_($variadic_params_idx)
             ),
         ];
 
@@ -2315,13 +2356,20 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             return null;
         }
 
+        $params = [
+            self::nodeNameToArg($Node->class),
+            self::nodeNameToArg($Node->name),
+        ];
+        if ($this->cur_class) {
+            $params[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\ClassConstFetch(new \PhpParser\Node\Name('self'), 'class'));
+        } else {
+            $params[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null')));
+        }
+
         $NewNode = new \PhpParser\Node\Expr\StaticCall(
             new \PhpParser\Node\Name("\\" . SoftMocks::class),
             "getClassConst",
-            [
-                self::nodeNameToArg($Node->class),
-                self::nodeNameToArg($Node->name)
-            ]
+            $params
         );
 
         $NewNode->setLine($Node->getLine());

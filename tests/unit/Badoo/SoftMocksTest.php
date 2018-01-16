@@ -2,6 +2,7 @@
 /**
  * Mocks core that rewrites code
  * @author Kirill Abrosimov <k.abrosimov@corp.badoo.com>
+ * @author Oleg Efimov <o.efimov@corp.badoo.com>
  * @author Rinat Akhmadeev <r.akhmadeev@corp.badoo.com>
  */
 namespace Badoo\SoftMock\Tests;
@@ -17,6 +18,13 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
     {
         \Badoo\SoftMocks::restoreAll();
         parent::tearDown();
+    }
+
+    public static function markTestSkippedForPHPVersionBelow($php_version)
+    {
+        if (version_compare(phpversion(), $php_version, '<')) {
+            static::markTestSkipped('You PHP version do not support this, you need need at least PHP ' . $php_version);
+        }
     }
 
     public function testParserVersion()
@@ -292,11 +300,37 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         static::assertSame('CD', GrandChildStaticTestClass::getString());
     }
 
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage You will never see this message
+     */
+    public function testNotOk()
+    {
+        throw new \RuntimeException("You will never see this message");
+
+        $Mock = $this->getMock(MyTest::class, ['stubFunction']);
+        $Mock->expects($this->any())->method('stubFunction')->willReturn(
+            function () {
+                yield 10;
+            }
+        );
+    }
+
+    public function stubFunction() {}
+
+    public function testMockAbstractClassWithoutConstant()
+    {
+        /** @var WithoutConstantsTestClass $Object */
+        $Object = $this->getMockForAbstractClass(WithoutConstantsTestClass::class, [], 'WithoutConstantsTestClassMock');
+
+        \Badoo\SoftMocks::redefineConstant('WithoutConstantsTestClassMock::A', 1);
+
+        static::assertEquals(1, $Object->getA());
+    }
+
     public function testAnonymous()
     {
-        if (version_compare(phpversion(), '7.0.0', '<')) {
-            static::markTestSkipped('PHP do not support this');
-        }
+        static::markTestSkippedForPHPVersionBelow('7.0.0');
 
         require_once __DIR__ . '/AnonymousTestClass.php';
         static::assertEquals(1, AnonymousTestClass::SOMETHING);
@@ -313,9 +347,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testWithReturnTypeDeclarationsPHP7()
     {
-        if (version_compare(phpversion(), '7.0.0', '<')) {
-            static::markTestSkipped('PHP do not support this');
-        }
+        static::markTestSkippedForPHPVersionBelow('7.0.0');
 
         require_once __DIR__ . '/WithReturnTypeDeclarationsPHP7TestClass.php';
 
@@ -331,9 +363,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
 
     public function testWithReturnTypeDeclarationsPHP71()
     {
-        if (version_compare(phpversion(), '7.1.0', '<')) {
-            static::markTestSkipped('PHP do not support this');
-        }
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
 
         require_once __DIR__ . '/WithReturnTypeDeclarationsPHP71TestClass.php';
 
@@ -346,6 +376,163 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         $int = null;
         $res = WithReturnTypeDeclarationsPHP71TestClass::getStringOrNull($int);
         static::assertSame("string3", $res);
+    }
+
+    public function providerWithOrWithoutMock()
+    {
+        return [
+            'without mock' => [false],
+            'with mock'    => [true],
+        ];
+    }
+
+    public function testWithPrivateConstantPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        static::assertEquals(1, WithRestrictedConstantsPHP71TestClass::getPrivateValue());
+
+        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PRIVATE_VALUE', 2);
+
+        static::assertEquals(2, WithRestrictedConstantsPHP71TestClass::getPrivateValue());
+    }
+
+    /**
+     * @dataProvider providerWithOrWithoutMock
+     *
+     * @expectedException        \Error
+     * @expectedExceptionMessage Cannot access private const
+     *
+     * @param bool $set_mock
+     */
+    public function testWithWrongPrivateConstantAccessPHP71($set_mock)
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        if ($set_mock) {
+            \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PRIVATE_VALUE', 2);
+        }
+
+        WithWrongPrivateConstantAccessPHP71TestClass::getPrivateValue();
+    }
+
+    /**
+     * @dataProvider providerWithOrWithoutMock
+     *
+     * @expectedException        \Error
+     * @expectedExceptionMessage Cannot access private const
+     *
+     * @param bool $set_mock
+     */
+    public function testWithWrongPrivateConstantAccessFromFunctionPHP71($set_mock)
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        if ($set_mock) {
+            \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PRIVATE_VALUE', 2);
+        }
+
+        getPrivateValue();
+    }
+
+    /**
+     * @dataProvider providerWithOrWithoutMock
+     *
+     * @expectedException        \Error
+     * @expectedExceptionMessage Cannot access private const
+     *
+     * @param bool $set_mock
+     */
+    public function testWithWrongParentPrivateConstantAccessPHP71($set_mock)
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        if ($set_mock) {
+            \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PRIVATE_VALUE', 2);
+        }
+
+        WithRestrictedConstantsChildPHP71TestClass::getParentPrivateValue();
+    }
+
+    public function testWithProtectedConstantPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        static::assertEquals(11, WithRestrictedConstantsPHP71TestClass::getProtectedValue());
+
+        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
+
+        static::assertEquals(22, WithRestrictedConstantsPHP71TestClass::getProtectedValue());
+    }
+
+    /**
+     * @dataProvider providerWithOrWithoutMock
+     *
+     * @expectedException        \Error
+     * @expectedExceptionMessage Cannot access protected const
+     *
+     * @param bool $set_mock
+     */
+    public function testWithWrongProtectedConstantAccessPHP71($set_mock)
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        if ($set_mock) {
+            \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
+        }
+
+        getProtectedValue();
+    }
+
+    /**
+     * @dataProvider providerWithOrWithoutMock
+     *
+     * @expectedException        \Error
+     * @expectedExceptionMessage Cannot access protected const
+     *
+     * @param bool $set_mock
+     */
+    public function testWithWrongProtectedConstantAccessFromFunctionPHP71($set_mock)
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        if ($set_mock) {
+            \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
+        }
+
+        getProtectedValue();
+    }
+
+    /**
+     * @dataProvider providerWithOrWithoutMock
+     *
+     * @param bool $set_mock
+     */
+    public function testWithWrongParentProtectedConstantAccessPHP71($set_mock)
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        if ($set_mock) {
+            \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
+        }
+
+        static::assertEquals($set_mock ? 22 : 11, WithRestrictedConstantsChildPHP71TestClass::getParentProtectedValue());
     }
 
     public function providerRewrite()
@@ -367,12 +554,12 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
      */
     public function testRewrite($filename)
     {
-        if (($filename !== 'php5.php') && version_compare(phpversion(), '7.0.0', '<')) {
-            static::markTestSkipped("You are running PHP5, cannot test PHP7 features");
+        if (($filename === 'php7.php')) {
+            static::markTestSkippedForPHPVersionBelow('7.0.0');
         }
 
-        if (($filename === 'php71.php') && version_compare(phpversion(), '7.1.0', '<')) {
-            static::markTestSkipped("You are running PHP5/PHP7, cannot test PHP71 features");
+        if (($filename === 'php71.php')) {
+            static::markTestSkippedForPHPVersionBelow('7.1.0');
         }
 
         $result = \Badoo\SoftMocks::rewrite(__DIR__ . '/fixtures/original/' . $filename);
@@ -381,22 +568,4 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         //file_put_contents(__DIR__ . '/fixtures/expected/' . $filename, file_get_contents($result));
         $this->assertEquals(trim(file_get_contents(__DIR__ . '/fixtures/expected/' . $filename)), file_get_contents($result));
     }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage You will never see this message
-     */
-    public function testNotOk()
-    {
-        throw new \RuntimeException("You will never see this message");
-
-        $Mock = $this->getMock(MyTest::class, ['stubFunction']);
-        $Mock->expects($this->any())->method('stubFunction')->willReturn(
-            function () {
-                yield 10;
-            }
-        );
-    }
-
-    public function stubFunction() {}
 }

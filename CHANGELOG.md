@@ -1,4 +1,4 @@
-# SoftMocks v1 Change Log
+# SoftMocks ChangeLog
 
 ## master
 
@@ -8,12 +8,25 @@ There are next changes:
 - error "PHP Fatal error:  Class 'Symfony\Polyfill\Php70\Php70' not found" was fixed;
 - use path in project for cached files path.
 
+## v1.3.4
+
+There are next changes:
+
+- Support private/protected class constants;
+- Using getenv instead of $_ENV global variable.
+
+## v1.3.3
+
+There are next changes:
+
+- Added $variadic_params_idx (string, '' - no variadic params, otherwise - it's idx in function arguments).
+
 ## v1.3.2
 
 There are next changes:
 
-- Line numbering in rewritten code improved
-- Only multiline /**/ comments are present in rewritten file
+- Line numbering in rewritten code improved;
+- Only multiline /**/ comments are present in rewritten file.
 
 ## v1.3.0
 
