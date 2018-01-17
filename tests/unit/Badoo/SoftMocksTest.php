@@ -300,6 +300,71 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         static::assertSame('CD', GrandChildStaticTestClass::getString());
     }
 
+    public function dataProviderResolveFile()
+    {
+        return [
+            'Empty file' => [
+                'file' => '',
+                'result' => '',
+            ],
+            'Absolute file path' => [
+                'file' => __DIR__ . '/fixtures/original/php7.php',
+                'result' => __DIR__ . '/fixtures/original/php7.php',
+            ],
+            'Absolute file path not resolved' => [
+                'file' => __DIR__ . '/fixtures/original/__unknown.php',
+                'result' => false,
+            ],
+            'Relative file path in include path' => [
+                'file' => 'original/php7.php',
+                'result' => __DIR__ . '/fixtures/original/php7.php',
+            ],
+            'Relative file path in cwd' => [
+                'file' => 'Badoo/fixtures/original/php7.php',
+                'result' => __DIR__ . '/fixtures/original/php7.php',
+            ],
+            'Relative file path current dir' => [
+                'file' => 'fixtures/original/php7.php',
+                'result' => __DIR__ . '/fixtures/original/php7.php',
+            ],
+            'Relative file path not resolved' => [
+                'file' => 'unit/Badoo/fixtures/original/php7.php',
+                'result' => false,
+            ],
+            'Stream' => [
+                'file' => 'stream://some/path',
+                'result' => 'stream://some/path',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataProviderResolveFile
+     * @param $file
+     * @param $expected_result
+     */
+    public function testResolveFile($file, $expected_result)
+    {
+        \Badoo\SoftMocks::redefineFunction('realpath', '', function ($path) { return $path; });
+        $old_include_path = get_include_path();
+        $old_cwd = getcwd();
+        set_include_path(__DIR__ . '/fixtures:.');
+        chdir(__DIR__ . '/..');
+        $result = $this->callResolveFile($file);
+        set_include_path($old_include_path);
+        chdir($old_cwd);
+        static::assertSame($expected_result, $result);
+    }
+
+    protected function callResolveFile($file)
+    {
+        $ReflectionClass = new \ReflectionClass(\Badoo\SoftMocks::class);
+        $ResolveFileMethod = $ReflectionClass->getMethod('resolveFile');
+        $ResolveFileMethod->setAccessible(true);
+        /** @uses \Badoo\SoftMocks::resolveFile */
+        return $ResolveFileMethod->invoke(null, $file);
+    }
+
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage You will never see this message

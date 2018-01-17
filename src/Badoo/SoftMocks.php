@@ -906,22 +906,8 @@ class SoftMocks
             $callback = self::$prepare_for_rewrite_callback;
             $file = $callback($file);
         }
+        $file = self::resolveFile($file);
 
-        if ($file[0] != '/') {
-            foreach (explode(':', get_include_path()) as $dir) {
-                if ($dir == '.') {
-                    $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-                    $dir = dirname(self::replaceFilename($bt[1]['file'], true));
-                }
-
-                if (file_exists($dir . '/' . $file)) {
-                    $file = "$dir/$file";
-                    break;
-                }
-            }
-        } else {
-            $file = realpath($file);
-        }
         if (!$file) {
             return $file;
         }
@@ -983,6 +969,51 @@ class SoftMocks
         }
 
         return self::$rewrite_cache[$file];
+    }
+
+    private static function resolveFile($file)
+    {
+        if (!$file) {
+            return $file;
+        }
+        // if path is not absolute
+        if ($file[0] !== '/') {
+            // skip stream
+            $path_info = parse_url($file);
+            if (isset($path_info['scheme'])) {
+                return $file;
+            }
+            $found = false;
+            $cwd = getcwd();
+            // try include path
+            foreach (explode(':', get_include_path()) as $dir) {
+                if ($dir === '.') {
+                    $dir = $cwd;
+                }
+
+                if (file_exists("{$dir}/{$file}")) {
+                    $file = "{$dir}/{$file}";
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                // try relative path
+                $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+                $dir = dirname(self::replaceFilename($bt[2]['file'], true));
+                if (file_exists("{$dir}/{$file}")) {
+                    $file = "{$dir}/{$file}";
+                } else {
+                    // try cwd
+                    $dir = $cwd;
+                    if (file_exists("{$dir}/{$file}")) {
+                        $file = "{$dir}/{$file}";
+                    }
+                }
+            }
+        }
+        // resolve symlinks
+        return realpath($file);
     }
 
     private static function createRewrittenFile($file, $target_file)
