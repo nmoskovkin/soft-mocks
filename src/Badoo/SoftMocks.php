@@ -950,10 +950,6 @@ class SoftMocks
             }
 
             $target_file = self::$mocks_cache_path . self::getVersion() . DIRECTORY_SEPARATOR . $file_in_project . "_" . $md5 . ".php";
-            $target_dir = dirname($target_file);
-            if (!@mkdir($target_dir, 0777, true) && !is_dir($target_dir)) {
-                throw new \RuntimeException("Can't create {$target_dir}");
-            }
             if (!file_exists($target_file)) {
                 $old_umask = umask(0);
                 self::createRewrittenFile($file, $target_file);
@@ -1029,8 +1025,6 @@ class SoftMocks
         $contents = self::rewriteContents($file, $target_file, $contents);
         ini_set('xdebug.max_nesting_level', $old_nesting_level);
 
-        $target_dir = dirname($target_file);
-
         if (!$fp = fopen(self::$lock_file_path, 'a+')) {
             throw new \RuntimeException("Could not create lock file " . self::$lock_file_path);
         }
@@ -1039,9 +1033,14 @@ class SoftMocks
             throw new \RuntimeException("Could not flock " . self::$lock_file_path);
         }
 
-        if (!is_dir($target_dir) && !mkdir($target_dir, 0777, true)) {
-            throw new \RuntimeException("Could not create directory " . $target_dir);
+        $target_dir = dirname($target_file);
+        $base_mocks_path = '';
+        $relative_target_dir = $target_dir;
+        if (mb_orig_strpos($file, self::$mocks_cache_path) === 0) {
+            $base_mocks_path = self::$mocks_cache_path;
+            $relative_target_dir = substr($target_dir, strlen($base_mocks_path));
         }
+        self::createDirRecursive($base_mocks_path, $relative_target_dir);
 
         $tmp_file = $target_file . ".tmp." . uniqid(getmypid());
         $wrote = file_put_contents($tmp_file, $contents);
@@ -1063,6 +1062,39 @@ class SoftMocks
 
         if (!fclose($fp)) {
             throw new \RuntimeException("Could not fclose lock file descriptor for file " . self::$lock_file_path);
+        }
+    }
+
+    /**
+     * Create dir recursive
+     * if create dirs recursive using mkdir with $recursive = true, then there can be race conditions, for example:
+     * process1: mkdir('/foo/bar1', 0777, true);
+     * process1: check '/foo', it not exists, try to create it
+     * process2: mkdir('/foo/bar2', 0777, true);
+     * process2: check '/foo', it not exists, try to create it
+     * process1: successful created '/foo', check '/foo/bar1', it not exists, create it
+     * process1: can't create '/foo', '/foo/bar2' not exists, fail
+     * to prevent this race condition, create dir recursive manually
+     *
+     * @see https://bugs.php.net/bug.php?id=35326
+     *
+     * @param string $base_dir base (existing) dir
+     * @param string $relative_target_dir dir, which need to create
+     * @throws \RuntimeException
+     */
+    private static function createDirRecursive($base_dir, $relative_target_dir)
+    {
+        $current_dir = $base_dir;
+        foreach (explode(DIRECTORY_SEPARATOR, $relative_target_dir) as $sub_dir) {
+            $current_dir .= DIRECTORY_SEPARATOR . $sub_dir;
+            if (!@mkdir($current_dir) && !is_dir($current_dir)) {
+                $error = error_get_last();
+                $message = '';
+                if (is_array($error)) {
+                    $message = ", error: {$error['message']}";
+                }
+                throw new \RuntimeException("Can't create directory {$current_dir}{$message}");
+            }
         }
     }
 
