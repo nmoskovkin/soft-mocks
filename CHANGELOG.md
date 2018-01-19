@@ -1,6 +1,6 @@
 # SoftMocks ChangeLog
 
-## master
+## v1.3.5
 
 There are next changes:
 
