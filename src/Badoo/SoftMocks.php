@@ -1827,11 +1827,37 @@ class SoftMocks
 
     public static function injectIntoPhpunit()
     {
-        if (!class_exists(\PHPUnit_Util_Fileloader::class, false)) {
+        /** @noinspection PhpUndefinedClassInspection */
+        $possible_class_groups = [
+            [
+                'file_loader' => \PHPUnit_Util_Fileloader::class,
+                'filter' => \PHPUnit_Util_Filter::class,
+            ],
+            [
+                'file_loader' => \PHPUnit\Util\Fileloader::class,
+                'filter' => \PHPUnit\Util\Filter::class,
+            ],
+        ];
+        /** @noinspection PhpUndefinedClassInspection */
+        /** @var \PHPUnit_Util_Fileloader[]|\PHPUnit\Util\Fileloader[] $classes */
+        $classes = null;
+        foreach ($possible_class_groups as $possible_classes) {
+            if (!\class_exists($possible_classes['file_loader'], false)) {
+                continue;
+            }
+            $classes = $possible_classes;
+            break;
+        }
+        if (!$classes) {
             return;
         }
 
-        if (!is_callable([\PHPUnit_Util_Fileloader::class, 'setFilenameRewriteCallback'])) {
+        /** @var \PHPUnit_Util_Fileloader|\PHPUnit\Util\Fileloader $file_loader */
+        $file_loader = $classes['file_loader'];
+        /** @var \PHPUnit_Util_Filter|\PHPUnit\Util\Filter $filter */
+        $filter = $classes['filter'];
+
+        if (!\is_callable([$file_loader, 'setFilenameRewriteCallback'])) {
             if (self::$debug) {
                 self::debug("Cannot inject into phpunit: method setFilenameRewriteCallback not found");
             }
@@ -1839,15 +1865,15 @@ class SoftMocks
             return;
         }
 
-        \PHPUnit_Util_Fileloader::setFilenameRewriteCallback([self::class, 'rewrite']);
+        $file_loader::setFilenameRewriteCallback([self::class, 'rewrite']);
 
-        \PHPUnit_Util_Fileloader::setFilenameRestoreCallback(
+        $file_loader::setFilenameRestoreCallback(
             function ($filename) {
                 return self::replaceFilename($filename, true);
             }
         );
 
-        \PHPUnit_Util_Filter::setCustomStackTraceCallback(
+        $filter::setCustomStackTraceCallback(
             function ($e) {
                 ob_start();
                 self::printBackTrace($e);

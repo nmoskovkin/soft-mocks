@@ -4,6 +4,10 @@
 
 There are next changes:
 
+- dev dependence vaimo/composer-patches was updated from 3.4.3 to 3.23.1;
+- patch level for patches was provided;
+- phpunit6 support was added.
+
 ## v1.3.5
 
 There are next changes:
