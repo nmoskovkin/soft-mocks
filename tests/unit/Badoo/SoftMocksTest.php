@@ -527,17 +527,71 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         WithRestrictedConstantsChildPHP71TestClass::getParentPrivateValue();
     }
 
-    public function testWithProtectedConstantPHP71()
+    public function testWithSelfProtectedConstantPHP71()
     {
         static::markTestSkippedForPHPVersionBelow('7.1.0');
 
         require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
 
-        static::assertEquals(11, WithRestrictedConstantsPHP71TestClass::getProtectedValue());
+        static::assertEquals(11, WithRestrictedConstantsPHP71TestClass::getSelfProtectedValue());
 
         \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
 
-        static::assertEquals(22, WithRestrictedConstantsPHP71TestClass::getProtectedValue());
+        static::assertEquals(22, WithRestrictedConstantsPHP71TestClass::getSelfProtectedValue());
+    }
+
+    public function testWithSelfProtectedConstantFromChildPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        static::assertEquals(11, WithRestrictedConstantsChildPHP71TestClass::getSelfProtectedValue());
+
+        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
+
+        static::assertEquals(22, WithRestrictedConstantsChildPHP71TestClass::getSelfProtectedValue());
+    }
+
+    public function testWithStaticProtectedConstantPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        static::assertEquals(11, WithRestrictedConstantsPHP71TestClass::getStaticProtectedValue());
+
+        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
+
+        static::assertEquals(22, WithRestrictedConstantsPHP71TestClass::getStaticProtectedValue());
+    }
+
+    public function testWithStaticProtectedConstantFromChildPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        static::assertEquals(11, WithRestrictedConstantsChildPHP71TestClass::getStaticProtectedValue());
+
+        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
+
+        static::assertEquals(22, WithRestrictedConstantsChildPHP71TestClass::getStaticProtectedValue());
+    }
+
+    public function testWithThisProtectedConstantFromChildPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        $object = new WithRestrictedConstantsChildPHP71TestClass();
+
+        static::assertEquals(11, $object->getThisObjectProtectedValue());
+
+        \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
+
+        static::assertEquals(22, $object->getThisObjectProtectedValue());
     }
 
     /**
