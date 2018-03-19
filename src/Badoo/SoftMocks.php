@@ -1351,58 +1351,96 @@ class SoftMocks
         if (is_object($class)) {
             $class = get_class($class);
         }
-        $const_full_name = $class . '::' . $const;
-        $declaring_class = null;
+        $const_full_name = "{$class}::{$const}";
 
-        // Check current scope, see comment below
-        if (class_exists(\ReflectionClassConstant::class, false)) {
-            try {
-                $ConstantReflection = new \ReflectionClassConstant($class, $const);
-                if ($ConstantReflection->isPrivate()) {
-                    if ($self_class === null || ($self_class !== $class)) {
-                        throw new \Error("Cannot access private const {$const_full_name}");
+        if (PHP_VERSION_ID < 70100) {
+            // for php versions < 7.1 where isn't declared class ReflectionClassConstant
+            $ancestor = $class;
+            do {
+                $ancestor_const = "{$ancestor}::{$const}";
+                if (isset(self::$removed_constants[$ancestor_const])) {
+                    $parent = \get_parent_class($ancestor);
+                    continue;
+                }
+                if (isset(self::$constant_mocks[$ancestor_const])) {
+                    if (self::$debug) {
+                        self::debug("Intercepting constant {$ancestor_const}");
+                    }
+                    return self::$constant_mocks[$ancestor_const];
+                }
+                $ancestor_const_defined = defined($ancestor_const);
+                if (!$ancestor_const_defined) {
+                    break;
+                }
+                // for php versions < 7.1
+                // we can't get constant declaring class, but we can compare values for $ancestor and parent class
+                $parent = get_parent_class($ancestor);
+                if ($parent) {
+                    $parent_const = "{$parent}::{$const}";
+                    $parent_const_defined = defined($parent_const);
+                    if (!$parent_const_defined) {
+                        break;
+                    }
+                    if (constant($ancestor_const) !== constant($parent_const)) {
+                        break;
                     }
                 }
-                if ($ConstantReflection->isProtected()) {
-                    if ($self_class === null || (($self_class !== $class) && !\is_subclass_of($class, $self_class) && !\is_subclass_of($self_class, $class))) {
-                        throw new \Error("Cannot access protected const {$const_full_name}");
-                    }
-                }
-                $declaring_class = $ConstantReflection->getDeclaringClass()->getName();
-            } catch (\ReflectionException $Exception) {/* if we add new constant */}
+            } while ($ancestor = $parent);
+
+            if (!defined($ancestor_const)) {
+                throw new \RuntimeException("Undefined class constant '{$const_full_name}'");
+            }
+            return constant($ancestor_const);
         }
+
+        // for php versions >= 7.1
+        $ConstantReflection = null;
+        $declaring_class = null;
         $ancestor = $class;
         do {
             $ancestor_const = "{$ancestor}::{$const}";
+            if (isset(self::$removed_constants[$ancestor_const])) {
+                if ($declaring_class === $ancestor) {
+                    // for get next declaring class
+                    $ConstantReflection = null;
+                    $declaring_class = null;
+                }
+                continue;
+            }
+            if ($declaring_class === null) {
+                try {
+                    $ConstantReflection = new \ReflectionClassConstant($ancestor, $const);
+                    if ($ConstantReflection->isPrivate()) {
+                        if ($self_class === null || ($self_class !== $class)) {
+                            throw new \Error("Cannot access private const {$const_full_name}");
+                        }
+                    }
+                    if ($ConstantReflection->isProtected()) {
+                        if ($self_class === null || (($self_class !== $class) && !is_subclass_of($class, $self_class) && !is_subclass_of($self_class, $class))) {
+                            throw new \Error("Cannot access protected const {$const_full_name}");
+                        }
+                    }
+                    $declaring_class = $ConstantReflection->getDeclaringClass()->getName();
+                } catch (\ReflectionException $Exception) {/* if we add new constant */}
+                if (!$declaring_class) {
+                    $declaring_class = false;
+                }
+            }
             if (isset(self::$constant_mocks[$ancestor_const])) {
                 if (self::$debug) {
                     self::debug("Intercepting constant {$ancestor_const}");
                 }
                 return self::$constant_mocks[$ancestor_const];
             }
-            if ($declaring_class) {
-                if ($declaring_class === $ancestor) {
-                    break;
-                }
-                $parent = \get_parent_class($ancestor);
-            } else {
-                // for php versions < 7.1
-                // we can't get constant declaring class, but we can compare values for $ancestor and parent class
-                $parent = \get_parent_class($ancestor);
-                if ($parent && \constant($ancestor_const) !== \constant("{$parent}::{$const}")) {
-                    break;
-                }
+            if ($declaring_class && $declaring_class === $ancestor) {
+                break;
             }
-        } while ($ancestor = $parent);
-
-        // To avoid 'Cannot access private/protected const' error, see comment above
-        if (!empty($ConstantReflection)) {
-            return $ConstantReflection->getValue();
+        } while ($ancestor = get_parent_class($ancestor));
+        if (!$ConstantReflection) {
+            throw new \Error("Undefined class constant '{$const_full_name}'");
         }
-        if (!\defined($const_full_name)) {
-            throw new \RuntimeException("Undefined class constant '{$const_full_name}'");
-        }
-        return \constant($const_full_name);
+        // To avoid 'Cannot access private/protected const' error, see above
+        return $ConstantReflection->getValue();
     }
 
     private static function rewriteContents($orig_file, $target_file, $contents)
@@ -1610,6 +1648,7 @@ class SoftMocks
     public static function restoreConstant($constantName)
     {
         unset(self::$constant_mocks[$constantName]);
+        unset(self::$removed_constants[$constantName]);
     }
 
     public static function restoreAllConstants()

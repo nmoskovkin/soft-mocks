@@ -54,11 +54,6 @@ class WithRestrictedConstantsChildPHP71TestClass extends WithRestrictedConstants
     {
         return parent::PRIVATE_VALUE;
     }
-
-    public static function getParentProtectedValue() : int
-    {
-        return parent::PROTECTED_VALUE;
-    }
 }
 
 function getPrivateValue() : int
@@ -71,22 +66,22 @@ function getProtectedValue() : int
     return WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE;
 }
 
-class CrossBase {}
+class CrossBasePHP71TestClass {}
 
-class CrossFirst extends CrossBase
+class CrossFirstPHP71TestClass extends CrossBasePHP71TestClass
 {
     protected const CROSS = 10;
 }
 
-class CrossSecond extends CrossBase
+class CrossSecondPHP71TestClass extends CrossBasePHP71TestClass
 {
     public static function getCross()
     {
-        return CrossFirst::CROSS;
+        return CrossFirstPHP71TestClass::CROSS;
     }
 }
 
-class DescendantBase
+class DescendantBasePHP71TestClass
 {
     public static function getDescendant()
     {
@@ -94,7 +89,96 @@ class DescendantBase
     }
 }
 
-class DescendantFirst extends DescendantBase
+class DescendantFirstPHP71TestClass extends DescendantBasePHP71TestClass
 {
     protected const DESCENDANT = 20;
+}
+
+class ConstantRedeclareBasePHP71TestClass
+{
+    public static function getBaseSelfValue() : int
+    {
+        return self::VALUE;
+    }
+
+    public static function getBaseStaticValue() : int
+    {
+        return static::VALUE;
+    }
+}
+
+class ConstantRedeclareFirstPHP71TestClass extends ConstantRedeclareBasePHP71TestClass
+{
+    protected const VALUE = 2;
+
+    public static function getFirstParentValue() : int
+    {
+        return parent::VALUE;
+    }
+
+    public static function getFirstSelfValue() : int
+    {
+        return self::VALUE;
+    }
+
+    public static function getFirstStaticValue() : int
+    {
+        return static::VALUE;
+    }
+}
+
+class ConstantRedeclareSecondPHP71TestClass extends ConstantRedeclareFirstPHP71TestClass
+{
+    public static function getSecondParentValue() : int
+    {
+        return parent::VALUE;
+    }
+
+    public static function getSecondSelfValue() : int
+    {
+        return self::VALUE;
+    }
+
+    public static function getSecondStaticValue() : int
+    {
+        return static::VALUE;
+    }
+}
+
+class ConstantRedeclareThirdPHP71TestClass extends ConstantRedeclareSecondPHP71TestClass
+{
+    protected const VALUE = 4;
+
+    public static function getThirdParentValue() : int
+    {
+        return parent::VALUE;
+    }
+
+    public static function getThirdSelfValue() : int
+    {
+        return self::VALUE;
+    }
+
+    public static function getThirdStaticValue() : int
+    {
+        return static::VALUE;
+    }
+}
+
+class ConstantRedeclareForthPHP71TestClass extends ConstantRedeclareThirdPHP71TestClass
+{
+    public static function getForthParentValue() : int
+    {
+        return parent::VALUE;
+    }
+
+    public static function getForthSelfValue() : int
+    {
+        return self::VALUE;
+    }
+
+    public static function getForthStaticValue() : int
+    {
+        return static::VALUE;
+    }
 }

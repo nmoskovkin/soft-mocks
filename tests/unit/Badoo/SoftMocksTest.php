@@ -231,6 +231,1098 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         static::assertEquals(2, DefaultTestClass::getValue());
     }
 
+    public function testNotRedefinedClassConstants()
+    {
+        try {
+            ConstantRedeclareBaseTestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareBaseTestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareFirstTestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareFirstTestClass::getFirstParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareSecondTestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareThirdTestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareForthTestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        static::assertSame(2, ConstantRedeclareFirstTestClass::getBaseStaticValue());
+        static::assertSame(2, ConstantRedeclareFirstTestClass::getFirstSelfValue());
+        static::assertSame(2, ConstantRedeclareFirstTestClass::getFirstStaticValue());
+
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getBaseStaticValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getFirstSelfValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getSecondSelfValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getSecondStaticValue());
+
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getBaseStaticValue());
+        static::assertSame(2, ConstantRedeclareThirdTestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareThirdTestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareThirdTestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getSecondStaticValue());
+        static::assertSame(2, ConstantRedeclareThirdTestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getThirdStaticValue());
+
+        static::assertSame(4, ConstantRedeclareForthTestClass::getBaseStaticValue());
+        static::assertSame(2, ConstantRedeclareForthTestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareForthTestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareForthTestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getSecondStaticValue());
+        static::assertSame(2, ConstantRedeclareForthTestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getThirdStaticValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthParentValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthStaticValue());
+    }
+
+    public function testBaseClassConstantRedefined()
+    {
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBaseTestClass::class . '::VALUE',
+            10
+        );
+
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getBaseSelfValue());
+        static::assertSame(2, ConstantRedeclareFirstTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getFirstParentValue());
+        static::assertSame(2, ConstantRedeclareFirstTestClass::getFirstSelfValue());
+        static::assertSame(2, ConstantRedeclareFirstTestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getBaseSelfValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getFirstParentValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getFirstSelfValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getSecondSelfValue());
+        static::assertSame(2, ConstantRedeclareSecondTestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getFirstParentValue());
+        static::assertSame(2, ConstantRedeclareThirdTestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareThirdTestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareThirdTestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getSecondStaticValue());
+        static::assertSame(2, ConstantRedeclareThirdTestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthTestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getFirstParentValue());
+        static::assertSame(2, ConstantRedeclareForthTestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareForthTestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareForthTestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getSecondStaticValue());
+        static::assertSame(2, ConstantRedeclareForthTestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getThirdStaticValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthParentValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthStaticValue());
+    }
+
+    public function testFromBaseToFirstClassConstantRedefined()
+    {
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBaseTestClass::class . '::VALUE',
+            10
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareFirstTestClass::class . '::VALUE',
+            20
+        );
+
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getBaseSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getFirstSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getBaseSelfValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getFirstSelfValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getSecondParentValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getSecondSelfValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareThirdTestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareThirdTestClass::getSecondParentValue());
+        static::assertSame(20, ConstantRedeclareThirdTestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getSecondStaticValue());
+        static::assertSame(20, ConstantRedeclareThirdTestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthTestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareForthTestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareForthTestClass::getSecondParentValue());
+        static::assertSame(20, ConstantRedeclareForthTestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getSecondStaticValue());
+        static::assertSame(20, ConstantRedeclareForthTestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getThirdStaticValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthParentValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthStaticValue());
+    }
+
+    public function testFromBaseToSecondClassConstantRedefined()
+    {
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBaseTestClass::class . '::VALUE',
+            10
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareFirstTestClass::class . '::VALUE',
+            20
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareSecondTestClass::class . '::VALUE',
+            30
+        );
+
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getBaseSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getFirstSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getBaseSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getFirstSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getSecondSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareThirdTestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareThirdTestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareThirdTestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareThirdTestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdTestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthTestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareForthTestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareForthTestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareForthTestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareForthTestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getThirdStaticValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthParentValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthSelfValue());
+        static::assertSame(4, ConstantRedeclareForthTestClass::getForthStaticValue());
+    }
+
+    public function testFromBaseToThirdClassConstantRedefined()
+    {
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBaseTestClass::class . '::VALUE',
+            10
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareFirstTestClass::class . '::VALUE',
+            20
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareSecondTestClass::class . '::VALUE',
+            30
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareThirdTestClass::class . '::VALUE',
+            40
+        );
+
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getBaseSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getFirstSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getBaseSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getFirstSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getSecondSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getBaseSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareThirdTestClass::getFirstSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareThirdTestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareThirdTestClass::getSecondSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdTestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareThirdTestClass::getThirdParentValue());
+        static::assertSame(40, ConstantRedeclareThirdTestClass::getThirdSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdTestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthTestClass::getBaseSelfValue());
+        static::assertSame(40, ConstantRedeclareForthTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareForthTestClass::getFirstSelfValue());
+        static::assertSame(40, ConstantRedeclareForthTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareForthTestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareForthTestClass::getSecondSelfValue());
+        static::assertSame(40, ConstantRedeclareForthTestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareForthTestClass::getThirdParentValue());
+        static::assertSame(40, ConstantRedeclareForthTestClass::getThirdSelfValue());
+        static::assertSame(40, ConstantRedeclareForthTestClass::getThirdStaticValue());
+        static::assertSame(40, ConstantRedeclareForthTestClass::getForthParentValue());
+        static::assertSame(40, ConstantRedeclareForthTestClass::getForthSelfValue());
+        static::assertSame(40, ConstantRedeclareForthTestClass::getForthStaticValue());
+    }
+
+    public function testFromBaseToForthClassConstantRedefined()
+    {
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBaseTestClass::class . '::VALUE',
+            10
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareFirstTestClass::class . '::VALUE',
+            20
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareSecondTestClass::class . '::VALUE',
+            30
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareThirdTestClass::class . '::VALUE',
+            40
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareForthTestClass::class . '::VALUE',
+            50
+        );
+
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getBaseSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getFirstSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstTestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getBaseSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getFirstSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareSecondTestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getSecondSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondTestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getBaseSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareThirdTestClass::getFirstSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareThirdTestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareThirdTestClass::getSecondSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdTestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareThirdTestClass::getThirdParentValue());
+        static::assertSame(40, ConstantRedeclareThirdTestClass::getThirdSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdTestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthTestClass::getBaseSelfValue());
+        static::assertSame(50, ConstantRedeclareForthTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareForthTestClass::getFirstSelfValue());
+        static::assertSame(50, ConstantRedeclareForthTestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareForthTestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareForthTestClass::getSecondSelfValue());
+        static::assertSame(50, ConstantRedeclareForthTestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareForthTestClass::getThirdParentValue());
+        static::assertSame(40, ConstantRedeclareForthTestClass::getThirdSelfValue());
+        static::assertSame(50, ConstantRedeclareForthTestClass::getThirdStaticValue());
+        static::assertSame(40, ConstantRedeclareForthTestClass::getForthParentValue());
+        static::assertSame(50, ConstantRedeclareForthTestClass::getForthSelfValue());
+        static::assertSame(50, ConstantRedeclareForthTestClass::getForthStaticValue());
+    }
+
+    public function testRedifineBaseClassConstantAndRemoveRestoreOtherClassConstants()
+    {
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBaseTestClass::class . '::VALUE',
+            10
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareFirstTestClass::class . '::VALUE',
+            20
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareSecondTestClass::class . '::VALUE',
+            30
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareThirdTestClass::class . '::VALUE',
+            40
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareForthTestClass::class . '::VALUE',
+            50
+        );
+
+        \Badoo\SoftMocks::removeConstant(ConstantRedeclareFirstTestClass::class . '::VALUE');
+        \Badoo\SoftMocks::restoreConstant(ConstantRedeclareSecondTestClass::class . '::VALUE');
+        \Badoo\SoftMocks::removeConstant(ConstantRedeclareThirdTestClass::class . '::VALUE');
+        \Badoo\SoftMocks::restoreConstant(ConstantRedeclareForthTestClass::class . '::VALUE');
+
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBaseTestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getFirstParentValue());
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getFirstSelfValue());
+        static::assertSame(10, ConstantRedeclareFirstTestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getFirstParentValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getFirstSelfValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getFirstStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getSecondParentValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getSecondSelfValue());
+        static::assertSame(10, ConstantRedeclareSecondTestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getFirstParentValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getFirstSelfValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getFirstStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getSecondParentValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getSecondSelfValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getSecondStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getThirdParentValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getThirdSelfValue());
+        static::assertSame(10, ConstantRedeclareThirdTestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthTestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getFirstParentValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getFirstSelfValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getFirstStaticValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getSecondParentValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getSecondSelfValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getSecondStaticValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getThirdParentValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getThirdSelfValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getThirdStaticValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getForthParentValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getForthSelfValue());
+        static::assertSame(10, ConstantRedeclareForthTestClass::getForthStaticValue());
+    }
+
+    public function testRemoveConstantFromHierarchy()
+    {
+        \Badoo\SoftMocks::removeConstant(ConstantRedeclareFirstTestClass::class . '::VALUE');
+        \Badoo\SoftMocks::removeConstant(ConstantRedeclareThirdTestClass::class . '::VALUE');
+
+        try {
+            ConstantRedeclareBaseTestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareBaseTestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareFirstTestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareFirstTestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareFirstTestClass::getFirstParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareFirstTestClass::getFirstSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareFirstTestClass::getFirstStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareSecondTestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondTestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondTestClass::getFirstParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondTestClass::getFirstSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondTestClass::getFirstStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondTestClass::getSecondParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondTestClass::getSecondSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondTestClass::getSecondStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareThirdTestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdTestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdTestClass::getFirstParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdTestClass::getFirstSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdTestClass::getFirstStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdTestClass::getSecondParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdTestClass::getSecondSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdTestClass::getSecondStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdTestClass::getThirdParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdTestClass::getThirdSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdTestClass::getThirdStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareForthTestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getFirstParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBaseTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getFirstSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getFirstStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getSecondParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getSecondSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getSecondStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getThirdParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getThirdSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getThirdStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getForthParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getForthSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthTestClass::getForthStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        } catch (\RuntimeException $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthTestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+    }
+
     public function testInheritMock()
     {
         \Badoo\SoftMocks::redefineMethod(
@@ -284,6 +1376,28 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
             'return "D";'
         );
         static::assertSame('CD', GrandChildStaticTestClass::getString());
+    }
+
+    public function testDescendantGood()
+    {
+        self::assertSame(20, DescendantFirstTestClass::getDescendant());
+    }
+
+    /**
+     * @expectedException \Error
+     * @expectedExceptionMessage Undefined class constant
+     */
+    public function testDescendantBad()
+    {
+        if (PHP_VERSION_ID < 70100) {
+            if (\method_exists($this, 'expectException')) {
+                $this->expectException(\RuntimeException::class);
+            } else {
+                // for phpunit 4.x
+                $this->setExpectedException(\RuntimeException::class, 'Undefined class constant');
+            }
+        }
+        DescendantBaseTestClass::getDescendant();
     }
 
     /**
@@ -636,22 +1750,893 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         getProtectedValue();
     }
 
-    /**
-     * @dataProvider providerWithOrWithoutMock
-     *
-     * @param bool $set_mock
-     */
-    public function testWithWrongParentProtectedConstantAccessPHP71($set_mock)
+    public function testNotRedefinedClassConstantsPHP71()
     {
         static::markTestSkippedForPHPVersionBelow('7.1.0');
 
         require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
 
-        if ($set_mock) {
-            \Badoo\SoftMocks::redefineConstant('\Badoo\SoftMock\Tests\WithRestrictedConstantsPHP71TestClass::PROTECTED_VALUE', 22);
+        try {
+            ConstantRedeclareBasePHP71TestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
         }
 
-        static::assertEquals($set_mock ? 22 : 11, WithRestrictedConstantsChildPHP71TestClass::getParentProtectedValue());
+        try {
+            ConstantRedeclareBasePHP71TestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareFirstPHP71TestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareFirstPHP71TestClass::getFirstParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareSecondPHP71TestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareForthPHP71TestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        static::assertSame(2, ConstantRedeclareFirstPHP71TestClass::getBaseStaticValue());
+        static::assertSame(2, ConstantRedeclareFirstPHP71TestClass::getFirstSelfValue());
+        static::assertSame(2, ConstantRedeclareFirstPHP71TestClass::getFirstStaticValue());
+
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getBaseStaticValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getFirstSelfValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getSecondSelfValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getSecondStaticValue());
+
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getBaseStaticValue());
+        static::assertSame(2, ConstantRedeclareThirdPHP71TestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareThirdPHP71TestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareThirdPHP71TestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getSecondStaticValue());
+        static::assertSame(2, ConstantRedeclareThirdPHP71TestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getThirdStaticValue());
+
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getBaseStaticValue());
+        static::assertSame(2, ConstantRedeclareForthPHP71TestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareForthPHP71TestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareForthPHP71TestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getSecondStaticValue());
+        static::assertSame(2, ConstantRedeclareForthPHP71TestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getThirdStaticValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthParentValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthStaticValue());
+    }
+
+    public function testBaseClassConstantRedefinedPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBasePHP71TestClass::class . '::VALUE',
+            10
+        );
+
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getBaseSelfValue());
+        static::assertSame(2, ConstantRedeclareFirstPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getFirstParentValue());
+        static::assertSame(2, ConstantRedeclareFirstPHP71TestClass::getFirstSelfValue());
+        static::assertSame(2, ConstantRedeclareFirstPHP71TestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getBaseSelfValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getFirstParentValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getFirstSelfValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getSecondSelfValue());
+        static::assertSame(2, ConstantRedeclareSecondPHP71TestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getFirstParentValue());
+        static::assertSame(2, ConstantRedeclareThirdPHP71TestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareThirdPHP71TestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareThirdPHP71TestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getSecondStaticValue());
+        static::assertSame(2, ConstantRedeclareThirdPHP71TestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getFirstParentValue());
+        static::assertSame(2, ConstantRedeclareForthPHP71TestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getFirstStaticValue());
+        static::assertSame(2, ConstantRedeclareForthPHP71TestClass::getSecondParentValue());
+        static::assertSame(2, ConstantRedeclareForthPHP71TestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getSecondStaticValue());
+        static::assertSame(2, ConstantRedeclareForthPHP71TestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getThirdStaticValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthParentValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthStaticValue());
+    }
+
+    public function testFromBaseToFirstClassConstantRedefinedPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBasePHP71TestClass::class . '::VALUE',
+            10
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareFirstPHP71TestClass::class . '::VALUE',
+            20
+        );
+
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getBaseSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getFirstSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getBaseSelfValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getFirstSelfValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getSecondParentValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getSecondSelfValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareThirdPHP71TestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareThirdPHP71TestClass::getSecondParentValue());
+        static::assertSame(20, ConstantRedeclareThirdPHP71TestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getSecondStaticValue());
+        static::assertSame(20, ConstantRedeclareThirdPHP71TestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareForthPHP71TestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareForthPHP71TestClass::getSecondParentValue());
+        static::assertSame(20, ConstantRedeclareForthPHP71TestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getSecondStaticValue());
+        static::assertSame(20, ConstantRedeclareForthPHP71TestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getThirdStaticValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthParentValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthStaticValue());
+    }
+
+    public function testFromBaseToSecondClassConstantRedefinedPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBasePHP71TestClass::class . '::VALUE',
+            10
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareFirstPHP71TestClass::class . '::VALUE',
+            20
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareSecondPHP71TestClass::class . '::VALUE',
+            30
+        );
+
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getBaseSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getFirstSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getBaseSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getFirstSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getSecondSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareThirdPHP71TestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareThirdPHP71TestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareThirdPHP71TestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareThirdPHP71TestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareThirdPHP71TestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getBaseSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareForthPHP71TestClass::getFirstSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareForthPHP71TestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareForthPHP71TestClass::getSecondSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareForthPHP71TestClass::getThirdParentValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getThirdSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getThirdStaticValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthParentValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthSelfValue());
+        static::assertSame(4, ConstantRedeclareForthPHP71TestClass::getForthStaticValue());
+    }
+
+    public function testFromBaseToThirdClassConstantRedefinedPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBasePHP71TestClass::class . '::VALUE',
+            10
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareFirstPHP71TestClass::class . '::VALUE',
+            20
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareSecondPHP71TestClass::class . '::VALUE',
+            30
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareThirdPHP71TestClass::class . '::VALUE',
+            40
+        );
+
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getBaseSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getFirstSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getBaseSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getFirstSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getSecondSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getBaseSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareThirdPHP71TestClass::getFirstSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareThirdPHP71TestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareThirdPHP71TestClass::getSecondSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdPHP71TestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareThirdPHP71TestClass::getThirdParentValue());
+        static::assertSame(40, ConstantRedeclareThirdPHP71TestClass::getThirdSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdPHP71TestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getBaseSelfValue());
+        static::assertSame(40, ConstantRedeclareForthPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareForthPHP71TestClass::getFirstSelfValue());
+        static::assertSame(40, ConstantRedeclareForthPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareForthPHP71TestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareForthPHP71TestClass::getSecondSelfValue());
+        static::assertSame(40, ConstantRedeclareForthPHP71TestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareForthPHP71TestClass::getThirdParentValue());
+        static::assertSame(40, ConstantRedeclareForthPHP71TestClass::getThirdSelfValue());
+        static::assertSame(40, ConstantRedeclareForthPHP71TestClass::getThirdStaticValue());
+        static::assertSame(40, ConstantRedeclareForthPHP71TestClass::getForthParentValue());
+        static::assertSame(40, ConstantRedeclareForthPHP71TestClass::getForthSelfValue());
+        static::assertSame(40, ConstantRedeclareForthPHP71TestClass::getForthStaticValue());
+    }
+
+    public function testFromBaseToForthClassConstantRedefinedPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBasePHP71TestClass::class . '::VALUE',
+            10
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareFirstPHP71TestClass::class . '::VALUE',
+            20
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareSecondPHP71TestClass::class . '::VALUE',
+            30
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareThirdPHP71TestClass::class . '::VALUE',
+            40
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareForthPHP71TestClass::class . '::VALUE',
+            50
+        );
+
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getBaseSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getFirstSelfValue());
+        static::assertSame(20, ConstantRedeclareFirstPHP71TestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getBaseSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getFirstSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareSecondPHP71TestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getSecondSelfValue());
+        static::assertSame(30, ConstantRedeclareSecondPHP71TestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getBaseSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareThirdPHP71TestClass::getFirstSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareThirdPHP71TestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareThirdPHP71TestClass::getSecondSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdPHP71TestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareThirdPHP71TestClass::getThirdParentValue());
+        static::assertSame(40, ConstantRedeclareThirdPHP71TestClass::getThirdSelfValue());
+        static::assertSame(40, ConstantRedeclareThirdPHP71TestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getBaseSelfValue());
+        static::assertSame(50, ConstantRedeclareForthPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getFirstParentValue());
+        static::assertSame(20, ConstantRedeclareForthPHP71TestClass::getFirstSelfValue());
+        static::assertSame(50, ConstantRedeclareForthPHP71TestClass::getFirstStaticValue());
+        static::assertSame(20, ConstantRedeclareForthPHP71TestClass::getSecondParentValue());
+        static::assertSame(30, ConstantRedeclareForthPHP71TestClass::getSecondSelfValue());
+        static::assertSame(50, ConstantRedeclareForthPHP71TestClass::getSecondStaticValue());
+        static::assertSame(30, ConstantRedeclareForthPHP71TestClass::getThirdParentValue());
+        static::assertSame(40, ConstantRedeclareForthPHP71TestClass::getThirdSelfValue());
+        static::assertSame(50, ConstantRedeclareForthPHP71TestClass::getThirdStaticValue());
+        static::assertSame(40, ConstantRedeclareForthPHP71TestClass::getForthParentValue());
+        static::assertSame(50, ConstantRedeclareForthPHP71TestClass::getForthSelfValue());
+        static::assertSame(50, ConstantRedeclareForthPHP71TestClass::getForthStaticValue());
+    }
+
+    public function testRedifineBaseClassConstantAndRemoveRestoreOtherClassConstantsPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareBasePHP71TestClass::class . '::VALUE',
+            10
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareFirstPHP71TestClass::class . '::VALUE',
+            20
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareSecondPHP71TestClass::class . '::VALUE',
+            30
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareThirdPHP71TestClass::class . '::VALUE',
+            40
+        );
+        \Badoo\SoftMocks::redefineConstant(
+            ConstantRedeclareForthPHP71TestClass::class . '::VALUE',
+            50
+        );
+
+        \Badoo\SoftMocks::removeConstant(ConstantRedeclareFirstPHP71TestClass::class . '::VALUE');
+        \Badoo\SoftMocks::restoreConstant(ConstantRedeclareSecondPHP71TestClass::class . '::VALUE');
+        \Badoo\SoftMocks::removeConstant(ConstantRedeclareThirdPHP71TestClass::class . '::VALUE');
+        \Badoo\SoftMocks::restoreConstant(ConstantRedeclareForthPHP71TestClass::class . '::VALUE');
+
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareBasePHP71TestClass::getBaseStaticValue());
+
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getFirstParentValue());
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getFirstSelfValue());
+        static::assertSame(10, ConstantRedeclareFirstPHP71TestClass::getFirstStaticValue());
+
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getFirstParentValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getFirstSelfValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getFirstStaticValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getSecondParentValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getSecondSelfValue());
+        static::assertSame(10, ConstantRedeclareSecondPHP71TestClass::getSecondStaticValue());
+
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getFirstParentValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getFirstSelfValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getFirstStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getSecondParentValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getSecondSelfValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getSecondStaticValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getThirdParentValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getThirdSelfValue());
+        static::assertSame(10, ConstantRedeclareThirdPHP71TestClass::getThirdStaticValue());
+
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getBaseSelfValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getBaseStaticValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getFirstParentValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getFirstSelfValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getFirstStaticValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getSecondParentValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getSecondSelfValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getSecondStaticValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getThirdParentValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getThirdSelfValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getThirdStaticValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getForthParentValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getForthSelfValue());
+        static::assertSame(10, ConstantRedeclareForthPHP71TestClass::getForthStaticValue());
+    }
+
+    public function testRemoveConstantFromHierarchyPHP71()
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
+
+        \Badoo\SoftMocks::removeConstant(ConstantRedeclareFirstPHP71TestClass::class . '::VALUE');
+        \Badoo\SoftMocks::removeConstant(ConstantRedeclareThirdPHP71TestClass::class . '::VALUE');
+
+        try {
+            ConstantRedeclareBasePHP71TestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareBasePHP71TestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareFirstPHP71TestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareFirstPHP71TestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareFirstPHP71TestClass::getFirstParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareFirstPHP71TestClass::getFirstSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareFirstPHP71TestClass::getFirstStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareSecondPHP71TestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondPHP71TestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondPHP71TestClass::getFirstParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondPHP71TestClass::getFirstSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondPHP71TestClass::getFirstStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondPHP71TestClass::getSecondParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondPHP71TestClass::getSecondSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareSecondPHP71TestClass::getSecondStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getFirstParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getFirstSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getFirstStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getSecondParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getSecondSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getSecondStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getThirdParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getThirdSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareThirdPHP71TestClass::getThirdStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+
+        try {
+            ConstantRedeclareForthPHP71TestClass::getBaseSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getBaseStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getFirstParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareBasePHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getFirstSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getFirstStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getSecondParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareFirstPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getSecondSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getSecondStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getThirdParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareSecondPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getThirdSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getThirdStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getForthParentValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareThirdPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getForthSelfValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
+        try {
+            ConstantRedeclareForthPHP71TestClass::getForthStaticValue();
+            static::fail("Exception wasn't thrown");
+        } catch (\Error $Error) {
+            static::assertSame(
+                "Undefined class constant 'Badoo\SoftMock\Tests\ConstantRedeclareForthPHP71TestClass::VALUE'",
+                $Error->getMessage()
+            );
+        }
     }
 
     public function providerRewrite()
@@ -692,34 +2677,34 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
      * @expectedException \Error
      * @expectedExceptionMessage Cannot access protected const
      */
-    public function testCross()
+    public function testCrossPHP71()
     {
         static::markTestSkippedForPHPVersionBelow('7.1.0');
 
         require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
 
-        CrossSecond::getCross();
+        CrossSecondPHP71TestClass::getCross();
     }
 
-    public function testDescendantGood()
+    public function testDescendantGoodPHP71()
     {
         static::markTestSkippedForPHPVersionBelow('7.1.0');
 
         require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
 
-        self::assertSame(20, DescendantFirst::getDescendant());
+        self::assertSame(20, DescendantFirstPHP71TestClass::getDescendant());
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException \Error
      * @expectedExceptionMessage Undefined class constant
      */
-    public function testDescendantBad()
+    public function testDescendantBadPHP71()
     {
         static::markTestSkippedForPHPVersionBelow('7.1.0');
 
         require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
 
-        DescendantBase::getDescendant();
+        DescendantBasePHP71TestClass::getDescendant();
     }
 }
