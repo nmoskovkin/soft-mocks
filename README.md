@@ -89,6 +89,56 @@ Both "regular constants" and class constants like "className::CONST_NAME" are su
 \Badoo\SoftMocks::redefineConstant($constantName, $value)
 ```
 
+There can be next cases with class constants redefining:
+
+- You can redefine base class constant:
+  ```php
+  class A {const NAME = 'A';}
+  class B {}
+  echo A::NAME . "\n"; // A
+  echo B::NAME . "\n"; // A
+  \Badoo\SoftMocks::redefineConstant(A::class . '::NAME', 'B');
+  echo A::NAME . "\n"; // B
+  echo B::NAME . "\n"; // B
+  ```
+- You can add middle class constant:
+  ```php
+  class A {const NAME = 'A';}
+  class B {}
+  class C {}
+  echo A::NAME . "\n"; // A
+  echo B::NAME . "\n"; // A
+  echo C::NAME . "\n"; // A
+  \Badoo\SoftMocks::redefineConstant(B::class . '::NAME', 'B');
+  echo A::NAME . "\n"; // A
+  echo B::NAME . "\n"; // B
+  echo C::NAME . "\n"; // B
+  ```
+- You can add constant to base class:
+  ```php
+  class A {const NAME = 'A';}
+  class B {}
+  echo A::NAME . "\n"; // Undefined class constant 'NAME'
+  echo B::NAME . "\n"; // Undefined class constant 'NAME'
+  \Badoo\SoftMocks::redefineConstant(A::class . '::NAME', 'A');
+  echo A::NAME . "\n"; // A
+  echo B::NAME . "\n"; // A
+  ```
+- You can remove middle class constant:
+  ```php
+  class A {const NAME = 'A';}
+  class B {const NAME = 'B';}
+  class C {}
+  echo A::NAME . "\n"; // A
+  echo B::NAME . "\n"; // B
+  echo C::NAME . "\n"; // B
+  \Badoo\SoftMocks::removeConstant(B::class . '::NAME');
+  echo A::NAME . "\n"; // A
+  echo B::NAME . "\n"; // A
+  echo C::NAME . "\n"; // A
+  ```
+- Other more simple cases (just add or redefine constant and etc.).
+
 Redefine functions
 ==
 

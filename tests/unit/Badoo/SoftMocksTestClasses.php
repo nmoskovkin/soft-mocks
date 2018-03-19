@@ -163,3 +163,105 @@ abstract class WithoutConstantsTestClass
         return static::A;
     }
 }
+
+class DescendantBaseTestClass
+{
+    public static function getDescendant()
+    {
+        return static::DESCENDANT;
+    }
+}
+
+class DescendantFirstTestClass extends DescendantBaseTestClass
+{
+    const DESCENDANT = 20;
+}
+
+class ConstantRedeclareBaseTestClass
+{
+    public static function getBaseSelfValue()
+    {
+        return self::VALUE;
+    }
+
+    public static function getBaseStaticValue()
+    {
+        return static::VALUE;
+    }
+}
+
+class ConstantRedeclareFirstTestClass extends ConstantRedeclareBaseTestClass
+{
+    const VALUE = 2;
+
+    public static function getFirstParentValue()
+    {
+        return parent::VALUE;
+    }
+
+    public static function getFirstSelfValue()
+    {
+        return self::VALUE;
+    }
+
+    public static function getFirstStaticValue()
+    {
+        return static::VALUE;
+    }
+}
+
+class ConstantRedeclareSecondTestClass extends ConstantRedeclareFirstTestClass
+{
+    public static function getSecondParentValue()
+    {
+        return parent::VALUE;
+    }
+
+    public static function getSecondSelfValue()
+    {
+        return self::VALUE;
+    }
+
+    public static function getSecondStaticValue()
+    {
+        return static::VALUE;
+    }
+}
+
+class ConstantRedeclareThirdTestClass extends ConstantRedeclareSecondTestClass
+{
+    const VALUE = 4;
+
+    public static function getThirdParentValue()
+    {
+        return parent::VALUE;
+    }
+
+    public static function getThirdSelfValue()
+    {
+        return self::VALUE;
+    }
+
+    public static function getThirdStaticValue()
+    {
+        return static::VALUE;
+    }
+}
+
+class ConstantRedeclareForthTestClass extends ConstantRedeclareThirdTestClass
+{
+    public static function getForthParentValue()
+    {
+        return parent::VALUE;
+    }
+
+    public static function getForthSelfValue()
+    {
+        return self::VALUE;
+    }
+
+    public static function getForthStaticValue()
+    {
+        return static::VALUE;
+    }
+}
