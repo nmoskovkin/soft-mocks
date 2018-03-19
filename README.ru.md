@@ -146,30 +146,30 @@ var_dump(strlen("  a  ")); // int(1)
 ==
 
 При использовании SoftMocks совместно с PHPUnit есть следующие нюансы:
-- если phpunit установлен через composer, то обязательно нужно применить патч на `phpunit` _[patches/phpunit_phpunit.patch](patches/phpunit_phpunit.patch)_, чтобы классы, загружаемые через composer переписывались через SoftMocks;
+- если phpunit установлен через composer, то обязательно нужно применить патч на `phpunit` _[patches/phpunit6.x/phpunit_phpunit.patch](patches/phpunit6.x/phpunit_phpunit.patch)_, чтобы классы, загружаемые через composer переписывались через SoftMocks;
 - если phpunit установлен отдельно, то нужно подключить _[src/bootstrap.php](src/bootstrap.php)_, что бы классы, загружаемые через composer переписывались через SoftMocks;
-- что бы трэйсы выглядели красиво, нужно применить патч на `phpunit` _[patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch](patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch)_;
-- что бы правильно считался coverage, нужно применить патч на `phpunit` _[patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch](patches/phpunit5.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch)_ и патч на `php-code-coverage` _[patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch](patches/phpunit5.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch)_.
+- что бы трэйсы выглядели красиво, нужно применить патч на `phpunit` _[patches/phpunit6.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch](patches/phpunit6.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_1.patch)_;
+- что бы правильно считался coverage, нужно применить патч на `phpunit` _[patches/phpunit6.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch](patches/phpunit6.x/phpunit_add_ability_to_set_custom_filename_rewrite_callbacks_2.patch)_ и патч на `php-code-coverage` _[patches/phpunit6.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch](patches/phpunit6.x/php-code-coverage_add_ability_to_set_custom_filename_rewrite_callbacks.patch)_.
 
-Если в проекте используется `phpunit4.x`, то вместо папки `phpunit5.x` нужно использовать `phpunit4.x`.
+Если в проекте используется `phpunit5.x`, то вместо папки `phpunit6.x` нужно использовать `phpunit5.x`.
+Если в проекте используется `phpunit4.x`, то вместо папки `phpunit6.x` нужно использовать `phpunit4.x`.
 
 Что бы все нужны патчи применялись автоматически нужно прописать следующее в composer.json:
 ```json
 {
   "require-dev": {
-    "vaimo/composer-patches": "=3.4.3",
-    "phpunit/phpunit": "^5.7.20" // или "^4.8.35"
-  },
-  "extra": {
-    "enable-patching": true
+    "vaimo/composer-patches": "3.23.1",
+    "phpunit/phpunit": "^6.5.5" // или "^5.7.20" или "^4.8.35"
   }
 }
 ```
 
-Для принудительного переприменения патчей можно использовать переменную окржения `COMPOSER_FORCE_PATCH_REAPPLY`, например:
+Для принудительного переприменения патчей можно использовать следующую команду:
 ```bash
-COMPOSER_FORCE_PATCH_REAPPLY=1 php composer.phar update
+php composer.phar patch --redo
 ```
+
+Больше информации можно найти в [документации по vaimo/composer-patches](https://github.com/vaimo/composer-patches/blob/3.22.4/README.md).
 
 FAQ
 =
