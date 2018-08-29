@@ -1473,7 +1473,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
     protected function callResolveFile($file)
     {
         $ReflectionClass = new \ReflectionClass(\Badoo\SoftMocks::class);
-        $ResolveFileMethod = $ReflectionClass->getMethod('resolveFile');
+        $ResolveFileMethod = $ReflectionClass->getMethod('prepareFilePathToRewrite');
         $ResolveFileMethod->setAccessible(true);
         /** @uses \Badoo\SoftMocks::resolveFile */
         return $ResolveFileMethod->invoke(null, $file);
@@ -2706,5 +2706,19 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         require_once __DIR__ . '/WithRestrictedConstantsPHP71TestClass.php';
 
         DescendantBasePHP71TestClass::getDescendant();
+    }
+
+    public function testGetOriginalFilePath()
+    {
+        $original_file = __FILE__;
+        $rewritten_path = \Badoo\SoftMocks::rewrite($original_file);
+        static::assertSame(
+            $rewritten_path,
+            realpath(\Badoo\SoftMocks::getRewrittenFilePath($original_file))
+        );
+        static::assertSame(
+            $original_file,
+            \Badoo\SoftMocks::getOriginalFilePath($rewritten_path)
+        );
     }
 }

@@ -25,6 +25,8 @@ There are next changes:
     echo A::NAME . "\n"; // B
     echo B::NAME . "\n"; // B
     ```
+- soft-mocks init logic was moved to src/init_with_composer.php script from phpunit patch;
+- methods \Badoo\SoftMocks::getRewrittenFilePath() and \Badoo\SoftMocks::getOriginalFilePath() were added.
 
 ## v1.3.5
 

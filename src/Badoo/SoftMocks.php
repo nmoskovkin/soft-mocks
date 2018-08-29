@@ -902,54 +902,19 @@ class SoftMocks
 
     private static function doRewrite($file)
     {
-        if (self::$prepare_for_rewrite_callback !== null) {
-            $callback = self::$prepare_for_rewrite_callback;
-            $file = $callback($file);
-        }
-        $file = self::resolveFile($file);
+        $file = self::prepareFilePathToRewrite($file);
 
-        if (!$file) {
+        if (!self::shouldRewriteFile($file)) {
             return $file;
         }
 
         if (!isset(self::$rewrite_cache[$file])) {
-            if (mb_orig_strpos($file, self::$mocks_cache_path) === 0
-                || mb_orig_strpos($file, self::getVersion() . DIRECTORY_SEPARATOR) === 0) {
-                return $file;
-            }
-
-            foreach (self::$ignore_sub_paths as $ignore_path) {
-                if (mb_orig_strpos($file, $ignore_path) !== false) {
-                    return $file;
-                }
-            }
-
-            if (isset(self::$ignore[$file])) {
-                return $file;
-            }
-
             $md5_file = md5_file($file);
             if (!$md5_file) {
                 return (self::$orig_paths[$file] = self::$rewrite_cache[$file] = $file);
             }
 
-            $clean_filepath = $file;
-            if (strpos($clean_filepath, SOFTMOCKS_ROOT_PATH) === 0) {
-                $clean_filepath = substr($clean_filepath, strlen(SOFTMOCKS_ROOT_PATH));
-            }
-
-            if (self::$debug) {
-                self::debug("Clean filepath for $file is $clean_filepath");
-            }
-
-            $md5 = md5($clean_filepath . ':' . $md5_file);
-            if (self::$project_path && strpos($file, self::$project_path) === 0) {
-                $file_in_project = substr($file, strlen(self::$project_path));
-            } else {
-                $file_in_project = basename($file);
-            }
-
-            $target_file = self::$mocks_cache_path . self::getVersion() . DIRECTORY_SEPARATOR . $file_in_project . "_" . $md5 . ".php";
+            $target_file = self::constructRewrittenFilePath($file, $md5_file);
             if (!file_exists($target_file)) {
                 $old_umask = umask(0);
                 self::createRewrittenFile($file, $target_file);
@@ -965,6 +930,130 @@ class SoftMocks
         }
 
         return self::$rewrite_cache[$file];
+    }
+
+    private static function prepareFilePathToRewrite($file)
+    {
+        if (self::$prepare_for_rewrite_callback !== null) {
+            $callback = self::$prepare_for_rewrite_callback;
+            $file = $callback($file);
+        }
+        return self::resolveFile($file);
+    }
+
+    private static function shouldRewriteFile($file)
+    {
+        if (!$file) {
+            return false;
+        }
+
+        if (mb_orig_strpos($file, self::$mocks_cache_path) === 0
+            || mb_orig_strpos($file, self::getVersion() . DIRECTORY_SEPARATOR) === 0) {
+            return false;
+        }
+
+        foreach (self::$ignore_sub_paths as $ignore_path) {
+            if (mb_orig_strpos($file, $ignore_path) !== false) {
+                return false;
+            }
+        }
+
+        if (isset(self::$ignore[$file])) {
+            return false;
+        }
+        return true;
+    }
+
+    private static function constructRewrittenFilePath($file, $md5_file)
+    {
+        $clean_filepath = self::getCleanFilePath($file);
+
+        if (self::$debug) {
+            self::debug("Clean filepath for $file is $clean_filepath");
+        }
+
+        $md5 = self::getMd5ForSuffix($clean_filepath, $md5_file);
+        if (self::$project_path && strpos($file, self::$project_path) === 0) {
+            $file_in_project = substr($file, strlen(self::$project_path));
+        } else {
+            $file_in_project = $file;
+        }
+
+        return self::getRewrittentFilePathPrefix() . DIRECTORY_SEPARATOR . "{$file_in_project}_{$md5}.php";
+    }
+
+    private static function getCleanFilePath($file)
+    {
+        if (strpos($file, SOFTMOCKS_ROOT_PATH) !== 0) {
+            return $file;
+        }
+        return substr($file, strlen(SOFTMOCKS_ROOT_PATH));
+    }
+
+    private static function getMd5ForSuffix($clean_filepath, $md5_file)
+    {
+        return md5($clean_filepath . ':' . $md5_file);
+    }
+
+    private static function getRewrittentFilePathPrefix()
+    {
+        return self::$mocks_cache_path . self::getVersion();
+    }
+
+    public static function getRewrittenFilePath($file)
+    {
+        $file = self::prepareFilePathToRewrite($file);
+
+        if (!self::shouldRewriteFile($file)) {
+            return $file;
+        }
+        $md5_file = md5_file($file);
+        if (!$md5_file) {
+            return $file;
+        }
+
+        return self::constructRewrittenFilePath($file, $md5_file);
+    }
+
+    public static function getOriginalFilePath($file)
+    {
+        $rewritten_prefix = self::getRewrittentFilePathPrefix();
+        $pattern = '#^' . preg_quote($rewritten_prefix . DIRECTORY_SEPARATOR, '#')
+            . '(?P<path>.+)_(?P<md5>[0-9a-f]{32})\.php$#';
+        if (!preg_match($pattern, $file, $matches)) {
+            return $file;
+        }
+        $path = DIRECTORY_SEPARATOR . $matches['path'];
+        $expected_md5 = $matches['md5'];
+        $possible_path_prefixes = [''];
+        if (self::$project_path) {
+            $possible_path_prefixes[] = self::$project_path;
+        }
+        $root_path = rtrim(SOFTMOCKS_ROOT_PATH, '/');
+        if ($root_path) {
+            $possible_path_prefixes[] = $root_path;
+            if (self::$project_path) {
+                $possible_path_prefixes[] = $root_path . self::$project_path;
+            }
+        }
+
+        foreach ($possible_path_prefixes as $possible_path_prefix) {
+            $original_file = $possible_path_prefix . $path;
+            if (!file_exists($original_file)) {
+                continue;
+            }
+            $md5_file = md5_file($original_file);
+            if (!$md5_file) {
+                continue;
+            }
+            $clean_file_path = self::getCleanFilePath($original_file);
+            $md5 = self::getMd5ForSuffix($clean_file_path, $md5_file);
+            if ($expected_md5 !== $md5) {
+                continue;
+            }
+            return $original_file;
+        }
+        return $file;
     }
 
     private static function resolveFile($file)
@@ -995,8 +1084,8 @@ class SoftMocks
             }
             if (!$found) {
                 // try relative path
-                $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
-                $dir = dirname(self::replaceFilename($bt[2]['file'], true));
+                $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4);
+                $dir = dirname(self::replaceFilename($bt[3]['file'], true));
                 if (file_exists("{$dir}/{$file}")) {
                     $file = "{$dir}/{$file}";
                 } else {
