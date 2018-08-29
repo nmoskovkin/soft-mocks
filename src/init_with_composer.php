@@ -10,16 +10,17 @@ foreach ([__DIR__ . '/../../../autoload.php', __DIR__ . '/../vendor/autoload.php
     }
 }
 if (!$composer_install) {
-    fwrite(STDERR,
-        'You need to set up the project dependencies using Composer:' . PHP_EOL . PHP_EOL .
-        '    composer install' . PHP_EOL . PHP_EOL .
-        'You can learn all about Composer on https://getcomposer.org/.' . PHP_EOL
+    fwrite(
+        STDERR,
+        'You need to set up the project dependencies using Composer:' . PHP_EOL . PHP_EOL
+            . '    composer install' . PHP_EOL . PHP_EOL
+            . 'You can learn all about Composer on https://getcomposer.org/.' . PHP_EOL
     );
 
     die(1);
 }
 
-$php_parser_dir = dirname($composer_install) .'/nikic/php-parser/lib/PhpParser/';
+$php_parser_dir = dirname($composer_install) . '/nikic/php-parser/lib/PhpParser/';
 require_once "{$php_parser_dir}Autoloader.php";
 \PhpParser\Autoloader::register(true);
 // for prevent autoload problems
