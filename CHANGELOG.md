@@ -26,7 +26,8 @@ There are next changes:
     echo B::NAME . "\n"; // B
     ```
 - soft-mocks init logic was moved to src/init_with_composer.php script from phpunit patch;
-- methods \Badoo\SoftMocks::getRewrittenFilePath() and \Badoo\SoftMocks::getOriginalFilePath() were added.
+- methods \Badoo\SoftMocks::getRewrittenFilePath() and \Badoo\SoftMocks::getOriginalFilePath() were added;
+- SOFT_MOCKS_CACHE_PATH environment variable was added for redefine default mocks cache path.
 
 ## v1.3.5
 

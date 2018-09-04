@@ -475,7 +475,7 @@ class SoftMocks
 
     private static $project_path;
     private static $rewrite_internal = false;
-    private static $mocks_cache_path = "/tmp/mocks/";
+    private static $mocks_cache_path;
     private static $ignore_sub_paths = [
         '/phpunit/' => '/phpunit/',
         '/php-parser/' => '/php-parser/',
@@ -491,6 +491,14 @@ class SoftMocks
 
     public static function init()
     {
+        if (!self::$mocks_cache_path) {
+            $mocks_cache_path = (string)static::getEnvironment('SOFT_MOCKS_CACHE_PATH');
+            if ($mocks_cache_path) {
+                self::setMocksCachePath($mocks_cache_path);
+            } else {
+                self::$mocks_cache_path = '/tmp/mocks/';
+            }
+        }
         if (!defined('SOFTMOCKS_ROOT_PATH')) {
             define('SOFTMOCKS_ROOT_PATH', '/');
         }

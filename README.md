@@ -78,6 +78,8 @@ Cache files are created in /tmp/mocks by default. If you want to choose a differ
 \Badoo\SoftMocks::setMocksCachePath($cache_path);
 ```
 
+This method should be called before rewrite first file. Also you can redefine cache path using environment variable `SOFT_MOCKS_CACHE_PATH`.
+
 Redefine constant
 ==
 
