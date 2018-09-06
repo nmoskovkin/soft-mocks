@@ -1400,20 +1400,6 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         DescendantBaseTestClass::getDescendant();
     }
 
-    /**
-     * @TODO remove in 2.0.0 version
-     */
-    public function testInheritStaticMockWithOldNameSpace()
-    {
-        \QA\SoftMocks::redefineMethod(
-            get_parent_class(GrandChildStaticTestClass::class),
-            'getString',
-            '',
-            'return "D";'
-        );
-        static::assertSame('CD', GrandChildStaticTestClass::getString());
-    }
-
     public function dataProviderResolveFile()
     {
         return [
