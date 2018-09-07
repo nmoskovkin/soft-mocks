@@ -33,8 +33,6 @@ unset($php_parser_dir, $files, $file);
 
 /* Soft Mocks init */
 require_once(dirname(__DIR__) . "/src/Badoo/SoftMocks.php");
-// @TODO Should be removed after release 2.0
-require_once(dirname(__DIR__) . "/src/QA/SoftMocks.php");
 SoftMocks::setIgnoreSubPaths(
     array(
         '/vendor/phpunit/' => '/vendor/phpunit/',
