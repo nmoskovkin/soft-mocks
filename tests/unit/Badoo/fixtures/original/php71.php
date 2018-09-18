@@ -2,7 +2,6 @@
 /**
  * This file contains php71 code
  */
-
 class SomeClass
 {
     protected const VALUES = ['a', 'b', 'c'];
@@ -10,8 +9,7 @@ class SomeClass
     public static function getAB()
     {
         [
-            $a,
-            ,
+            $a,,
             $b
         ] = self::VALUES;
 
