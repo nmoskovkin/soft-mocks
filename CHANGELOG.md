@@ -4,6 +4,8 @@
 
 There are next changes:
 
+- fix short array destructing when some elements are absent
+
 ## v1.3.5
 
 There are next changes:

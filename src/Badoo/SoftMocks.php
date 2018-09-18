@@ -177,9 +177,16 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
         if (empty($nodes)) {
             return true;
         }
-        $first_line = $nodes[0]->getAttribute('startLine');
-        $last_line = $nodes[sizeof($nodes) - 1]->getAttribute('endLine');
-        return $first_line === $last_line;
+        $first_line = $last_line = null;
+        foreach ($nodes as $node) {
+            if ($node) {
+                if ($first_line === null) {
+                    $first_line = $node->getAttribute('startLine');
+                }
+                $last_line = $node->getAttribute('endLine');
+            }
+        }
+        return ($first_line === null) || ($first_line === $last_line);
     }
 
     /**
