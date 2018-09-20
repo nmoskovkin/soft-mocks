@@ -2625,6 +2625,29 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         }
     }
 
+    /**
+     * @dataProvider providerWithOrWithoutMock
+     *
+     * @param bool $set_mock
+     */
+    public function testArrayDestructingPHP71($set_mock)
+    {
+        static::markTestSkippedForPHPVersionBelow('7.1.0');
+
+        require_once __DIR__ . '/ArrayDestructingPHP71TestClass.php';
+
+        if ($set_mock) {
+            \Badoo\SoftMocks::redefineConstant(
+                '\Badoo\SoftMock\Tests\ArrayDestructingPHP71TestClass::VALUES',
+                ['aa', 'bb', 'cc']
+            );
+        }
+
+        static::assertEquals($set_mock ? 'aa' : 'a', ArrayDestructingPHP71TestClass::getA());
+        static::assertEquals($set_mock ? 'bb' : 'b', ArrayDestructingPHP71TestClass::getB());
+        static::assertEquals($set_mock ? 'cc' : 'c', ArrayDestructingPHP71TestClass::getC());
+    }
+
     public function providerRewrite()
     {
         $files = glob(__DIR__ . '/fixtures/original/*.php');

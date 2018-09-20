@@ -4,6 +4,7 @@
 
 There are next changes:
 
+- fix short array destructing when some elements are absent;
 - dev dependence vaimo/composer-patches was updated from 3.4.3 to 3.23.1;
 - patch level for patches was provided;
 - phpunit6 support was added;
