@@ -992,6 +992,7 @@ class SoftMocks
         } else {
             $file_in_project = $file;
         }
+        $file_in_project = ltrim($file_in_project, DIRECTORY_SEPARATOR);
 
         return self::getRewrittentFilePathPrefix() . DIRECTORY_SEPARATOR . "{$file_in_project}_{$md5}.php";
     }
