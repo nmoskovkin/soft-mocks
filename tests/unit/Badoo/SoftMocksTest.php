@@ -1403,17 +1403,9 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
     public function dataProviderResolveFile()
     {
         return [
-            'Empty file' => [
-                'file' => '',
-                'result' => '',
-            ],
             'Absolute file path' => [
                 'file' => __DIR__ . '/fixtures/original/php7.php',
                 'result' => __DIR__ . '/fixtures/original/php7.php',
-            ],
-            'Absolute file path not resolved' => [
-                'file' => __DIR__ . '/fixtures/original/__unknown.php',
-                'result' => false,
             ],
             'Relative file path in include path' => [
                 'file' => 'original/php7.php',
@@ -1426,10 +1418,6 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
             'Relative file path current dir' => [
                 'file' => 'fixtures/original/php7.php',
                 'result' => __DIR__ . '/fixtures/original/php7.php',
-            ],
-            'Relative file path not resolved' => [
-                'file' => 'unit/Badoo/fixtures/original/php7.php',
-                'result' => false,
             ],
             'Stream' => [
                 'file' => 'stream://some/path',
@@ -1454,6 +1442,56 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         set_include_path($old_include_path);
         chdir($old_cwd);
         static::assertSame($expected_result, $result);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage File should not be empty
+     */
+    public function testResolveFileFileShouldNotBeEmptyException()
+    {
+        $this->callResolveFile('');
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testResolveAbsoluteFilePathNotResolvedException()
+    {
+        $file = __DIR__ . '/fixtures/original/__unknown.php';
+        $exception_message = "Can't resolve file '{$file}'";
+        if (\method_exists($this, 'expectExceptionMessage')) {
+            $this->expectExceptionMessage($exception_message);
+        } else {
+            // for phpunit 4.x
+            $this->setExpectedException(\RuntimeException::class, $exception_message);
+        }
+        $this->callResolveFile($file);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testResolveRelativeFilePathNotResolvedException()
+    {
+        $file = 'unit/Badoo/fixtures/original/php7.php';
+        $exception_message = "Can't resolve file '{$file}'";
+        if (\method_exists($this, 'expectExceptionMessage')) {
+            $this->expectExceptionMessage($exception_message);
+        } else {
+            // for phpunit 4.x
+            $this->setExpectedException(\RuntimeException::class, $exception_message);
+        }
+        $old_include_path = get_include_path();
+        $old_cwd = getcwd();
+        set_include_path(__DIR__ . '/fixtures:.');
+        chdir(__DIR__ . '/..');
+        try {
+            $this->callResolveFile($file);
+        } finally {
+            set_include_path($old_include_path);
+            chdir($old_cwd);
+        }
     }
 
     protected function callResolveFile($file)
