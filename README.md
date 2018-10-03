@@ -1,5 +1,4 @@
-SoftMocks
-=
+# SoftMocks
 The idea behind "Soft Mocks" - as opposed to "hardcore" mocks that work on the level of the PHP interpreter (runkit and uopz) - is to rewrite class code on the spot so that it can be inserted in any place. It works by rewriting code on the fly during file inclusion instead of using extensions like runkit or uopz.
 
 [![Build Status](https://secure.travis-ci.org/badoo/soft-mocks.png?branch=master)](https://travis-ci.org/badoo/soft-mocks)
@@ -9,8 +8,7 @@ The idea behind "Soft Mocks" - as opposed to "hardcore" mocks that work on the l
 [![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.5-8892BF.svg)](https://php.net/)
 [![License](https://img.shields.io/packagist/l/badoo/soft-mocks.svg)](https://packagist.org/packages/badoo/soft-mocks)
 
-Installation
-=
+## Installation
 
 You can install SoftMocks via [Composer](https://getcomposer.org/):
 
@@ -19,8 +17,8 @@ php composer.phar require --dev badoo/soft-mocks
 mkdir /tmp/mocks/ # create dir with SoftMocks cache
 ```
 
-Usage
-=
+## Usage
+
 The thing that sets SoftMocks apart (and also limits their usage) is that they need to be initiated at the earliest phase of the app launch. It's necessary to do it this way because you can't redefine the classes and functions that are already loaded into the memory in PHP. For an example bootstrap presets, see _[src/bootstrap.php](src/bootstrap.php)_. For PHPUnit you should use patches form _[composer.json](composer.json)_, because you should require composer autoload through SoftMocks.
 
 SoftMocks don't rewrite the following system parts:
@@ -64,8 +62,8 @@ Result after reverting SoftMocks = array (
 )
 ```
 
-API (short description)
-=
+## API (short description)
+
 Initialize SoftMocks (set phpunit injections, define internal mocks, get list of internal functions, etc):
 
 ```
@@ -80,8 +78,7 @@ Cache files are created in /tmp/mocks by default. If you want to choose a differ
 
 This method should be called before rewrite first file. Also you can redefine cache path using environment variable `SOFT_MOCKS_CACHE_PATH`.
 
-Redefine constant
-==
+### Redefine constant
 
 You can assign a new value to $constantName or create one if it wasn't already declared. Since it isn't created using the define() call, the operation can be canceled.
 
@@ -141,8 +138,7 @@ There can be next cases with class constants redefining:
   ```
 - Other more simple cases (just add or redefine constant and etc.).
 
-Redefine functions
-==
+### Redefine functions
 
 SoftMocks let you redefine both user-defined and built-in functions except for those that depend on the current context (see \Badoo\SoftMocksTraverser::$ignore_functions property if you want to see the full list), or for those that have built-in mocks (debug_backtrace, call_user_func* and a few others, but built-in mocks you can enable redefine by call `\Badoo\SoftMocks::setRewriteInternal(true)`).
 
@@ -162,8 +158,7 @@ Usage example (redefine strlen function and call original for the trimmed string
 var_dump(strlen("  a  ")); // int(1)
 ```
 
-Redefine methods
-==
+### Redefine methods
 
 At the moment, only user-defined method redefinition is supported. This functionality is not supported for built-in classes.
 
@@ -176,16 +171,15 @@ Arguments are the same as for redefineFunction, but argument $class is introduce
 
 As an argument $class accepts a class name or a trait name.
 
-Redefining functions that are generators
-==
+### Redefining functions that are generators
+
 This method that lets you replace a generator function call with another \Generator. Generators differ from regular functions in that you can't return a value using "return"; you have to use "yield".
 
 ```
 \Badoo\SoftMocks::redefineGenerator($class, $method, \Generator $replacement)
 ```
 
-Restore values
-==
+### Restore values
 
 The following functions undo mocks that were made using one of the redefine methods described above.
 ```
@@ -202,8 +196,7 @@ The following functions undo mocks that were made using one of the redefine meth
 \Badoo\SoftMocks::restoreExit()
 ```
 
-Using with PHPUnit
-==
+## Using with PHPUnit
 
 If you want to use SoftMocks with PHPUnit then there are next particularities:
 - If phpunit is installed by composer then you should apply patch to `phpunit` _[patches/phpunit6.x/phpunit_phpunit.patch](patches/phpunit6.x/phpunit_phpunit.patch)_,so that classes loaded by composer would be rewritten by SoftMocks;
@@ -231,8 +224,53 @@ php composer.phar patch --redo
 
 For more information about patching see [vaimo/composer-patches documentation](https://github.com/vaimo/composer-patches/blob/3.22.4/README.md).
 
-FAQ
-=
+## Using with xdebug
+
+There is two possibilities to use soft-mocks with xdebug - debug rewritten files and debug original file using xdebug-proxy.
+
+### Debug rewritten files
+
+If you use soft-mocks locally then you can just debug it by calling to `xdebug_break()`. Also you can add break point to the rewritten file, but you should know rewritten file path. For getting the rewritten file path you can call `\Badoo\SoftMocks::rewrite($file)`, but be attentive - if you change the file then new one will be created and it'll have different path.
+
+If you use soft-mocks on the server, then you can mount /tmp/mocks using sshfs or something like this.
+
+### Debug original files using xdebug-proxy
+
+As you see debug rewritten files is uncomfortable. You can also debug original files using [xdebug-proxy](https://github.com/mougrim/php-xdebug-proxy).
+
+```php
+composer.phar require mougrim/php-xdebug-proxy --dev
+cp -r vendor/mougrim/php-xdebug-proxy/config xdebug-proxy-config
+```
+
+After that change `xdebug-proxy-config/factory.php` to the following:
+```php
+<?php
+use Mougrim\XdebugProxy\Factory\SoftMocksFactory;
+
+return new SoftMocksFactory();
+```
+
+If you use soft-mocks locally, then you can just run proxy:
+```bash
+vendor/bin/xdebug-proxy --configs=xdebug-proxy-config
+```
+
+After that register your IDE on `127.0.0.1:9001` and run script, which uses soft-mocks (for example phpunit):
+```bush
+php -d'zend_extension=xdebug.so' -d'xdebug.remote_autostart=On' -d'xdebug.idekey=idekey' -d'xdebug.remote_connect_back=On' -d'xdebug.remote_enable=On' -d'xdebug.remote_host=127.0.0.1' -d'xdebug.remote_port=9002' /local/php72/bin/phpunit
+```
+
+If you use soft-mocks on the server, then you should run xdebug-proxy on the server too, and modify ip in `xdebug-proxy-config/config.php` for `ideRegistrationServer` from `127.0.0.1` to `0.0.0.0`.
+
+In general xdebug-proxy works as the following:
+1. The first step is to register your IDE in the xdebug-proxy (eg: Main menu -> Tools -> DBGp proxy -> Register IDE in PHPStorm). Use `127.0.0.1:9001` or your server IP:PORT which xdebug-proxy is listening on for the IDE registration. You can configure that PORT in the xdebug-proxy config. On that step IDE sends its IP:PORT to the proxy which IDE is listening on.
+2. When you run php-script with command-line options provided above xdebug connects to `127.0.0.1:9002`. This ip and port is where xdebug-proxy is listening on for the connection from xdebug. Xdebug-proxy matches IDEKEY with the registered IDE. If any registered IDE is matched then xdebug-proxy will connect to that particular IDE using provided IDE client IP:PORT at the registration step.
+
+For more information read [xdebug documentation](https://xdebug.org/docs/remote) and [xdebug-proxy documentation](https://github.com/mougrim/php-xdebug-proxy).
+
+## FAQ
+
 **Q**: How can I prevent a specific function/class/constant from being redefined?
 
 **A**: Use the \Badoo\SoftMocks::ignore(Class|Function|Constant) method.
