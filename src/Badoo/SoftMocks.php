@@ -905,17 +905,12 @@ class SoftMocks
         return self::$version;
     }
 
+    /**
+     * @param string $file
+     * @return string
+     * @throws \RuntimeException if can't rewrite
+     */
     public static function rewrite($file)
-    {
-        try {
-            return self::doRewrite($file);
-        } catch (\Exception $e) {
-            echo "Could not rewrite file $file: " . $e->getMessage() . "\n";
-            return false;
-        }
-    }
-
-    private static function doRewrite($file)
     {
         $file = self::prepareFilePathToRewrite($file);
 
@@ -939,14 +934,22 @@ class SoftMocks
                 touch($target_file);
             }
 
-            $target_file = realpath($target_file);
-            self::$rewrite_cache[$file] = $target_file;
-            self::$orig_paths[$target_file] = $file;
+            $real_target_file = realpath($target_file);
+            if (!$real_target_file) {
+                throw new \RuntimeException("Can't resolve rewritten file '{$target_file}' for file '{$file}'");
+            }
+            self::$rewrite_cache[$file] = $real_target_file;
+            self::$orig_paths[$real_target_file] = $file;
         }
 
         return self::$rewrite_cache[$file];
     }
 
+    /**
+     * @param string $file
+     * @return string
+     * @throws \RuntimeException
+     */
     private static function prepareFilePathToRewrite($file)
     {
         if (self::$prepare_for_rewrite_callback !== null) {
@@ -958,10 +961,6 @@ class SoftMocks
 
     private static function shouldRewriteFile($file)
     {
-        if (!$file) {
-            return false;
-        }
-
         if (mb_orig_strpos($file, self::$mocks_cache_path) === 0
             || mb_orig_strpos($file, self::getVersion() . DIRECTORY_SEPARATOR) === 0) {
             return false;
@@ -993,6 +992,7 @@ class SoftMocks
         } else {
             $file_in_project = $file;
         }
+        $file_in_project = ltrim($file_in_project, DIRECTORY_SEPARATOR);
 
         return self::getRewrittentFilePathPrefix() . DIRECTORY_SEPARATOR . "{$file_in_project}_{$md5}.php";
     }
@@ -1015,6 +1015,11 @@ class SoftMocks
         return self::$mocks_cache_path . self::getVersion();
     }
 
+    /**
+     * @param $file
+     * @return string
+     * @throws \RuntimeException
+     */
     public static function getRewrittenFilePath($file)
     {
         $file = self::prepareFilePathToRewrite($file);
@@ -1071,10 +1076,15 @@ class SoftMocks
         return $file;
     }
 
+    /**
+     * @param $file
+     * @return string
+     * @throws \RuntimeException
+     */
     private static function resolveFile($file)
     {
         if (!$file) {
-            return $file;
+            throw new \RuntimeException('File should not be empty');
         }
         // if path is not absolute
         if ($file[0] !== '/') {
@@ -1113,9 +1123,18 @@ class SoftMocks
             }
         }
         // resolve symlinks
-        return realpath($file);
+        $real_file = realpath($file);
+        if (!$real_file) {
+            throw new \RuntimeException("Can't resolve file '{$file}'");
+        }
+        return $real_file;
     }
 
+    /**
+     * @param string $file
+     * @param string $target_file
+     * @throws \RuntimeException
+     */
     private static function createRewrittenFile($file, $target_file)
     {
         if (self::$debug) {

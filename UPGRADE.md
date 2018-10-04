@@ -6,6 +6,7 @@ The following upgrading instructions are cumulative. That is, if you want to upg
 
 - Class constants redefining logic was changed (see [CHANGELOG.md](CHANGELOG.md)). Check class constants redefining usages, that it's working.
 - Deprecated class `\QA\SoftMocks` was removed. Use `\Badoo\SoftMocks` instead of it.
+- Now \Badoo\SoftMocks::rewrite() can throw \RuntimeException(). Check that you don't pass empty or not exists file to this method. Catch exception if need.
 
 ## Upgrade from SoftMocks 1.1.2
 

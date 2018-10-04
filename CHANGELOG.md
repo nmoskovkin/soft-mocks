@@ -28,7 +28,8 @@ There are next changes:
     ```
 - soft-mocks init logic was moved to src/init_with_composer.php script from phpunit patch;
 - methods \Badoo\SoftMocks::getRewrittenFilePath() and \Badoo\SoftMocks::getOriginalFilePath() were added;
-- SOFT_MOCKS_CACHE_PATH environment variable was added for redefine default mocks cache path.
+- SOFT_MOCKS_CACHE_PATH environment variable was added for redefine default mocks cache path;
+- Now \RuntimeException() isn't caught in \Badoo\SoftMocks::rewrite().
 
 ## v1.3.5
 
