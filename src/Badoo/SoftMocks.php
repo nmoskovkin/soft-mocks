@@ -482,7 +482,7 @@ class SoftMocks
 
     private static $project_path;
     private static $rewrite_internal = false;
-    private static $mocks_cache_path = "/tmp/mocks/";
+    private static $mocks_cache_path;
     private static $ignore_sub_paths = [
         '/phpunit/' => '/phpunit/',
         '/php-parser/' => '/php-parser/',
@@ -498,6 +498,14 @@ class SoftMocks
 
     public static function init()
     {
+        if (!self::$mocks_cache_path) {
+            $mocks_cache_path = (string)static::getEnvironment('SOFT_MOCKS_CACHE_PATH');
+            if ($mocks_cache_path) {
+                self::setMocksCachePath($mocks_cache_path);
+            } else {
+                self::$mocks_cache_path = '/tmp/mocks/';
+            }
+        }
         if (!defined('SOFTMOCKS_ROOT_PATH')) {
             define('SOFTMOCKS_ROOT_PATH', '/');
         }
@@ -897,66 +905,26 @@ class SoftMocks
         return self::$version;
     }
 
+    /**
+     * @param string $file
+     * @return string
+     * @throws \RuntimeException if can't rewrite
+     */
     public static function rewrite($file)
     {
-        try {
-            return self::doRewrite($file);
-        } catch (\Exception $e) {
-            echo "Could not rewrite file $file: " . $e->getMessage() . "\n";
-            return false;
-        }
-    }
+        $file = self::prepareFilePathToRewrite($file);
 
-    private static function doRewrite($file)
-    {
-        if (self::$prepare_for_rewrite_callback !== null) {
-            $callback = self::$prepare_for_rewrite_callback;
-            $file = $callback($file);
-        }
-        $file = self::resolveFile($file);
-
-        if (!$file) {
+        if (!self::shouldRewriteFile($file)) {
             return $file;
         }
 
         if (!isset(self::$rewrite_cache[$file])) {
-            if (mb_orig_strpos($file, self::$mocks_cache_path) === 0
-                || mb_orig_strpos($file, self::getVersion() . DIRECTORY_SEPARATOR) === 0) {
-                return $file;
-            }
-
-            foreach (self::$ignore_sub_paths as $ignore_path) {
-                if (mb_orig_strpos($file, $ignore_path) !== false) {
-                    return $file;
-                }
-            }
-
-            if (isset(self::$ignore[$file])) {
-                return $file;
-            }
-
             $md5_file = md5_file($file);
             if (!$md5_file) {
                 return (self::$orig_paths[$file] = self::$rewrite_cache[$file] = $file);
             }
 
-            $clean_filepath = $file;
-            if (strpos($clean_filepath, SOFTMOCKS_ROOT_PATH) === 0) {
-                $clean_filepath = substr($clean_filepath, strlen(SOFTMOCKS_ROOT_PATH));
-            }
-
-            if (self::$debug) {
-                self::debug("Clean filepath for $file is $clean_filepath");
-            }
-
-            $md5 = md5($clean_filepath . ':' . $md5_file);
-            if (self::$project_path && strpos($file, self::$project_path) === 0) {
-                $file_in_project = substr($file, strlen(self::$project_path));
-            } else {
-                $file_in_project = basename($file);
-            }
-
-            $target_file = self::$mocks_cache_path . self::getVersion() . DIRECTORY_SEPARATOR . $file_in_project . "_" . $md5 . ".php";
+            $target_file = self::constructRewrittenFilePath($file, $md5_file);
             if (!file_exists($target_file)) {
                 $old_umask = umask(0);
                 self::createRewrittenFile($file, $target_file);
@@ -966,18 +934,157 @@ class SoftMocks
                 touch($target_file);
             }
 
-            $target_file = realpath($target_file);
-            self::$rewrite_cache[$file] = $target_file;
-            self::$orig_paths[$target_file] = $file;
+            $real_target_file = realpath($target_file);
+            if (!$real_target_file) {
+                throw new \RuntimeException("Can't resolve rewritten file '{$target_file}' for file '{$file}'");
+            }
+            self::$rewrite_cache[$file] = $real_target_file;
+            self::$orig_paths[$real_target_file] = $file;
         }
 
         return self::$rewrite_cache[$file];
     }
 
+    /**
+     * @param string $file
+     * @return string
+     * @throws \RuntimeException
+     */
+    private static function prepareFilePathToRewrite($file)
+    {
+        if (self::$prepare_for_rewrite_callback !== null) {
+            $callback = self::$prepare_for_rewrite_callback;
+            $file = $callback($file);
+        }
+        return self::resolveFile($file);
+    }
+
+    private static function shouldRewriteFile($file)
+    {
+        if (mb_orig_strpos($file, self::$mocks_cache_path) === 0
+            || mb_orig_strpos($file, self::getVersion() . DIRECTORY_SEPARATOR) === 0) {
+            return false;
+        }
+
+        foreach (self::$ignore_sub_paths as $ignore_path) {
+            if (mb_orig_strpos($file, $ignore_path) !== false) {
+                return false;
+            }
+        }
+
+        if (isset(self::$ignore[$file])) {
+            return false;
+        }
+        return true;
+    }
+
+    private static function constructRewrittenFilePath($file, $md5_file)
+    {
+        $clean_filepath = self::getCleanFilePath($file);
+
+        if (self::$debug) {
+            self::debug("Clean filepath for $file is $clean_filepath");
+        }
+
+        $md5 = self::getMd5ForSuffix($clean_filepath, $md5_file);
+        if (self::$project_path && strpos($file, self::$project_path) === 0) {
+            $file_in_project = substr($file, strlen(self::$project_path));
+        } else {
+            $file_in_project = $file;
+        }
+        $file_in_project = ltrim($file_in_project, DIRECTORY_SEPARATOR);
+
+        return self::getRewrittentFilePathPrefix() . DIRECTORY_SEPARATOR . "{$file_in_project}_{$md5}.php";
+    }
+
+    private static function getCleanFilePath($file)
+    {
+        if (strpos($file, SOFTMOCKS_ROOT_PATH) !== 0) {
+            return $file;
+        }
+        return substr($file, strlen(SOFTMOCKS_ROOT_PATH));
+    }
+
+    private static function getMd5ForSuffix($clean_filepath, $md5_file)
+    {
+        return md5($clean_filepath . ':' . $md5_file);
+    }
+
+    private static function getRewrittentFilePathPrefix()
+    {
+        return self::$mocks_cache_path . self::getVersion();
+    }
+
+    /**
+     * @param $file
+     * @return string
+     * @throws \RuntimeException
+     */
+    public static function getRewrittenFilePath($file)
+    {
+        $file = self::prepareFilePathToRewrite($file);
+
+        if (!self::shouldRewriteFile($file)) {
+            return $file;
+        }
+        $md5_file = md5_file($file);
+        if (!$md5_file) {
+            return $file;
+        }
+
+        return self::constructRewrittenFilePath($file, $md5_file);
+    }
+
+    public static function getOriginalFilePath($file)
+    {
+        $rewritten_prefix = self::getRewrittentFilePathPrefix();
+        $pattern = '#^' . preg_quote($rewritten_prefix . DIRECTORY_SEPARATOR, '#')
+            . '(?P<path>.+)_(?P<md5>[0-9a-f]{32})\.php$#';
+        if (!preg_match($pattern, $file, $matches)) {
+            return $file;
+        }
+        $path = DIRECTORY_SEPARATOR . $matches['path'];
+        $expected_md5 = $matches['md5'];
+        $possible_path_prefixes = [''];
+        if (self::$project_path) {
+            $possible_path_prefixes[] = self::$project_path;
+        }
+        $root_path = rtrim(SOFTMOCKS_ROOT_PATH, '/');
+        if ($root_path) {
+            $possible_path_prefixes[] = $root_path;
+            if (self::$project_path) {
+                $possible_path_prefixes[] = $root_path . self::$project_path;
+            }
+        }
+
+        foreach ($possible_path_prefixes as $possible_path_prefix) {
+            $original_file = $possible_path_prefix . $path;
+            if (!file_exists($original_file)) {
+                continue;
+            }
+            $md5_file = md5_file($original_file);
+            if (!$md5_file) {
+                continue;
+            }
+            $clean_file_path = self::getCleanFilePath($original_file);
+            $md5 = self::getMd5ForSuffix($clean_file_path, $md5_file);
+            if ($expected_md5 !== $md5) {
+                continue;
+            }
+            return $original_file;
+        }
+        return $file;
+    }
+
+    /**
+     * @param $file
+     * @return string
+     * @throws \RuntimeException
+     */
     private static function resolveFile($file)
     {
         if (!$file) {
-            return $file;
+            throw new \RuntimeException('File should not be empty');
         }
         // if path is not absolute
         if ($file[0] !== '/') {
@@ -1002,8 +1109,8 @@ class SoftMocks
             }
             if (!$found) {
                 // try relative path
-                $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
-                $dir = dirname(self::replaceFilename($bt[2]['file'], true));
+                $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4);
+                $dir = dirname(self::replaceFilename($bt[3]['file'], true));
                 if (file_exists("{$dir}/{$file}")) {
                     $file = "{$dir}/{$file}";
                 } else {
@@ -1016,9 +1123,18 @@ class SoftMocks
             }
         }
         // resolve symlinks
-        return realpath($file);
+        $real_file = realpath($file);
+        if (!$real_file) {
+            throw new \RuntimeException("Can't resolve file '{$file}'");
+        }
+        return $real_file;
     }
 
+    /**
+     * @param string $file
+     * @param string $target_file
+     * @throws \RuntimeException
+     */
     private static function createRewrittenFile($file, $target_file)
     {
         if (self::$debug) {
@@ -1358,39 +1474,96 @@ class SoftMocks
         if (is_object($class)) {
             $class = get_class($class);
         }
-        $const_full_name = $class . '::' . $const;
+        $const_full_name = "{$class}::{$const}";
 
-        // Check current scope, see comment below
-        if (class_exists('ReflectionClassConstant', false)) {
-            try {
-                $R = new \ReflectionClassConstant($class, $const);
-                if ($R->isPrivate()) {
-                    if (is_null($self_class) || ($self_class !== $class)) {
-                        throw new \Error("Cannot access private const {$const_full_name}");
+        if (PHP_VERSION_ID < 70100) {
+            // for php versions < 7.1 where isn't declared class ReflectionClassConstant
+            $ancestor = $class;
+            do {
+                $ancestor_const = "{$ancestor}::{$const}";
+                if (isset(self::$removed_constants[$ancestor_const])) {
+                    $parent = \get_parent_class($ancestor);
+                    continue;
+                }
+                if (isset(self::$constant_mocks[$ancestor_const])) {
+                    if (self::$debug) {
+                        self::debug("Intercepting constant {$ancestor_const}");
+                    }
+                    return self::$constant_mocks[$ancestor_const];
+                }
+                $ancestor_const_defined = defined($ancestor_const);
+                if (!$ancestor_const_defined) {
+                    break;
+                }
+                // for php versions < 7.1
+                // we can't get constant declaring class, but we can compare values for $ancestor and parent class
+                $parent = get_parent_class($ancestor);
+                if ($parent) {
+                    $parent_const = "{$parent}::{$const}";
+                    $parent_const_defined = defined($parent_const);
+                    if (!$parent_const_defined) {
+                        break;
+                    }
+                    if (constant($ancestor_const) !== constant($parent_const)) {
+                        break;
                     }
                 }
-                if ($R->isProtected()) {
-                    if (is_null($self_class) || (($self_class !== $class) && !is_subclass_of($self_class, $class))) {
-                        throw new \Error("Cannot access protected const {$const_full_name}");
-                    }
-                }
-            } catch (\ReflectionException $E) {/* if we add new constant */}
-        }
+            } while ($ancestor = $parent);
 
-        if (isset(self::$constant_mocks[$const_full_name])) {
-            if (self::$debug) {
-                self::debug("Intercepting constant $const_full_name");
+            if (!defined($ancestor_const)) {
+                throw new \RuntimeException("Undefined class constant '{$const_full_name}'");
             }
-            return self::$constant_mocks[$const_full_name];
+            return constant($ancestor_const);
         }
 
-        if (isset(self::$removed_constants[$const_full_name])) {
-            trigger_error('Trying to access removed constant ' . $const_full_name . ', assuming "' . $const_full_name . '"');
-            return $const_full_name;
+        // for php versions >= 7.1
+        $ConstantReflection = null;
+        $declaring_class = null;
+        $ancestor = $class;
+        do {
+            $ancestor_const = "{$ancestor}::{$const}";
+            if (isset(self::$removed_constants[$ancestor_const])) {
+                if ($declaring_class === $ancestor) {
+                    // for get next declaring class
+                    $ConstantReflection = null;
+                    $declaring_class = null;
+                }
+                continue;
+            }
+            if ($declaring_class === null) {
+                try {
+                    $ConstantReflection = new \ReflectionClassConstant($ancestor, $const);
+                    if ($ConstantReflection->isPrivate()) {
+                        if ($self_class === null || ($self_class !== $class)) {
+                            throw new \Error("Cannot access private const {$const_full_name}");
+                        }
+                    }
+                    if ($ConstantReflection->isProtected()) {
+                        if ($self_class === null || (($self_class !== $class) && !is_subclass_of($class, $self_class) && !is_subclass_of($self_class, $class))) {
+                            throw new \Error("Cannot access protected const {$const_full_name}");
+                        }
+                    }
+                    $declaring_class = $ConstantReflection->getDeclaringClass()->getName();
+                } catch (\ReflectionException $Exception) {/* if we add new constant */}
+                if (!$declaring_class) {
+                    $declaring_class = false;
+                }
+            }
+            if (isset(self::$constant_mocks[$ancestor_const])) {
+                if (self::$debug) {
+                    self::debug("Intercepting constant {$ancestor_const}");
+                }
+                return self::$constant_mocks[$ancestor_const];
+            }
+            if ($declaring_class && $declaring_class === $ancestor) {
+                break;
+            }
+        } while ($ancestor = get_parent_class($ancestor));
+        if (!$ConstantReflection) {
+            throw new \Error("Undefined class constant '{$const_full_name}'");
         }
-
-        // To avoid 'Cannot access private/protected const' error, see comment above
-        return !empty($R) ? $R->getValue() : constant($const_full_name);
+        // To avoid 'Cannot access private/protected const' error, see above
+        return $ConstantReflection->getValue();
     }
 
     private static function rewriteContents($orig_file, $target_file, $contents)
@@ -1598,6 +1771,7 @@ class SoftMocks
     public static function restoreConstant($constantName)
     {
         unset(self::$constant_mocks[$constantName]);
+        unset(self::$removed_constants[$constantName]);
     }
 
     public static function restoreAllConstants()
@@ -1834,11 +2008,37 @@ class SoftMocks
 
     public static function injectIntoPhpunit()
     {
-        if (!class_exists(\PHPUnit_Util_Fileloader::class, false)) {
+        /** @noinspection PhpUndefinedClassInspection */
+        $possible_class_groups = [
+            [
+                'file_loader' => \PHPUnit_Util_Fileloader::class,
+                'filter' => \PHPUnit_Util_Filter::class,
+            ],
+            [
+                'file_loader' => \PHPUnit\Util\Fileloader::class,
+                'filter' => \PHPUnit\Util\Filter::class,
+            ],
+        ];
+        /** @noinspection PhpUndefinedClassInspection */
+        /** @var \PHPUnit_Util_Fileloader[]|\PHPUnit\Util\Fileloader[] $classes */
+        $classes = null;
+        foreach ($possible_class_groups as $possible_classes) {
+            if (!class_exists($possible_classes['file_loader'], false)) {
+                continue;
+            }
+            $classes = $possible_classes;
+            break;
+        }
+        if (!$classes) {
             return;
         }
 
-        if (!is_callable([\PHPUnit_Util_Fileloader::class, 'setFilenameRewriteCallback'])) {
+        /** @var \PHPUnit_Util_Fileloader|\PHPUnit\Util\Fileloader $file_loader */
+        $file_loader = $classes['file_loader'];
+        /** @var \PHPUnit_Util_Filter|\PHPUnit\Util\Filter $filter */
+        $filter = $classes['filter'];
+
+        if (!is_callable([$file_loader, 'setFilenameRewriteCallback'])) {
             if (self::$debug) {
                 self::debug("Cannot inject into phpunit: method setFilenameRewriteCallback not found");
             }
@@ -1846,15 +2046,17 @@ class SoftMocks
             return;
         }
 
-        \PHPUnit_Util_Fileloader::setFilenameRewriteCallback([self::class, 'rewrite']);
+        call_user_func([$file_loader, 'setFilenameRewriteCallback'], [self::class, 'rewrite']);
 
-        \PHPUnit_Util_Fileloader::setFilenameRestoreCallback(
+        call_user_func(
+            [$file_loader, 'setFilenameRestoreCallback'],
             function ($filename) {
                 return self::replaceFilename($filename, true);
             }
         );
 
-        \PHPUnit_Util_Filter::setCustomStackTraceCallback(
+        call_user_func(
+            [$filter, 'setCustomStackTraceCallback'],
             function ($e) {
                 ob_start();
                 self::printBackTrace($e);

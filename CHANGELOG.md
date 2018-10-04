@@ -4,7 +4,32 @@
 
 There are next changes:
 
-- fix short array destructing when some elements are absent
+- fix short array destructing when some elements are absent;
+- dev dependence vaimo/composer-patches was updated from 3.4.3 to 3.23.1;
+- patch level for patches was provided;
+- phpunit6 support was added;
+- class static protected constant was fixed;
+- class constants inheritance was fixed:
+  - before fix:
+    ```php
+    class A {const NAME = 'A';}
+    class B {}
+    \Badoo\SoftMocks::redefineConstant(A::class . '::NAME', 'B');
+    echo A::NAME . "\n"; // B
+    echo B::NAME . "\n"; // A
+    ```
+  - after fix:
+    ```php
+    class A {const NAME = 'A';}
+    class B {}
+    \Badoo\SoftMocks::redefineConstant(A::class . '::NAME', 'B');
+    echo A::NAME . "\n"; // B
+    echo B::NAME . "\n"; // B
+    ```
+- soft-mocks init logic was moved to src/init_with_composer.php script from phpunit patch;
+- methods \Badoo\SoftMocks::getRewrittenFilePath() and \Badoo\SoftMocks::getOriginalFilePath() were added;
+- SOFT_MOCKS_CACHE_PATH environment variable was added for redefine default mocks cache path;
+- Now \RuntimeException() isn't caught in \Badoo\SoftMocks::rewrite().
 
 ## v1.3.5
 

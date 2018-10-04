@@ -2,10 +2,16 @@
 
 The following upgrading instructions are cumulative. That is, if you want to upgrade from version A to version C and there is version B between A and C, you need to follow the instructions for both A and B.
 
+## Upgrade from SoftMocks 1.3.5
+
+- Class constants redefining logic was changed (see [CHANGELOG.md](CHANGELOG.md)). Check class constants redefining usages, that it's working.
+- Deprecated class `\QA\SoftMocks` was removed. Use `\Badoo\SoftMocks` instead of it.
+- Now \Badoo\SoftMocks::rewrite() can throw \RuntimeException(). Check that you don't pass empty or not exists file to this method. Catch exception if need.
+
 ## Upgrade from SoftMocks 1.1.2
 
-- Class `\QA\SoftMocks` marked as deprecated
-- All methods of `\QA\SoftMocks` moved to `\Badoo\SoftMocks`
+- Class `\QA\SoftMocks` marked as deprecated.
+- All methods of `\QA\SoftMocks` moved to `\Badoo\SoftMocks`.
 
 ## Upgrade from SoftMocks 1.1.1
 

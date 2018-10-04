@@ -1,8 +1,8 @@
 diff --git a/phpunit b/phpunit
-index 539b842..cea771b 100755
+index 8271fa3..3e8ccf5 100755
 --- a/phpunit
 +++ b/phpunit
-@@ -27,26 +27,41 @@ if (!ini_get('date.timezone')) {
+@@ -27,27 +27,41 @@ if (!ini_get('date.timezone')) {
      ini_set('date.timezone', 'UTC');
  }
  
@@ -21,7 +21,8 @@ index 539b842..cea771b 100755
  unset($file);
  
 -if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
--    fwrite(STDERR,
+-    fwrite(
+-        STDERR,
 -        'You need to set up the project dependencies using Composer:' . PHP_EOL . PHP_EOL .
 -        '    composer install' . PHP_EOL . PHP_EOL .
 -        'You can learn all about Composer on https://getcomposer.org/.' . PHP_EOL
@@ -32,7 +33,7 @@ index 539b842..cea771b 100755
 +    $composerInstall = require $softMocksInitPath;
 +    require $composerInstall;
 +    // inject soft-mocks into phpunit
-+    class_exists(PHPUnit_Util_Fileloader::class);
++    class_exists(PHPUnit\Util\Fileloader::class);
 +    \Badoo\SoftMocks::injectIntoPhpunit();
 +    define('PHPUNIT_COMPOSER_INSTALL', $composerInstall);
 +    unset($composerInstall);
@@ -58,4 +59,4 @@ index 539b842..cea771b 100755
 -require PHPUNIT_COMPOSER_INSTALL;
 +unset($softMocksInitPath);
  
- PHPUnit_TextUI_Command::main();
+ PHPUnit\TextUI\Command::main();

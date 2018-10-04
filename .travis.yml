@@ -12,14 +12,19 @@ php:
 env:
   - PHPUNIT_VERSION=~4.8.0
   - PHPUNIT_VERSION=~5.7.0
+  - PHPUNIT_VERSION=~6.5.0
 
 before_script:
   - composer require --dev --no-update "phpunit/phpunit":"${PHPUNIT_VERSION}"
   - composer install
   - mkdir -p /tmp/mocks/
+  - rm -rf /tmp/mocks_changed/
 
 script:
   - vendor/bin/phpunit --verbose --colors --coverage-clover=coverage.clover
+  - if [ -d /tmp/mocks_changed/ ]; then echo "Changed path shouldn't be found"; exit 1; else echo "Changed path not found"; fi;
+  - SOFT_MOCKS_CACHE_PATH=/tmp/mocks_changed/ vendor/bin/phpunit --verbose --filter='testRedefineMethod'
+  - if [ -d /tmp/mocks_changed/ ]; then echo "Changed path found"; else echo "Changed path should be found"; exit 1; fi;
 
 after_success:
   - wget https://scrutinizer-ci.com/ocular.phar
@@ -30,6 +35,10 @@ matrix:
   exclude:
     - php: 5.5
       env: PHPUNIT_VERSION=~5.7.0
+    - php: 5.5
+      env: PHPUNIT_VERSION=~6.5.0
+    - php: 5.6
+      env: PHPUNIT_VERSION=~6.5.0
     - php: 7.1
       env: PHPUNIT_VERSION=~4.8.0
     - php: 7.2
