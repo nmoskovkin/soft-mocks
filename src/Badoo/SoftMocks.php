@@ -496,15 +496,18 @@ class SoftMocks
         return \getenv($key);
     }
 
+    /**
+     * Init soft mocks
+     * @throws \RuntimeException
+     */
     public static function init()
     {
         if (!self::$mocks_cache_path) {
             $mocks_cache_path = (string)static::getEnvironment('SOFT_MOCKS_CACHE_PATH');
-            if ($mocks_cache_path) {
-                self::setMocksCachePath($mocks_cache_path);
-            } else {
-                self::$mocks_cache_path = '/tmp/mocks/';
+            if (!$mocks_cache_path) {
+                $mocks_cache_path = '/tmp/mocks/';
             }
+            self::setMocksCachePath($mocks_cache_path);
         }
         if (!defined('SOFTMOCKS_ROOT_PATH')) {
             define('SOFTMOCKS_ROOT_PATH', '/');
@@ -687,6 +690,7 @@ class SoftMocks
 
     /**
      * @param string $mocks_cache_path - Path to cache of rewritten files
+     * @throws \RuntimeException
      */
     public static function setMocksCachePath($mocks_cache_path)
     {
@@ -694,7 +698,7 @@ class SoftMocks
             self::$mocks_cache_path = rtrim($mocks_cache_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         }
 
-        if (!file_exists(self::$mocks_cache_path) && !mkdir(self::$mocks_cache_path, 0777)) {
+        if (!@mkdir(self::$mocks_cache_path, 0777) && !is_dir(self::$mocks_cache_path)) {
             throw new \RuntimeException("Can't create cache dir for rewritten files at " . self::$mocks_cache_path);
         }
     }

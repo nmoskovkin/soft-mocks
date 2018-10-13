@@ -14,7 +14,6 @@ You can install SoftMocks via [Composer](https://getcomposer.org/):
 
 ```bash
 php composer.phar require --dev badoo/soft-mocks
-mkdir /tmp/mocks/ # create dir with SoftMocks cache
 ```
 
 ## Usage

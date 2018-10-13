@@ -5,6 +5,7 @@
 There are next changes:
 
 - use mb_orig_* functions
+- create directory /tmp/mocks for cache by default
 
 ## v2.0.0
 
