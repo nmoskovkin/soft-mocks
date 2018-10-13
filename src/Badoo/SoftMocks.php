@@ -12,7 +12,7 @@ namespace Badoo;
 if (!function_exists('mb_orig_substr')) {
     function mb_orig_substr($str, $start, $length = null)
     {
-        return is_null($length) ? substr($str, $start) : substr($str, $start, $length);
+        return $length === null ? substr($str, $start) : substr($str, $start, $length);
     }
 
     function mb_orig_stripos($haystack, $needle, $offset = 0)
@@ -987,8 +987,8 @@ class SoftMocks
         }
 
         $md5 = self::getMd5ForSuffix($clean_filepath, $md5_file);
-        if (self::$project_path && strpos($file, self::$project_path) === 0) {
-            $file_in_project = substr($file, strlen(self::$project_path));
+        if (self::$project_path && mb_orig_strpos($file, self::$project_path) === 0) {
+            $file_in_project = mb_orig_substr($file, mb_orig_strlen(self::$project_path));
         } else {
             $file_in_project = $file;
         }
@@ -999,10 +999,10 @@ class SoftMocks
 
     private static function getCleanFilePath($file)
     {
-        if (strpos($file, SOFTMOCKS_ROOT_PATH) !== 0) {
+        if (mb_orig_strpos($file, SOFTMOCKS_ROOT_PATH) !== 0) {
             return $file;
         }
-        return substr($file, strlen(SOFTMOCKS_ROOT_PATH));
+        return mb_orig_substr($file, mb_orig_strlen(SOFTMOCKS_ROOT_PATH));
     }
 
     private static function getMd5ForSuffix($clean_filepath, $md5_file)
@@ -1161,7 +1161,7 @@ class SoftMocks
         $relative_target_dir = $target_dir;
         if (mb_orig_strpos($file, self::$mocks_cache_path) === 0) {
             $base_mocks_path = self::$mocks_cache_path;
-            $relative_target_dir = substr($target_dir, strlen($base_mocks_path));
+            $relative_target_dir = mb_orig_substr($target_dir, mb_orig_strlen($base_mocks_path));
         }
         self::createDirRecursive($base_mocks_path, $relative_target_dir);
 
@@ -2141,8 +2141,8 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
     public function __construct($filename)
     {
         $this->filename = realpath($filename);
-        if (strpos($this->filename, SOFTMOCKS_ROOT_PATH) === 0) {
-            $this->filename = substr($this->filename, strlen(SOFTMOCKS_ROOT_PATH));
+        if (mb_orig_strpos($this->filename, SOFTMOCKS_ROOT_PATH) === 0) {
+            $this->filename = mb_orig_substr($this->filename, mb_orig_strlen(SOFTMOCKS_ROOT_PATH));
         }
     }
 
