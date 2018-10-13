@@ -1053,7 +1053,7 @@ class SoftMocks
         if (self::$project_path) {
             $possible_path_prefixes[] = self::$project_path;
         }
-        $root_path = rtrim(SOFTMOCKS_ROOT_PATH, '/');
+        $root_path = rtrim(SOFTMOCKS_ROOT_PATH, DIRECTORY_SEPARATOR);
         if ($root_path) {
             $possible_path_prefixes[] = $root_path;
             if (self::$project_path) {
