@@ -509,7 +509,12 @@ class SoftMocks
             }
             self::setMocksCachePath($mocks_cache_path);
         }
+        // todo constant will be removed in next major release, because it's like project path.
         if (!defined('SOFTMOCKS_ROOT_PATH')) {
+            /**
+             * @deprecated use \Badoo\SoftMocks::setProjectPath() instead
+             * @see \Badoo\SoftMocks::setProjectPath()
+             */
             define('SOFTMOCKS_ROOT_PATH', '/');
         }
 

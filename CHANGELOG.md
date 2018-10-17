@@ -6,6 +6,7 @@ There are next changes:
 
 - use mb_orig_* functions
 - create directory /tmp/mocks for cache by default
+- constant SOFTMOCKS_ROOT_PATH marked as deprecated, use `\Badoo\SoftMocks::setProjectPath()` instead of it.
 
 ## v2.0.0
 
