@@ -703,7 +703,7 @@ class SoftMocks
             self::$mocks_cache_path = rtrim($mocks_cache_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         }
 
-        if (!@mkdir(self::$mocks_cache_path, 0777) && !is_dir(self::$mocks_cache_path)) {
+        if (!is_dir(self::$mocks_cache_path) && !mkdir(self::$mocks_cache_path, 0777) && !is_dir(self::$mocks_cache_path)) {
             throw new \RuntimeException("Can't create cache dir for rewritten files at " . self::$mocks_cache_path);
         }
     }
@@ -1219,7 +1219,7 @@ class SoftMocks
         $current_dir = $base_dir;
         foreach (explode(DIRECTORY_SEPARATOR, $relative_target_dir) as $sub_dir) {
             $current_dir .= DIRECTORY_SEPARATOR . $sub_dir;
-            if (!@mkdir($current_dir) && !is_dir($current_dir)) {
+            if (!is_dir($current_dir) && !mkdir($current_dir, 0777) && !is_dir($current_dir)) {
                 $error = error_get_last();
                 $message = '';
                 if (is_array($error)) {
