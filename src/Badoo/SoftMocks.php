@@ -12,7 +12,7 @@ namespace Badoo;
 if (!function_exists('mb_orig_substr')) {
     function mb_orig_substr($str, $start, $length = null)
     {
-        return is_null($length) ? substr($str, $start) : substr($str, $start, $length);
+        return $length === null ? substr($str, $start) : substr($str, $start, $length);
     }
 
     function mb_orig_stripos($haystack, $needle, $offset = 0)
@@ -496,17 +496,25 @@ class SoftMocks
         return \getenv($key);
     }
 
+    /**
+     * Init soft mocks
+     * @throws \RuntimeException
+     */
     public static function init()
     {
         if (!self::$mocks_cache_path) {
             $mocks_cache_path = (string)static::getEnvironment('SOFT_MOCKS_CACHE_PATH');
-            if ($mocks_cache_path) {
-                self::setMocksCachePath($mocks_cache_path);
-            } else {
-                self::$mocks_cache_path = '/tmp/mocks/';
+            if (!$mocks_cache_path) {
+                $mocks_cache_path = '/tmp/mocks/';
             }
+            self::setMocksCachePath($mocks_cache_path);
         }
+        // todo constant will be removed in next major release, because it's like project path.
         if (!defined('SOFTMOCKS_ROOT_PATH')) {
+            /**
+             * @deprecated use \Badoo\SoftMocks::setProjectPath() instead
+             * @see \Badoo\SoftMocks::setProjectPath()
+             */
             define('SOFTMOCKS_ROOT_PATH', '/');
         }
 
@@ -687,6 +695,7 @@ class SoftMocks
 
     /**
      * @param string $mocks_cache_path - Path to cache of rewritten files
+     * @throws \RuntimeException
      */
     public static function setMocksCachePath($mocks_cache_path)
     {
@@ -694,7 +703,7 @@ class SoftMocks
             self::$mocks_cache_path = rtrim($mocks_cache_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         }
 
-        if (!file_exists(self::$mocks_cache_path) && !mkdir(self::$mocks_cache_path, 0777)) {
+        if (!is_dir(self::$mocks_cache_path) && !mkdir(self::$mocks_cache_path, 0777) && !is_dir(self::$mocks_cache_path)) {
             throw new \RuntimeException("Can't create cache dir for rewritten files at " . self::$mocks_cache_path);
         }
     }
@@ -987,8 +996,8 @@ class SoftMocks
         }
 
         $md5 = self::getMd5ForSuffix($clean_filepath, $md5_file);
-        if (self::$project_path && strpos($file, self::$project_path) === 0) {
-            $file_in_project = substr($file, strlen(self::$project_path));
+        if (self::$project_path && mb_orig_strpos($file, self::$project_path) === 0) {
+            $file_in_project = mb_orig_substr($file, mb_orig_strlen(self::$project_path));
         } else {
             $file_in_project = $file;
         }
@@ -999,10 +1008,10 @@ class SoftMocks
 
     private static function getCleanFilePath($file)
     {
-        if (strpos($file, SOFTMOCKS_ROOT_PATH) !== 0) {
+        if (mb_orig_strpos($file, SOFTMOCKS_ROOT_PATH) !== 0) {
             return $file;
         }
-        return substr($file, strlen(SOFTMOCKS_ROOT_PATH));
+        return mb_orig_substr($file, mb_orig_strlen(SOFTMOCKS_ROOT_PATH));
     }
 
     private static function getMd5ForSuffix($clean_filepath, $md5_file)
@@ -1049,7 +1058,7 @@ class SoftMocks
         if (self::$project_path) {
             $possible_path_prefixes[] = self::$project_path;
         }
-        $root_path = rtrim(SOFTMOCKS_ROOT_PATH, '/');
+        $root_path = rtrim(SOFTMOCKS_ROOT_PATH, DIRECTORY_SEPARATOR);
         if ($root_path) {
             $possible_path_prefixes[] = $root_path;
             if (self::$project_path) {
@@ -1161,7 +1170,7 @@ class SoftMocks
         $relative_target_dir = $target_dir;
         if (mb_orig_strpos($file, self::$mocks_cache_path) === 0) {
             $base_mocks_path = self::$mocks_cache_path;
-            $relative_target_dir = substr($target_dir, strlen($base_mocks_path));
+            $relative_target_dir = mb_orig_substr($target_dir, mb_orig_strlen($base_mocks_path));
         }
         self::createDirRecursive($base_mocks_path, $relative_target_dir);
 
@@ -1210,7 +1219,7 @@ class SoftMocks
         $current_dir = $base_dir;
         foreach (explode(DIRECTORY_SEPARATOR, $relative_target_dir) as $sub_dir) {
             $current_dir .= DIRECTORY_SEPARATOR . $sub_dir;
-            if (!@mkdir($current_dir) && !is_dir($current_dir)) {
+            if (!is_dir($current_dir) && !mkdir($current_dir, 0777) && !is_dir($current_dir)) {
                 $error = error_get_last();
                 $message = '';
                 if (is_array($error)) {
@@ -2141,8 +2150,8 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
     public function __construct($filename)
     {
         $this->filename = realpath($filename);
-        if (strpos($this->filename, SOFTMOCKS_ROOT_PATH) === 0) {
-            $this->filename = substr($this->filename, strlen(SOFTMOCKS_ROOT_PATH));
+        if (mb_orig_strpos($this->filename, SOFTMOCKS_ROOT_PATH) === 0) {
+            $this->filename = mb_orig_substr($this->filename, mb_orig_strlen(SOFTMOCKS_ROOT_PATH));
         }
     }
 
