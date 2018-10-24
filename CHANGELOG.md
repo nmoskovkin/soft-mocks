@@ -4,6 +4,8 @@
 
 There are next changes:
 
+- fix resolve relative file path
+
 ## v2.0.1
 
 There are next changes:

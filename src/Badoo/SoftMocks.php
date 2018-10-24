@@ -1118,15 +1118,17 @@ class SoftMocks
             }
             if (!$found) {
                 // try relative path
-                $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4);
-                $dir = dirname(self::replaceFilename($bt[3]['file'], true));
-                if (file_exists("{$dir}/{$file}")) {
-                    $file = "{$dir}/{$file}";
-                } else {
-                    // try cwd
-                    $dir = $cwd;
+                $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+                if (isset($bt[2]['file'])) {
+                    $dir = dirname(self::replaceFilename($bt[2]['file'], true));
                     if (file_exists("{$dir}/{$file}")) {
                         $file = "{$dir}/{$file}";
+                    } else {
+                        // try cwd
+                        $dir = $cwd;
+                        if (file_exists("{$dir}/{$file}")) {
+                            $file = "{$dir}/{$file}";
+                        }
                     }
                 }
             }

@@ -1438,7 +1438,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         $old_cwd = getcwd();
         set_include_path(__DIR__ . '/fixtures:.');
         chdir(__DIR__ . '/..');
-        $result = $this->callResolveFile($file);
+        $result = $this->getPrepareFilePathToRewriteMethod()->invoke(null, $file);
         set_include_path($old_include_path);
         chdir($old_cwd);
         static::assertSame($expected_result, $result);
@@ -1450,7 +1450,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
      */
     public function testResolveFileFileShouldNotBeEmptyException()
     {
-        $this->callResolveFile('');
+        $this->getPrepareFilePathToRewriteMethod()->invoke(null, '');
     }
 
     /**
@@ -1466,7 +1466,7 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
             // for phpunit 4.x
             $this->setExpectedException(\RuntimeException::class, $exception_message);
         }
-        $this->callResolveFile($file);
+        $this->getPrepareFilePathToRewriteMethod()->invoke(null, $file);
     }
 
     /**
@@ -1487,20 +1487,20 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         set_include_path(__DIR__ . '/fixtures:.');
         chdir(__DIR__ . '/..');
         try {
-            $this->callResolveFile($file);
+            $this->getPrepareFilePathToRewriteMethod()->invoke(null, $file);
         } finally {
             set_include_path($old_include_path);
             chdir($old_cwd);
         }
     }
 
-    protected function callResolveFile($file)
+    protected function getPrepareFilePathToRewriteMethod()
     {
         $ReflectionClass = new \ReflectionClass(\Badoo\SoftMocks::class);
+        /** @uses \Badoo\SoftMocks::prepareFilePathToRewrite */
         $ResolveFileMethod = $ReflectionClass->getMethod('prepareFilePathToRewrite');
         $ResolveFileMethod->setAccessible(true);
-        /** @uses \Badoo\SoftMocks::resolveFile */
-        return $ResolveFileMethod->invoke(null, $file);
+        return $ResolveFileMethod;
     }
 
     /**
