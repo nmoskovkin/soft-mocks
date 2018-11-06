@@ -265,3 +265,34 @@ class ConstantRedeclareForthTestClass extends ConstantRedeclareThirdTestClass
         return static::VALUE;
     }
 }
+
+trait TraitA
+{
+    use TraitB;
+}
+
+trait TraitB
+{
+    public function do_things()
+    {
+        return;
+    }
+}
+
+class ClassWithTraitA
+{
+    use TraitA;
+}
+
+class ClassWithTraitB
+{
+    use TraitB;
+}
+
+class ClassWithoutTraits
+{
+    public function do_things()
+    {
+        return;
+    }
+}

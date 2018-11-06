@@ -2768,4 +2768,25 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
             \Badoo\SoftMocks::getOriginalFilePath($rewritten_path)
         );
     }
+
+    public function testGetDeclaringTrait()
+    {
+        $soft_mocks = new \ReflectionClass(\Badoo\SoftMocks::class);
+        /** @uses \Badoo\SoftMocks::getDeclaringTrait */
+        $getDeclaringTrait = $soft_mocks->getMethod('getDeclaringTrait');
+        $getDeclaringTrait->setAccessible(true);
+
+        // No traits.
+        $this->assertNull($getDeclaringTrait->invoke(null, ClassWithoutTraits::class, 'do_things'));
+
+        // Direct trait usage.
+        /** @var \ReflectionClass $result */
+        $result = $getDeclaringTrait->invoke(null, ClassWithTraitB::class, 'do_things');
+        $this->assertSame(TraitB::class, $result->getName());
+
+        // Trait in trait usage.
+        /** @var \ReflectionClass $result */
+        $result = $getDeclaringTrait->invoke(null, ClassWithTraitA::class, 'do_things');
+        $this->assertSame(TraitB::class, $result->getName());
+    }
 }
