@@ -1858,11 +1858,11 @@ class SoftMocks
     private static function recursiveGetTraits(\ReflectionClass $Rc)
     {
         foreach ($Rc->getTraits() as $Trait) {
-            yield $Trait;
-
             foreach (self::recursiveGetTraits($Trait) as $T) {
                 yield $T;
             }
+
+            yield $Trait;
         }
     }
 

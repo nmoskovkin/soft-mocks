@@ -4,6 +4,12 @@
 
 There are next changes:
 
+## v2.0.3
+
+There are next changes:
+
+- fix `recursiveGetTraits` method which didn't work for case when one trait uses another trait
+
 ## v2.0.2
 
 There are next changes:
