@@ -917,14 +917,14 @@ class SoftMocks
             $parts[] = phpversion();
 
             if (isset($_SERVER['_'])) {
-                $parts[] = md5_file($_SERVER['_']);
+                $parts[] = mb_orig_substr(md5_file($_SERVER['_']), 0, 7);
             }
 
-            $parts[] = md5(new \ReflectionExtension("tokenizer"));
+            $parts[] = mb_orig_substr(md5(new \ReflectionExtension("tokenizer")), 0, 7);
 
             $parts[] = self::PARSER_VERSION;
 
-            $parts[] = md5_file(__FILE__);
+            $parts[] = mb_orig_substr(md5_file(__FILE__), 0, 7);
 
             self::$mocks_dir_version = implode('-', $parts);
         }
