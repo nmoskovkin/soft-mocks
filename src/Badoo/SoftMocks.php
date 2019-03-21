@@ -920,6 +920,8 @@ class SoftMocks
                 $parts[] = md5_file($_SERVER['_']);
             }
 
+            $parts[] = md5(new \ReflectionExtension("tokenizer"));
+
             $parts[] = self::PARSER_VERSION;
 
             $parts[] = md5_file(__FILE__);
