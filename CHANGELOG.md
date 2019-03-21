@@ -4,6 +4,13 @@
 
 There are next changes:
 
+## v2.0.4
+
+There are next changes:
+
+- make more unique rewritten files paths depends on php internals
+
+
 ## v2.0.3
 
 There are next changes:
