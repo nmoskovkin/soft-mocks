@@ -440,7 +440,7 @@ class SoftMocks
     private static $rewrite_cache = [/* source => target */];
     private static $orig_paths = [/* target => source */];
 
-    private static $version;
+    private static $mocks_dir_version;
 
     private static $error_descriptions = [
         E_ERROR => "Error",
@@ -906,12 +906,27 @@ class SoftMocks
         return $file;
     }
 
-    private static function getVersion()
+    private static function getMocksDirVersion()
     {
-        if (!isset(self::$version)) {
-            self::$version = phpversion() . self::PARSER_VERSION . md5_file(__FILE__);
+        if (!isset(self::$mocks_dir_version)) {
+            // Previously:
+            // phpversion() . self::PARSER_VERSION . md5_file(__FILE__);
+
+            $parts = [];
+
+            $parts[] = phpversion();
+
+            if (isset($_SERVER['_'])) {
+                $parts[] = md5_file($_SERVER['_']);
+            }
+
+            $parts[] = self::PARSER_VERSION;
+
+            $parts[] = md5_file(__FILE__);
+
+            self::$mocks_dir_version = implode('-', $parts);
         }
-        return self::$version;
+        return self::$mocks_dir_version;
     }
 
     /**
@@ -971,7 +986,7 @@ class SoftMocks
     private static function shouldRewriteFile($file)
     {
         if (mb_orig_strpos($file, self::$mocks_cache_path) === 0
-            || mb_orig_strpos($file, self::getVersion() . DIRECTORY_SEPARATOR) === 0) {
+            || mb_orig_strpos($file, self::getMocksDirVersion() . DIRECTORY_SEPARATOR) === 0) {
             return false;
         }
 
@@ -1021,7 +1036,7 @@ class SoftMocks
 
     private static function getRewrittentFilePathPrefix()
     {
-        return self::$mocks_cache_path . self::getVersion();
+        return self::$mocks_cache_path . self::getMocksDirVersion();
     }
 
     /**
