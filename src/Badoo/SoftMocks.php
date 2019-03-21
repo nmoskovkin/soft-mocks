@@ -916,8 +916,8 @@ class SoftMocks
 
             $parts[] = phpversion();
 
-            if (isset($_SERVER['_'])) {
-                $parts[] = mb_orig_substr(md5_file($_SERVER['_']), 0, 7);
+            if (defined(PHP_BINARY)) {
+                $parts[] = mb_orig_substr(md5_file(PHP_BINARY), 0, 7);
             }
 
             $parts[] = mb_orig_substr(md5(new \ReflectionExtension("tokenizer")), 0, 7);
