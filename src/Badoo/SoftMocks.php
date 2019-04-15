@@ -1276,6 +1276,10 @@ class SoftMocks
         }
 
         if (is_array($callable) && sizeof($callable) === 2) {
+            if (!isset($callable[0]) || !isset($callable[1])) {
+                return is_callable($callable);
+            }
+
             if (is_object($callable[0])) {
                 $class = get_class($callable[0]);
             } else {

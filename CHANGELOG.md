@@ -4,6 +4,8 @@
 
 There are next changes:
 
+- fix `is_callable` method which fails on malformed arrays
+
 ## v2.0.3
 
 There are next changes:

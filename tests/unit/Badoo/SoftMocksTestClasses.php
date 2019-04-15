@@ -273,10 +273,7 @@ trait TraitA
 
 trait TraitB
 {
-    public function do_things()
-    {
-        return;
-    }
+    public function doThings() {}
 }
 
 class ClassWithTraitA
@@ -291,8 +288,18 @@ class ClassWithTraitB
 
 class ClassWithoutTraits
 {
-    public function do_things()
+    public function doThings() {}
+}
+
+class ClassWithIsCallable
+{
+    public static function doThings() {}
+
+    public static function check($callable)
     {
-        return;
+        if (is_callable($callable)) {
+            return true;
+        }
+        return false;
     }
 }

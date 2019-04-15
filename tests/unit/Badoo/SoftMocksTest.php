@@ -2777,16 +2777,35 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
         $getDeclaringTrait->setAccessible(true);
 
         // No traits.
-        $this->assertNull($getDeclaringTrait->invoke(null, ClassWithoutTraits::class, 'do_things'));
+        $this->assertNull($getDeclaringTrait->invoke(null, ClassWithoutTraits::class, 'doThings'));
 
         // Direct trait usage.
         /** @var \ReflectionClass $result */
-        $result = $getDeclaringTrait->invoke(null, ClassWithTraitB::class, 'do_things');
+        $result = $getDeclaringTrait->invoke(null, ClassWithTraitB::class, 'doThings');
         $this->assertSame(TraitB::class, $result->getName());
 
         // Trait in trait usage.
         /** @var \ReflectionClass $result */
-        $result = $getDeclaringTrait->invoke(null, ClassWithTraitA::class, 'do_things');
+        $result = $getDeclaringTrait->invoke(null, ClassWithTraitA::class, 'doThings');
         $this->assertSame(TraitB::class, $result->getName());
+    }
+
+    public function providerClassWithIsCallable()
+    {
+        return [
+            'numeric keys' => [[ClassWithIsCallable::class, 'doThings'], true],
+            'assoc keys' => [['x' => ClassWithIsCallable::class, 'y' => 'doThings'], false],
+        ];
+    }
+
+    /**
+     * @dataProvider providerClassWithIsCallable
+     *
+     * @param callable $callable
+     * @param bool $expected_result
+     */
+    public function testClassWithIsCallable($callable, $expected_result)
+    {
+        $this->assertSame($expected_result, ClassWithIsCallable::check($callable));
     }
 }
