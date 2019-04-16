@@ -4,12 +4,13 @@
 
 There are next changes:
 
+- fix `is_callable` method which fails on malformed arrays
+
 ## v2.0.4
 
 There are next changes:
 
 - make more unique rewritten files paths depends on php internals
-
 
 ## v2.0.3
 
