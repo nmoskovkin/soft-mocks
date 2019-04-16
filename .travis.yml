@@ -8,11 +8,13 @@ php:
   - 7.0
   - 7.1
   - 7.2
+  - 7.3
 
 env:
   - PHPUNIT_VERSION=~4.8.0
   - PHPUNIT_VERSION=~5.7.0
   - PHPUNIT_VERSION=~6.5.0
+  - PHPUNIT_VERSION=~7.5.0
 
 before_script:
   - composer require --dev --no-update "phpunit/phpunit":"${PHPUNIT_VERSION}"
@@ -37,9 +39,13 @@ matrix:
       env: PHPUNIT_VERSION=~5.7.0
     - php: 5.5
       env: PHPUNIT_VERSION=~6.5.0
+    - php: 5.5
+      env: PHPUNIT_VERSION=~7.5.0
     - php: 5.6
       env: PHPUNIT_VERSION=~6.5.0
     - php: 7.1
       env: PHPUNIT_VERSION=~4.8.0
     - php: 7.2
+      env: PHPUNIT_VERSION=~4.8.0
+    - php: 7.3
       env: PHPUNIT_VERSION=~4.8.0
