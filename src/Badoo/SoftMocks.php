@@ -648,6 +648,12 @@ class SoftMocks
             },
         ];
 
+        // Prevent 'PHP Warning:  Cannot call get_defined_vars() dynamically in ...'
+        // https://www.php.net/manual/en/migration71.incompatible.php
+        self::$func_mocks['get_defined_vars'] = [
+            'args' => '', 'code' => 'return get_defined_vars();',
+        ];
+
         self::$internal_func_mocks = [];
         foreach (self::$func_mocks as $func => $mock) {
             self::$internal_func_mocks[$func] = $mock;

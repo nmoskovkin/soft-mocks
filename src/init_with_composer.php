@@ -35,7 +35,6 @@ unset($php_parser_dir, $files, $file);
 require_once(dirname(__DIR__) . "/src/Badoo/SoftMocks.php");
 SoftMocks::setIgnoreSubPaths(
     array(
-        '/vendor/phpunit/' => '/vendor/phpunit/',
         '/vendor/sebastian/diff/' => '/vendor/sebastian/diff/',
         '/vendor/nikic/php-parser/' => '/vendor/nikic/php-parser/',
         '/vendor/symfony/polyfill' => '/vendor/symfony/polyfill',
