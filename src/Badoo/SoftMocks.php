@@ -523,10 +523,10 @@ class SoftMocks
         }
 
         self::$func_mocks['call_user_func_array'] = [
-            'args' => '', 'code' => 'return \\' . self::class . '::call($params[0], $params[1]);',
+            'args' => '', 'code' => 'return \\' . self::class . '::call("", $params[0], $params[1]);',
         ];
         self::$func_mocks['call_user_func'] = [
-            'args' => '', 'code' => '$func = array_shift($params); return \\' . self::class . '::call($func, $params);',
+            'args' => '', 'code' => '$func = array_shift($params); return \\' . self::class . '::call("", $func, $params);',
         ];
         self::$func_mocks['is_callable'] = [
             'args' => '$arg', 'code' => 'return \\' . self::class . '::isCallable($arg);',
@@ -1168,7 +1168,7 @@ class SoftMocks
         if (self::$debug) {
             echo "Rewriting $file => $target_file\n";
             echo new \Exception();
-            ob_flush();
+            while (ob_get_level()) ob_end_flush();
         }
 
         $contents = file_get_contents($file);
@@ -1256,10 +1256,10 @@ class SoftMocks
      * @param $args
      * @return mixed
      */
-    public static function call($callable, $args)
+    public static function call($ns, $callable, $args)
     {
         if (is_scalar($callable) && mb_orig_strpos($callable, '::') === false) {
-            return self::callFunction('', $callable, $args);
+            return self::callFunction($ns, $callable, $args);
         }
 
         if (is_scalar($callable)) {
@@ -2617,7 +2617,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
         $NewNode = new \PhpParser\Node\Expr\StaticCall(
             new \PhpParser\Node\Name("\\" . SoftMocks::class),
-            "callFunction",
+            $Node->name instanceof \PhpParser\Node\Name ? 'callFunction' : 'call',
             [
                 self::getNamespaceArg(),
                 $name,
