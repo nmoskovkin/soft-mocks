@@ -303,3 +303,23 @@ class ClassWithIsCallable
         return false;
     }
 }
+
+class ClassWithCallViaVariable
+{
+    public static function a()
+    {
+        return 1;
+    }
+
+    public static function callA()
+    {
+        return self::a();
+    }
+
+    public static function callAViaVariable()
+    {
+        $a = [self::class, 'a'];
+
+        return $a();
+    }
+}

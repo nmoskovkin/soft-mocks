@@ -2808,4 +2808,17 @@ class SoftMocksTest extends \PHPUnit\Framework\TestCase
     {
         $this->assertSame($expected_result, ClassWithIsCallable::check($callable));
     }
+
+    public function testClassWithCallViaVariable()
+    {
+        \Badoo\SoftMocks::redefineMethod(
+            ClassWithCallViaVariable::class,
+            'a',
+            '',
+            'return 2;'
+        );
+
+        self::assertSame(2, ClassWithCallViaVariable::callA());
+        self::assertSame(2, ClassWithCallViaVariable::callAViaVariable());
+    }
 }
