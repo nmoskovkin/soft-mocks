@@ -13,7 +13,7 @@ The idea behind "Soft Mocks" - as opposed to "hardcore" mocks that work on the l
 You can install SoftMocks via [Composer](https://getcomposer.org/):
 
 ```bash
-php composer.phar require --dev badoo/soft-mocks
+composer require --dev badoo/soft-mocks
 ```
 
 ## Usage
@@ -218,7 +218,7 @@ If you want that patches are applied automatically, you should write next in в 
 
 To force reapply patches use next command:
 ```bash
-php composer.phar patch --redo
+composer patch --redo
 ```
 
 For more information about patching see [vaimo/composer-patches documentation](https://github.com/vaimo/composer-patches/blob/3.22.4/README.md).
@@ -267,6 +267,20 @@ In general xdebug-proxy works as the following:
 2. When you run php-script with command-line options provided above xdebug connects to `127.0.0.1:9002`. This ip and port is where xdebug-proxy is listening on for the connection from xdebug. Xdebug-proxy matches IDEKEY with the registered IDE. If any registered IDE is matched then xdebug-proxy will connect to that particular IDE using provided IDE client IP:PORT at the registration step.
 
 For more information read [xdebug documentation](https://xdebug.org/docs/remote) and [xdebug-proxy documentation](https://github.com/mougrim/php-xdebug-proxy).
+
+## SoftMocks development
+
+If you need to make changes to SoftMocks, you need to clone repository and install dependencies:
+
+```
+composer install
+```
+
+Then you can change SoftMocks and run tests to be sure that all works:
+
+```
+./vendor/bin/phpunit 
+```
 
 ## FAQ
 
