@@ -6,6 +6,10 @@ There are next changes:
 
 - ???
 
+## v2.0.6
+
+- fix for 2-element-array callable
+
 ## v2.0.5
 
 - fix `is_callable` method which fails on malformed arrays
