@@ -4,7 +4,7 @@
 
 There are next changes:
 
-- ???
+- add support phpunit 7.x and 8.x
 
 ## v2.0.6
 
