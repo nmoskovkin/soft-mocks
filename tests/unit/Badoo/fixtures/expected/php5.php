@@ -1,4 +1,5 @@
 <?php
+namespace Some\Name\Space;
 
 
 /**
@@ -109,7 +110,26 @@ function replaceSomething($string){
     return \Badoo\SoftMocks::callFunction(__NAMESPACE__, 'str_replace', ['something', 'somebody', $string]);}
 
 
-class SomeClass{
+$function = static function () {
+    return 1;};
+
+
+trait SomeTrait{
+    
+    public function getSomeValue(){if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeTrait::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = [];$variadic_params_idx = '';return eval($__softmocksvariableforcode);/** @codeCoverageIgnore */}
+        
+        return 1;}}
+
+
+
+interface SomeInterface{
+    
+    public function getSomeValue();}
+
+
+class SomeClass implements SomeInterface{
+    
+    use SomeTrait;
     
     const VALUE = 1;
     
@@ -128,3 +148,7 @@ class SomeClass{
     protected static function methodSelf($string){if (false !== ($__softmocksvariableforcode = \Badoo\SoftMocks::isMocked(SomeClass::class, static::class, __FUNCTION__))) {$mm_func_args = func_get_args();$params = [$string];$variadic_params_idx = '';return eval($__softmocksvariableforcode);/** @codeCoverageIgnore */}
         
         return \Badoo\SoftMocks::callFunction(__NAMESPACE__, 'replaceSomething', [&$string]);}}
+
+
+
+$some = new SomeClass();
