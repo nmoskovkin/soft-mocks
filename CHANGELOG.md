@@ -4,6 +4,10 @@
 
 There are next changes:
 
+## v3.0.1
+
+There are next changes:
+
 - fix code generating for rewritten files for right stacktrace
 - use \PhpParser\Lexer instead of \PhpParser\Lexer\Emulative and \PhpParser\Parser\Php7 instead of \PhpParser\Parser\Multiple (with both 7 and 5 versions), they are quite quicker
 
