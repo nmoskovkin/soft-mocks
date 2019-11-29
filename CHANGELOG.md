@@ -4,6 +4,8 @@
 
 There are next changes:
 
+- fix code generating for rewritten files for right stacktrace
+
 ## v3.0.0
 
 There are next changes:

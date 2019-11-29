@@ -208,6 +208,7 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
 
     protected function pExpr_Closure(\PhpParser\Node\Expr\Closure $node)
     {
+        $this->cur_ln = $node->getLine();
         return ($node->static ? 'static ' : '')
             . 'function ' . ($node->byRef ? '&' : '')
             . '(' . $this->pCommaSeparated($node->params) . ')'
@@ -218,6 +219,7 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
 
     protected function pStmt_Namespace(\PhpParser\Node\Stmt\Namespace_ $node)
     {
+        $this->cur_ln = $node->getLine();
         if ($this->canUseSemicolonNamespaces) {
             return 'namespace ' . $this->p($node->name) . ';' . $this->pStmts($node->stmts, false);
         } else {
@@ -228,6 +230,7 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
 
     protected function pStmt_Interface(\PhpParser\Node\Stmt\Interface_ $node)
     {
+        $this->cur_ln = $node->getLine();
         return 'interface ' . $node->name
             . (!empty($node->extends) ? ' extends ' . $this->pCommaSeparated($node->extends) : '')
             . '{' . $this->pStmts($node->stmts) . '}';
@@ -241,6 +244,7 @@ class SoftMocksPrinter extends \PhpParser\PrettyPrinter\Standard
 
     protected function pStmt_Trait(\PhpParser\Node\Stmt\Trait_ $node)
     {
+        $this->cur_ln = $node->getLine();
         return 'trait ' . $node->name
             . '{' . $this->pStmts($node->stmts) . '}';
     }

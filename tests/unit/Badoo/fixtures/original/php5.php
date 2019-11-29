@@ -1,4 +1,5 @@
 <?php
+namespace Some\Name\Space;
 /**
  * This file contains php5 code
  * And comments
@@ -109,8 +110,27 @@ function replaceSomething($string)
     return str_replace('something', 'somebody', $string);
 }
 
-class SomeClass
+$function = static function () {
+    return 1;
+};
+
+trait SomeTrait
 {
+    public function getSomeValue()
+    {
+        return 1;
+    }
+}
+
+interface SomeInterface
+{
+    public function getSomeValue();
+}
+
+class SomeClass implements SomeInterface
+{
+    use SomeTrait;
+    
     const VALUE = 1;
 
     public $a = 1;
@@ -130,3 +150,5 @@ class SomeClass
         return replaceSomething($string);
     }
 }
+
+$some = new SomeClass();
