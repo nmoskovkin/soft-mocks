@@ -447,10 +447,26 @@ class SoftMocks
     private static $base_paths = [];
     private static $prepare_for_rewrite_callback;
     private static $lock_file_path = '/tmp/mocks/soft_mocks_rewrite.lock';
+    private static $callbackFixData = [];
 
     protected static function getEnvironment($key)
     {
         return \getenv($key);
+    }
+
+    public static function setCallbackFixData($data)
+    {
+        self::$callbackFixData = $data;
+    }
+
+    public static function setIgnoreMode(bool $included)
+    {
+        SoftMocksTraverser::setIgnoreMode($included ? SoftMocksTraverser::IGNORE_INCLUDED : SoftMocksTraverser::IGNORE_EXCLUDED);
+    }
+
+    public static function replaceIgnoreFunctions($functions)
+    {
+        SoftMocksTraverser::replaceIgnoreFunctions($functions);
     }
 
     /**
@@ -817,14 +833,6 @@ class SoftMocks
     public static function ignoreFunction($function)
     {
         SoftMocksTraverser::ignoreFunction(ltrim($function, '\\'));
-    }
-
-    /**
-     * @param string $function - Allow to mock $function
-     */
-    public static function allowFunction($function)
-    {
-        SoftMocksTraverser::allowFunction($function);
     }
 
     public static function errorHandler($errno, $errstr, $errfile, $errline)
@@ -1319,7 +1327,19 @@ class SoftMocks
                 return true;
             }
 
-            return is_callable($callable);
+            $result = is_callable($callable);
+            // Private and protected methods call
+            if ($result === false) {
+                try {
+                    // Private and protected methods are callable only from within the class
+                    new \ReflectionMethod($class, $callable[1]);
+                    $result = true;
+                } catch (\ReflectionException $reflectionException) {
+                    $result = false;
+                }
+            }
+
+            return $result;
         }
 
         if (is_scalar($callable) && isset(self::$func_mocks[$callable])) {
@@ -1427,6 +1447,14 @@ class SoftMocks
 
     public static function callFunction($namespace, $func, $params)
     {
+        if (is_scalar($func) && array_key_exists($func, self::$callbackFixData)) {
+            foreach (self::$callbackFixData[$func]['callbacks_arg'] as $index) {
+                if (array_key_exists($index, $params)) {
+                    $params[$index] = self::checkCallableIsAccessibleOrUseReflection($params[$index]);
+                }
+            }
+        }
+
         if ($namespace !== '' && is_scalar($func)) {
             $ns_func = $namespace . '\\' . $func;
             if (isset(self::$func_mocks[$ns_func])) {
@@ -1460,6 +1488,48 @@ class SoftMocks
             }
         }
         return call_user_func_array($func, $params);
+    }
+
+    public static function checkCallableIsAccessibleOrUseReflection($callback)
+    {
+        $class = $methodName = '';
+        $object = null;
+        if (is_string($callback) && \strpos($callback, '::') !== false) {
+            // static method
+            [$class, $methodName]= explode('::', $callback);
+        }
+        if (\is_array($callback) && \count($callback) === 2) {
+            // array callable
+            $object = $callback[0];
+            $methodName = $callback[1];
+        }
+        $reflectionMethod = null;
+        if (($class !=='' || $object!==null) && (\class_exists($class) || \is_object($object)) && $methodName !== '') {
+            $reflectionObject = $class ? new \ReflectionClass($class) : new \ReflectionObject($object);
+            $methods = $reflectionObject->getMethods();
+            $reflectionMethod = null;
+            foreach ($methods as $method) {
+                if (($method->isPrivate() || $method->isProtected()) && $method->getName() === $methodName) {
+                    $reflectionMethod = $method;
+                    break;
+                }
+            }
+            if ($reflectionMethod !== null) {
+                $reflectionMethod->setAccessible(true);
+            }
+        }
+
+        if (!$reflectionMethod) {
+            return $callback;
+        } else {
+            return function (...$args) use($object, $reflectionMethod) {
+                if ($reflectionMethod->isStatic()) {
+                    $reflectionMethod->invoke(null, ...$args);
+                } else {
+                    $reflectionMethod->invoke($object, ...$args);
+                }
+            };
+        }
     }
 
     public static function callNew($class, $args)
@@ -1641,7 +1711,11 @@ class SoftMocks
         if (!self::$rewrite_internal && isset(self::$internal_func_mocks[$func])) {
             throw new \RuntimeException("Function $func is mocked internally, cannot mock");
         }
-        if (SoftMocksTraverser::isFunctionIgnored($func)) {
+        if ((SoftMocksTraverser::getIgnoreMode() === SoftMocksTraverser::IGNORE_INCLUDED &&
+            SoftMocksTraverser::isFunctionIgnored($func)) ||
+            (SoftMocksTraverser::getIgnoreMode() === SoftMocksTraverser::IGNORE_EXCLUDED &&
+                !SoftMocksTraverser::isFunctionIgnored($func))
+        ) {
             throw new \RuntimeException("Function $func cannot be mocked using Soft Mocks");
         }
         self::$func_mocks[$func] = ['args' => $functionArgs, 'code' => $fakeCode];
@@ -2119,6 +2193,9 @@ class SoftMocks
 
 class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 {
+    const IGNORE_INCLUDED = 1;
+    const IGNORE_EXCLUDED = 2;
+
     private static $ignore_functions = [
         "get_called_class" => true,
         "get_parent_class" => true,
@@ -2139,8 +2216,6 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         "get_object_vars" => true,
     ];
 
-    private static $allowed_functions = null;
-
     private static $ignore_classes = [
         \ReflectionClass::class => true,
         \ReflectionMethod::class => true,
@@ -2151,6 +2226,13 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         'true'  => true,
         'null'  => true,
     ];
+
+    private static $ignoreMode = self::IGNORE_INCLUDED;
+
+    public static function replaceIgnoreFunctions($array)
+    {
+        self::$ignore_functions=array_combine($array,array_fill(0, count($array), true));
+    }
 
     public static function isFunctionIgnored($func)
     {
@@ -2182,14 +2264,6 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         self::$ignore_functions[$function] = true;
     }
 
-    public static function allowFunction($function)
-    {
-        if (self::$allowed_functions === null) {
-            self::$allowed_functions = [];
-        }
-        self::$allowed_functions[$function] = true;
-    }
-
     private $filename;
 
     private $disable_const_rewrite_level = 0;
@@ -2205,6 +2279,20 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         if (mb_orig_strpos($this->filename, SOFTMOCKS_ROOT_PATH) === 0) {
             $this->filename = mb_orig_substr($this->filename, mb_orig_strlen(SOFTMOCKS_ROOT_PATH));
         }
+    }
+
+    public static function setIgnoreMode($mode)
+    {
+        if (!in_array($mode, [self::IGNORE_INCLUDED, self::IGNORE_EXCLUDED])) {
+            throw new \InvalidArgumentException('Wrong mode');
+        }
+
+        self::$ignoreMode = $mode;
+    }
+
+    public static function getIgnoreMode()
+    {
+        return self::$ignoreMode;
     }
 
     private static function getNamespaceArg()
@@ -2318,6 +2406,7 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
     public function rewriteExpr_New(\PhpParser\Node\Expr\New_ $newNode)
     {
+        // TODO find the way to compare more safety
         if ($newNode->class == 'ReflectionClass') {
             return new \PhpParser\Node\Expr\New_(
                 new \PhpParser\Node\Name\FullyQualified('Badoo\ReflectionClass'),
@@ -2672,10 +2761,9 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
         if ($Node->name instanceof \PhpParser\Node\Name) {
             $str = $Node->name->toString();
-            if (isset(self::$ignore_functions[$str])) {
-                return null;
-            }
-            if (is_array(self::$allowed_functions) && !isset(self::$allowed_functions[$str])) {
+            if ((self::$ignoreMode === self::IGNORE_INCLUDED && isset(self::$ignore_functions[$str]))
+                || (self::$ignoreMode === self::IGNORE_EXCLUDED && !isset(self::$ignore_functions[$str]))
+            ) {
                 return null;
             }
 

@@ -1,0 +1,38 @@
+<?php
+
+return [
+    'callback_fix' => [
+        'call_user_func_array' => [
+            'callbacks_arg' => [0],
+        ],
+        'call_user_func' => [
+            'callbacks_arg' => [0],
+        ],
+    ],
+    'ignore_sub_paths' => [
+        '/vendor/phpunit/',
+        '/vendor/sebastian/diff/',
+        '/vendor/nikic/php-parser/',
+        '/vendor/symfony/polyfill',
+        '/vendor/guzzlehttp/',
+    ],
+    'list_of_functions' => [
+        'allow' => [
+            'uniqid',
+            'call_user_func_array',
+            'call_user_func',
+            'is_callable',
+            'function_exists',
+            'constant',
+            'defined',
+            'debug_backtrace',
+            'random_int',
+            'time',
+            'microtime',
+            'rand',
+            'mt_rand',
+        ],
+    ],
+    'mock_cache_path' => __DIR__ . '/var/cache/soft-mocks',
+    'rewrite_internal' => true,
+];

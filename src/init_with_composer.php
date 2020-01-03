@@ -46,15 +46,71 @@ unset($php_parser_dir, $files, $file);
 
 /* Soft Mocks init */
 require_once(dirname(__DIR__) . "/src/Badoo/SoftMocks.php");
+
+
+function applyConfig($config) {
+    if (array_key_exists('mock_cache_path', $config)) {
+        SoftMocks::setMocksCachePath($config['mock_cache_path']);
+        SoftMocks::setLockFilePath($config['mock_cache_path'] . '/soft_mocks_rewrite.lock');
+    }
+    if (array_key_exists('rewrite_internal', $config)) {
+        SoftMocks::setRewriteInternal($config['rewrite_internal']);
+    }
+    if (array_key_exists('ignore_sub_paths', $config)) {
+        $ignoreSubPaths = [];
+        foreach ($config['ignore_sub_paths'] as $path) {
+            $ignoreSubPaths[$path] = $path;
+        }
+        SoftMocks::setIgnoreSubPaths($ignoreSubPaths);
+    }
+    if (array_key_exists('callback_fix', $config)) {
+        SoftMocks::setCallbackFixData($config['callback_fix']);
+    }
+    if (array_key_exists('list_of_functions', $config)) {
+
+        if (count($config['list_of_functions']) > 1) {
+            throw new \InvalidArgumentException('Only one element can be here');
+        }
+        $firstKey = array_keys($config['list_of_functions'])[0];
+        if (!in_array($firstKey, ['allow', 'deny'])) {
+            throw new \InvalidArgumentException('Can be either allow or deny');
+        }
+        SoftMocks::setIgnoreMode($firstKey === 'deny');
+        SoftMocks::replaceIgnoreFunctions($config['list_of_functions'][$firstKey]);
+
+        $required = [
+            'call_user_func_array',
+            'call_user_func',
+            'is_callable',
+            'function_exists',
+            'constant',
+            'defined',
+            'debug_backtrace',
+        ];
+        if ($firstKey === 'allowed' && count(array_diff($required, $config['list_of_functions'][$firstKey])) > 0) {
+            throw new \InvalidArgumentException('All required function must be allowed');
+        }
+        if ($firstKey === 'deny' && count(array_diff($required, $config['list_of_functions'][$firstKey])) != 0) {
+            throw new \InvalidArgumentException('No required function must be deny');
+        }
+    }
+}
+
+if ($configFile = \getenv('SOFTMOCKS_CONFIG')) {
+    $config = require $configFile;
+    \Badoo\applyConfig($config);
+} else {
+    SoftMocks::setIgnoreSubPaths(
+        array(
+            '/vendor/phpunit/' => '/vendor/phpunit/',
+            '/vendor/sebastian/diff/' => '/vendor/sebastian/diff/',
+            '/vendor/nikic/php-parser/' => '/vendor/nikic/php-parser/',
+            '/vendor/symfony/polyfill' => '/vendor/symfony/polyfill',
+            '/vendor/guzzlehttp/' => '/vendor/guzzlehttp/',
+        )
+    );
+}
+
 SoftMocks::setVendorPath(dirname($composer_install));
-SoftMocks::setIgnoreSubPaths(
-    array(
-        '/vendor/phpunit/' => '/vendor/phpunit/',
-        '/vendor/sebastian/diff/' => '/vendor/sebastian/diff/',
-        '/vendor/nikic/php-parser/' => '/vendor/nikic/php-parser/',
-        '/vendor/symfony/polyfill' => '/vendor/symfony/polyfill',
-        '/vendor/guzzlehttp/' => '/vendor/guzzlehttp/',
-    )
-);
 SoftMocks::init();
 return SoftMocks::rewrite($composer_install);
