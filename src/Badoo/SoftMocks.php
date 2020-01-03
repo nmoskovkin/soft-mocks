@@ -819,6 +819,14 @@ class SoftMocks
         SoftMocksTraverser::ignoreFunction(ltrim($function, '\\'));
     }
 
+    /**
+     * @param string $function - Allow to mock $function
+     */
+    public static function allowFunction($function)
+    {
+        SoftMocksTraverser::allowFunction($function);
+    }
+
     public static function errorHandler($errno, $errstr, $errfile, $errline)
     {
         if (!(error_reporting() & $errno)) {
@@ -2131,6 +2139,8 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         "get_object_vars" => true,
     ];
 
+    private static $allowed_functions = null;
+
     private static $ignore_classes = [
         \ReflectionClass::class => true,
         \ReflectionMethod::class => true,
@@ -2170,6 +2180,14 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
     public static function ignoreFunction($function)
     {
         self::$ignore_functions[$function] = true;
+    }
+
+    public static function allowFunction($function)
+    {
+        if (self::$allowed_functions === null) {
+            self::$allowed_functions = [];
+        }
+        self::$allowed_functions[$function] = true;
     }
 
     private $filename;
@@ -2296,6 +2314,31 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('SOFTMOCKS_ROOT_PATH')),
             $String
         );
+    }
+
+    public function rewriteExpr_New(\PhpParser\Node\Expr\New_ $newNode)
+    {
+        if ($newNode->class == 'ReflectionClass') {
+            return new \PhpParser\Node\Expr\New_(
+                new \PhpParser\Node\Name\FullyQualified('Badoo\ReflectionClass'),
+                [
+                    new \PhpParser\Node\Arg(self::nodeArgsToArray($newNode->args, [false])),
+                ],
+                $newNode->args
+            );
+        }
+
+        if ($newNode->class == 'ReflectionObject') {
+            return new \PhpParser\Node\Expr\New_(
+                new \PhpParser\Node\Name\FullyQualified('Badoo\ReflectionObject'),
+                [
+                    new \PhpParser\Node\Arg(self::nodeArgsToArray($newNode->args, [false])),
+                ],
+                $newNode->args
+            );
+        }
+
+        return $newNode;
     }
 
     public function rewriteExpr_Include(\PhpParser\Node\Expr\Include_ $Node)
@@ -2632,6 +2675,9 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             if (isset(self::$ignore_functions[$str])) {
                 return null;
             }
+            if (is_array(self::$allowed_functions) && !isset(self::$allowed_functions[$str])) {
+                return null;
+            }
 
             if (isset(SoftMocks::$internal_functions[$str])) {
                 foreach ((new \ReflectionFunction($str))->getParameters() as $Param) {
@@ -2707,5 +2753,31 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
 
         $NewNode->setAttribute('startLine', $Node->getLine());
         return $NewNode;
+    }
+}
+
+class ReflectionClass extends \ReflectionClass
+{
+    public function __construct($originalArguments)
+    {
+        parent::__construct(...$originalArguments);
+    }
+
+    public function getFileName()
+    {
+        return SoftMocks::getOriginalFilePath(parent::getFileName());
+    }
+}
+
+class ReflectionObject extends \ReflectionObject
+{
+    public function __construct($originalArguments)
+    {
+        parent::__construct(...$originalArguments);
+    }
+
+    public function getFileName()
+    {
+        return SoftMocks::getOriginalFilePath(parent::getFileName());
     }
 }
