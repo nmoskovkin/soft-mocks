@@ -53,6 +53,7 @@ SoftMocks::setIgnoreSubPaths(
         '/vendor/sebastian/diff/' => '/vendor/sebastian/diff/',
         '/vendor/nikic/php-parser/' => '/vendor/nikic/php-parser/',
         '/vendor/symfony/polyfill' => '/vendor/symfony/polyfill',
+        '/vendor/guzzlehttp/' => '/vendor/guzzlehttp/',
     )
 );
 SoftMocks::init();
