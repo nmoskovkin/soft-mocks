@@ -16,7 +16,7 @@ return [
         '/vendor/symfony/polyfill',
         '/vendor/guzzlehttp/',
     ],
-    'list_of_functions' => [
+    'functions' => [
         'allow' => [
             'uniqid',
             'call_user_func_array',
@@ -32,6 +32,32 @@ return [
             'rand',
             'mt_rand',
         ],
+        'rules' => [
+            'mt_rand' => [
+                'subpaths' => [
+                    __DIR__ . <...>,
+                    __DIR__ . <...>,
+                ]
+            ],
+            'rand' => [
+                'subpaths' => [
+                    __DIR__ . <...>,
+                    __DIR__ . <...>,
+                ]
+            ],
+            'srand' => [
+                'subpaths' => [
+                    __DIR__ . <...>,
+                    __DIR__ . <...>,
+                ]
+            ],
+            'mt_srand' => [
+                'subpaths' => [
+                    __DIR__ . <...>,
+                    __DIR__ . <...>,
+                ]
+            ],
+        ]
     ],
     'mock_cache_path' => __DIR__ . '/var/cache/soft-mocks',
     'rewrite_internal' => true,

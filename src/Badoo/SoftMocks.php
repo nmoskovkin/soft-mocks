@@ -469,6 +469,11 @@ class SoftMocks
         SoftMocksTraverser::replaceIgnoreFunctions($functions);
     }
 
+    public static function setFunctionSubpaths(array $functionSubpaths)
+    {
+        SoftMocksTraverser::setFunctionSubpaths($functionSubpaths);
+    }
+
     /**
      * Init soft mocks
      * @throws \RuntimeException
@@ -643,7 +648,7 @@ class SoftMocks
     }
 
     /**
-     * Parser version is needed for create new files when parser version changed 
+     * Parser version is needed for create new files when parser version changed
      */
     protected static function initParserVersion()
     {
@@ -2227,6 +2232,8 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
         'null'  => true,
     ];
 
+    private static $functionSubpaths = [];
+
     private static $ignoreMode = self::IGNORE_INCLUDED;
 
     public static function replaceIgnoreFunctions($array)
@@ -2262,6 +2269,11 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
     public static function ignoreFunction($function)
     {
         self::$ignore_functions[$function] = true;
+    }
+
+    public static function setFunctionSubpaths(array $functionSubpaths)
+    {
+        self::$functionSubpaths = $functionSubpaths;
     }
 
     private $filename;
@@ -2776,6 +2788,24 @@ class SoftMocksTraverser extends \PhpParser\NodeVisitorAbstract
             $name = new \PhpParser\Node\Scalar\String_($str);
         } else { // Expr
             $name = $Node->name;
+        }
+
+        if (isset(self::$functionSubpaths[$name->value])) {
+            $found = false;
+            foreach (self::$functionSubpaths[$name->value] as $subpath) {
+                $filename = $this->filename;
+                if ($filename[0] !== '/') {
+                    $filename = SOFTMOCKS_ROOT_PATH . $filename;
+                }
+                if (mb_orig_strpos($filename, $subpath) !== false) {
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (!$found) {
+                return $Node;
+            }
         }
 
         $NewNode = new \PhpParser\Node\Expr\StaticCall(

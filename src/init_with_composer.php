@@ -66,17 +66,13 @@ function applyConfig($config) {
     if (array_key_exists('callback_fix', $config)) {
         SoftMocks::setCallbackFixData($config['callback_fix']);
     }
-    if (array_key_exists('list_of_functions', $config)) {
-
-        if (count($config['list_of_functions']) > 1) {
-            throw new \InvalidArgumentException('Only one element can be here');
-        }
-        $firstKey = array_keys($config['list_of_functions'])[0];
+    if (array_key_exists('functions', $config)) {
+        $firstKey = array_keys($config['functions'])[0];
         if (!in_array($firstKey, ['allow', 'deny'])) {
-            throw new \InvalidArgumentException('Can be either allow or deny');
+            throw new \InvalidArgumentException('First key must be allow or deny');
         }
         SoftMocks::setIgnoreMode($firstKey === 'deny');
-        SoftMocks::replaceIgnoreFunctions($config['list_of_functions'][$firstKey]);
+        SoftMocks::replaceIgnoreFunctions($config['functions'][$firstKey]);
 
         $required = [
             'call_user_func_array',
@@ -87,11 +83,21 @@ function applyConfig($config) {
             'defined',
             'debug_backtrace',
         ];
-        if ($firstKey === 'allowed' && count(array_diff($required, $config['list_of_functions'][$firstKey])) > 0) {
+        if ($firstKey === 'allowed' && count(array_diff($required, $config['functions'][$firstKey])) > 0) {
             throw new \InvalidArgumentException('All required function must be allowed');
         }
-        if ($firstKey === 'deny' && count(array_diff($required, $config['list_of_functions'][$firstKey])) != 0) {
+        if ($firstKey === 'deny' && count(array_diff($required, $config['functions'][$firstKey])) != 0) {
             throw new \InvalidArgumentException('No required function must be deny');
+        }
+
+        if (isset($config['functions']['rules'])) {
+            $functionSubpaths = [];
+            foreach ($config['functions']['rules'] as $functionName => $rule) {
+                if (isset($rule['subpaths'])) {
+                    $functionSubpaths[$functionName] = $rule['subpaths'];
+                }
+            }
+            SoftMocks::setFunctionSubpaths($functionSubpaths);
         }
     }
 }
